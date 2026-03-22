@@ -2,6 +2,8 @@
 
 Purpose: Expert reference for Steve Yegge's Beads issue tracker — a git-backed, dependency-aware graph tracker for AI coding agents. Covers setup, commands, workflows, and OpenCode integration.
 
+**🔗 Beads Repository**: https://github.com/steveyegge/beads
+
 ---
 
 ## What is Beads?
