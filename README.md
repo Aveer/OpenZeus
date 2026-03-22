@@ -232,7 +232,7 @@ These skills provide documentation and integration guides for external OpenCode 
 | Skill | Plugin | Repository |
 |-------|--------|------------|
 | `zeus-swarm` | opencode-swarm | [Multi-agent orchestration](https://github.com/opencode/opencode-swarm) |
-| `zeus-llm` | Local LLM setup | llama.cpp, Ollama configuration guides |
+| `zeus-llm` | Local LLM setup | [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-swap](https://github.com/ggml-org/llama-swap), [Ollama](https://github.com/ollama/ollama) |
 | `zeus-omo` | oh-my-opencode-slim | [Terminal integration](https://github.com/opencodetips/oh-my-opencode-slim) |
 | `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
 | `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
