@@ -52,6 +52,21 @@ for command_file in "$SCRIPT_DIR/commands"/zeus-*.md; do
     fi
 done
 
+# Install sync utilities (optional but recommended)
+if [ -f "$SCRIPT_DIR/sync-utils.sh" ]; then
+    echo "🔄 Installing sync utilities..."
+    cp -f "$SCRIPT_DIR/sync-utils.sh" "$OPENCODE_DIR/sync-utils.sh"
+    chmod +x "$OPENCODE_DIR/sync-utils.sh"
+    echo "   ✅ Installed sync-utils.sh"
+fi
+
+if [ -f "$SCRIPT_DIR/create-utils.sh" ]; then
+    echo "🛠️  Installing creation utilities..."
+    cp -f "$SCRIPT_DIR/create-utils.sh" "$OPENCODE_DIR/create-utils.sh" 
+    chmod +x "$OPENCODE_DIR/create-utils.sh"
+    echo "   ✅ Installed create-utils.sh"
+fi
+
 # Install documentation cache (optional)
 if [ -d "$SCRIPT_DIR/docs/docs-cache" ]; then
     echo "📚 Installing documentation cache..."
@@ -68,6 +83,12 @@ echo "  • Set as default agent: Add \"default_agent\": \"OpenZeus\" to opencod
 echo "  • Use via @mention: @OpenZeus help me configure OpenCode"
 echo "  • Access skills: Available automatically based on context"
 echo "  • Use commands: /zeus-kanban, /zeus-roadmap, /zeus-git-commit"
+echo ""
+echo "Sync Management:"
+echo "  • Check sync status: ~/.config/opencode/sync-utils.sh status"
+echo "  • Sync repo to config: ~/.config/opencode/sync-utils.sh push"
+echo "  • Sync config to repo: ~/.config/opencode/sync-utils.sh pull"
+echo "  • Auto-detect sync: ~/.config/opencode/sync-utils.sh auto"
 echo ""
 echo "📖 See README.md for full documentation"
 echo "🏛️  Welcome to the realm of OpenZeus!"

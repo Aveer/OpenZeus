@@ -1,18 +1,25 @@
 {
   "name": "openzeus",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Advanced AI agent for OpenCode - Master of configuration, documentation, and autonomous operations",
-  "main": "agents/OpenZeus.md",
+  "main": "install.sh",
   "keywords": [
     "opencode",
     "ai-agent", 
     "configuration",
     "automation",
     "skills",
-    "commands"
+    "commands",
+    "zeus",
+    "ai-assistant",
+    "code-generation"
   ],
-  "author": "OpenZeus Project",
+  "author": "OpenZeus Project <https://github.com/Aveer/OpenZeus>",
   "license": "MIT",
+  "homepage": "https://github.com/Aveer/OpenZeus#readme",
+  "bugs": {
+    "url": "https://github.com/Aveer/OpenZeus/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Aveer/OpenZeus.git"
@@ -21,17 +28,20 @@
     "agents/",
     "skills/",
     "commands/",
-    "docs/",
-    "prompts/",
     "install.sh",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "engines": {
-    "opencode": ">=1.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "install": "./install.sh",
-    "test": "opencode run '@OpenZeus validate system health'",
-    "dev": "opencode serve"
-  }
+    "postinstall": "./install.sh",
+    "test": "bash -n install.sh"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "preferGlobal": true
 }

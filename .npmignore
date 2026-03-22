@@ -1,0 +1,34 @@
+# Development files
+.git/
+.github/
+node_modules/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Test files  
+test/
+tests/
+spec/
+.nyc_output/
+coverage/
+
+# Development configs
+.eslintrc*
+.prettierrc*
+tsconfig.json
+jest.config.js
+webpack.config.js
+
+# Documentation (keep README.md, CHANGELOG.md)
+docs/
+*.png
+*.jpg
+*.gif
+OpenZeus.png
+
+# Temporary files
+tmp/
+temp/
+.tmp/
