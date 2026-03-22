@@ -2,7 +2,7 @@
   "name": "openzeus",
   "version": "1.0.4",
   "description": "Advanced AI agent for OpenCode - Master of configuration, documentation, and autonomous operations",
-  "main": "install.sh",
+  "main": "scripts/install.sh",
   "keywords": [
     "opencode",
     "ai-agent", 
@@ -29,15 +29,16 @@
     "skills/",
     "commands/",
     "docs/",
-    "install.sh",
+    "scripts/",
+    "media/",
     "README.md"
   ],
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
-    "postinstall": "./install.sh",
-    "test": "bash -n install.sh"
+    "postinstall": "./scripts/install.sh",
+    "test": "bash -n scripts/install.sh"
   },
   "os": [
     "darwin",

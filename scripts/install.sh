@@ -6,7 +6,7 @@
 set -e
 
 OPENCODE_DIR="$HOME/.config/opencode"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "🏛️  OpenZeus Installation Script"
 echo "================================"
