@@ -11,63 +11,170 @@ OpenZeus is an advanced AI agent for OpenCode that provides comprehensive system
 - **🏛️ Master Agent**: Comprehensive OpenCode knowledge and operation
 - **🛠️ 14 Zeus Skills**: Specialized skill bundles for different domains
 - **⚡ Smart Commands**: Custom commands for common workflows  
+- **🔄 Bidirectional Sync**: Automatic sync between repo and OpenCode config
 - **📚 Documentation Cache**: Offline OpenCode documentation access
 - **🔧 Self-Optimization**: Continuous performance monitoring and improvement
 - **🎯 Proactive Intelligence**: Auto-detection of user intent and skill loading
 
-## Project Structure
-
-```
-OpenZeus/
-├── agents/              # Agent definitions
-│   └── OpenZeus.md     # Main OpenZeus agent
-├── commands/           # Custom commands  
-│   ├── zeus-kanban.md
-│   ├── zeus-git-commit.md
-│   └── zeus-roadmap.md
-├── skills/             # Zeus skill bundles
-│   ├── zeus-core/      # Core OpenCode knowledge
-│   ├── zeus-agents/    # Agent creation workflows
-│   ├── zeus-commands/  # Command creation workflows
-│   ├── zeus-skills/    # Skill creation workflows
-│   ├── zeus-context/   # Context management
-│   ├── zeus-self/      # Self-diagnostics
-│   └── ... (15 total)
-├── docs/               # Documentation
-│   ├── docs-cache/     # Cached OpenCode documentation
-│   └── zeus-maintenance.md
-├── prompts/            # System prompts
-│   └── openzeus.txt
-└── README.md          # This file
-```
-
 ## Installation
 
-### Manual Installation
+### Option 1: NPM (Recommended)
 
-1. Copy the OpenZeus agent to your OpenCode agents directory:
 ```bash
-cp agents/OpenZeus.md ~/.config/opencode/agents/
+# Install globally with npm
+npm install -g openzeus
+
+# Or with bun (when available)
+bun install -g openzeus
 ```
 
-2. Copy Zeus skills to your skills directory:
-```bash
-cp -r skills/zeus-* ~/.config/opencode/skills/
-```
-
-3. Copy commands (optional):
-```bash
-cp commands/zeus-*.md ~/.config/opencode/commands/
-```
-
-### Automated Installation
+### Option 2: Manual Installation
 
 ```bash
-# Coming soon: installation script
+# Clone repository
+git clone https://github.com/Aveer/OpenZeus.git
+cd OpenZeus
+
+# Run installer
 ./install.sh
+
+# Setup git hooks (optional)
+./setup-hooks.sh
 ```
 
-## Usage
+## Quick Start
+
+### 1. Set as Default Agent
+
+Add to your `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "default_agent": "OpenZeus"
+}
+```
+
+### 2. Use via @mention
+
+```bash
+@OpenZeus help me configure OpenCode for my project
+@OpenZeus create a new skill for Docker management  
+@OpenZeus show me system health and performance
+```
+
+### 3. Access Zeus Skills
+
+Skills load automatically based on context:
+
+```bash
+@OpenZeus I need help with Docker containers
+# → Automatically loads zeus-docker skill
+
+@OpenZeus create a new agent for my project  
+# → Loads zeus-agents + zeus-core skills
+```
+
+### 4. Use Zeus Commands
+
+```bash
+/zeus-kanban          # Project kanban board
+/zeus-git-commit      # Smart git commit helper
+/zeus-roadmap         # Generate project roadmap
+```
+
+## Usage Examples
+
+### Agent Creation
+```bash
+@OpenZeus create a new agent called "DataAnalyst" that specializes in SQL queries and data visualization
+
+# → Creates agent with proper permissions and skills
+# → Available immediately in OpenCode
+```
+
+### Skill Creation  
+```bash
+@OpenZeus create a skill for AWS management with EC2, S3, and Lambda operations
+
+# → Creates zeus-aws skill bundle
+# → Adds to OpenZeus skill loading guide automatically
+```
+
+### System Health
+```bash
+@OpenZeus check your system health and performance
+
+# → Loads zeus-self skill
+# → Runs comprehensive diagnostics
+# → Reports configuration, capabilities, context health
+```
+
+### Docker Management
+```bash
+@OpenZeus help me containerize this Node.js application
+
+# → Auto-loads zeus-docker skill
+# → Creates Dockerfile, docker-compose.yml
+# → Provides deployment instructions
+```
+
+### OpenCode Configuration
+```bash
+@OpenZeus configure OpenCode for my React project with TypeScript
+
+# → Loads zeus-core skill
+# → Sets up proper model, permissions, tools
+# → Configures project-specific settings
+```
+
+## Development
+
+### Testing Package Installation
+
+```bash
+# Test installation locally
+npm pack
+npm install -g openzeus-1.0.3.tgz
+
+# Verify OpenZeus is available
+@OpenZeus self
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/my-feature`
+3. Make changes and test thoroughly
+4. Run sync: `./sync-utils.sh push`
+5. Commit: `git commit -am 'Add my feature'`
+6. Push: `git push origin feature/my-feature`
+7. Create Pull Request
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| `OpenZeus not available` | Run `npm install -g openzeus` and restart OpenCode |
+| `Skills not loading` | Restart OpenCode or check `~/.config/opencode/skills/zeus-*` |
+| `Config not found` | Install OpenCode first: https://opencode.ai/docs/ |
+| `@OpenZeus not responding` | Add `"default_agent": "OpenZeus"` to `opencode.json` |
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Links
+
+- **Repository**: https://github.com/Aveer/OpenZeus
+- **Issues**: https://github.com/Aveer/OpenZeus/issues  
+- **OpenCode Docs**: https://opencode.ai/docs/
+- **NPM Package**: https://npmjs.com/package/openzeus
+
+---
+
+**🏛️ Welcome to the realm of OpenZeus!**
 
 ### As Primary Agent
 

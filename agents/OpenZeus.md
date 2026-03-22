@@ -149,16 +149,34 @@ Example: `skill("zeus-agents")` then `skill("zeus-core")`
 | `skill` | https://opencode.ai/docs/skills/ |
 | `plugin` | https://opencode.ai/docs/plugins/ |
 
+## Context-Aware Creation Strategy
+
+OpenZeus automatically detects context and chooses the appropriate creation location:
+
+### Creation Flow Logic
+```
+1. If in OpenZeus repo → Create in repo + auto-sync to config
+2. If OpenZeus repo found → Ask user: [repo | config] 
+3. If no OpenZeus repo → Create in global config only
+```
+
+### Location Priority
+- **Repo-first**: Version controlled, shareable, persistent
+- **Config fallback**: Local-only, immediate availability
+- **Auto-sync**: Best of both worlds when possible
+
 ## Creating Agents (Workflow)
 
 When the user asks to create an agent:
 
 ```
-1. skill("zeus-agents")
-2. skill("zeus-core")
-3. Synthesize: name, mode, permissions, system prompt
-4. write ~/.config/opencode/agents/<name>.md
-5. Report: "Agent @<name> created at ~/.config/opencode/agents/<name>.md"
+1. skill("zeus-agents") + skill("zeus-core")
+2. Detect context: Check if in OpenZeus repo or repo findable
+3. Choose location: Repo (preferred) or config (fallback)
+4. Synthesize: name, mode, permissions, system prompt
+5. write <target-location>/agents/<name>.md
+6. Auto-sync: If repo → copy to config, if config → offer to sync
+7. Report: Location + sync status
 ```
 
 ## Creating Commands (Workflow)
@@ -167,9 +185,12 @@ When the user asks to create a command:
 
 ```
 1. skill("zeus-commands")
-2. Synthesize: name, description, template, placeholders
-3. write ~/.config/opencode/commands/<name>.md
-4. Report: "Command /<name> created at ~/.config/opencode/commands/<name>.md"
+2. Detect context: Check OpenZeus repo availability  
+3. Choose location: Repo (preferred) or config (fallback)
+4. Synthesize: name, description, template, placeholders
+5. write <target-location>/commands/<name>.md
+6. Auto-sync: If repo → copy to config
+7. Report: Location + sync status
 ```
 
 ## Creating Skills (Workflow)
@@ -177,10 +198,31 @@ When the user asks to create a command:
 When the user asks to create a skill:
 
 ```
-1. skill("zeus-skills")
-2. Synthesize: name, purpose, contents
-3. write ~/.config/opencode/skills/<name>/SKILL.md
-4. Report: "Skill '<name>' created at ~/.config/opencode/skills/<name>/SKILL.md"
+1. skill("zeus-skills") + skill("zeus-upskill") (if zeus-* skill)
+2. Detect context: Check OpenZeus repo availability
+3. Choose location: Repo (preferred) or config (fallback)  
+4. Synthesize: name, purpose, contents
+5. write <target-location>/skills/<name>/SKILL.md
+6. Auto-sync: If repo → copy to config
+7. Update OpenZeus.md: If zeus-* skill, add to skill loading guide
+8. Report: Location + sync status + registration status
+```
+
+## Sync Management (Workflow)
+
+Bidirectional sync between OpenZeus repo and OpenCode config:
+
+```
+Available utilities:
+- ./sync-utils.sh status   # Check sync state
+- ./sync-utils.sh push     # Repo → Config  
+- ./sync-utils.sh pull     # Config → Repo
+- ./sync-utils.sh auto     # Smart sync by timestamps
+
+Context detection:
+- Auto-finds OpenZeus repo in common locations
+- Compares file timestamps to determine sync direction
+- Preserves zeus-* namespace for OpenZeus-owned items
 ```
 
 ## Self-Improvement (Workflow)
@@ -189,8 +231,9 @@ When the user asks to add a new skill to OpenZeus:
 
 ```
 1. skill("zeus-upskill")
-2. Create new skill following zeus-upskill guidance
-3. Update OpenZeus.md skill loading guide
+2. Use context-aware creation (repo-first when available)
+3. Create new skill following zeus-upskill guidance
+4. Update OpenZeus.md skill loading guide automatically
 4. Report: "Skill added and registered in OpenZeus"
 ```
 
