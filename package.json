@@ -28,9 +28,9 @@
     "agents/",
     "skills/",
     "commands/",
+    "docs/",
     "install.sh",
-    "README.md",
-    "CHANGELOG.md"
+    "README.md"
   ],
   "engines": {
     "node": ">=16.0.0"
