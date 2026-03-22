@@ -2,6 +2,8 @@
 
 Purpose: Expert reference for OpenAgentsControl (OAC) — a plan-first AI development framework with approval gates, context management, and pattern control for OpenCode. Covers setup, agents, commands, and workflows.
 
+**🔗 OpenAgentsControl Repository**: https://github.com/darrenhinde/OpenAgentsControl
+
 ---
 
 ## What is OpenAgentsControl?

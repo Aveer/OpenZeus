@@ -199,24 +199,55 @@ Invoke OpenZeus in any conversation:
 - **Performance Monitoring**: Session diagnostics and optimization
 - **Documentation**: Instant access to OpenCode docs (cached)
 
-## Zeus Skills Overview
+## Available Zeus Skills
 
+OpenZeus provides 14 specialized knowledge bundles organized into three categories:
+
+### **🧠 Zeus Knowledge & Reference**
 | Skill | Purpose |
 |-------|---------|
-| **zeus-core** | Exhaustive OpenCode knowledge reference |
-| **zeus-agents** | Agent creation templates and workflows |
-| **zeus-commands** | Custom command creation patterns |
-| **zeus-skills** | Skill bundle creation guide |
-| **zeus-context** | Context management and compression |
-| **zeus-self** | Runtime diagnostics and self-optimization |
-| **zeus-docker** | Docker and containerization expertise |
-| **zeus-swarm** | Multi-agent orchestration |
-| **zeus-llm** | Local model setup and configuration |
-| **zeus-omo** | oh-my-opencode-slim integration |
-| **zeus-beads** | Beads task tracking workflows |
-| **zeus-sql** | Database and SQL operations |
-| **zeus-oac** | OpenCode ecosystem integration |
-| **zeus-upskill** | Self-improvement and skill expansion |
+| `zeus-core` | Complete OpenCode reference - paths, configs, schemas, troubleshooting |
+| `zeus-docker` | Docker and containerization expertise with examples and best practices |
+| `zeus-sql` | Database operations, SQL queries, schema design, and ORM patterns |
+
+### **🛠️ Zeus Creation & Development**  
+| Skill | Purpose |
+|-------|---------|
+| `zeus-agents` | Agent creation templates, permissions, and workflow patterns |
+| `zeus-commands` | Custom command creation - prompts, templates, and OpenCode integration |
+| `zeus-skills` | Skill bundle creation guide with structure and best practices |
+| `zeus-context` | Context management, compression strategies, and conversation optimization |
+
+### **🏛️ Zeus Self-Awareness & Growth**
+| Skill | Purpose |
+|-------|---------|
+| `zeus-self` | **Runtime introspection** - health checks, performance analysis, session diagnostics |
+| `zeus-upskill` | **Self-improvement** - learns new skills, updates capabilities, extends knowledge |
+
+### **🔌 External Plugin Documentation**
+These skills provide documentation and integration guides for external OpenCode plugins:
+
+| Skill | Plugin | Repository |
+|-------|--------|------------|
+| `zeus-swarm` | opencode-swarm | [Multi-agent orchestration](https://github.com/opencode/opencode-swarm) |
+| `zeus-llm` | Local LLM setup | llama.cpp, Ollama configuration guides |
+| `zeus-omo` | oh-my-opencode-slim | [Terminal integration](https://github.com/opencodetips/oh-my-opencode-slim) |
+| `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
+| `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
+
+### **🎯 Unique Features**
+
+**zeus-self**: The only AI agent with **runtime self-awareness**
+- Monitors own performance and context health
+- Provides session diagnostics and operational insights  
+- Tracks tool usage patterns and success rates
+- Offers optimization recommendations
+
+**zeus-upskill**: **Self-improving AI** that grows its capabilities
+- Creates new skills based on user needs
+- Updates its own knowledge base and trigger patterns
+- Registers new capabilities in OpenZeus automatically
+- Learns from usage patterns to expand expertise
 
 ## Configuration
 

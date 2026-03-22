@@ -3,6 +3,8 @@ name: zeus-omo
 description: Deep reference for oh-my-opencode-slim plugin: installation, configuration, cartography, tmux integration, and provider mappings.
 ---
 
+**🔗 oh-my-opencode-slim Repository**: https://github.com/opencodetips/oh-my-opencode-slim
+
 ---
 
 ## oh-my-opencode-slim Overview

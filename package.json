@@ -1,6 +1,6 @@
 {
   "name": "openzeus",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Advanced AI agent for OpenCode - Master of configuration, documentation, and autonomous operations",
   "main": "install.sh",
   "keywords": [
