@@ -37,9 +37,6 @@ cd OpenZeus
 
 # Run installer
 ./install.sh
-
-# Setup git hooks (optional)
-./setup-hooks.sh
 ```
 
 ## Quick Start
