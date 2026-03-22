@@ -196,6 +196,8 @@ Invoke OpenZeus in any conversation:
 - **Agent Creation**: Generate custom agents with proper templates
 - **Command Creation**: Create slash commands for workflows
 - **Skill Management**: Create and manage skill bundles
+- **Self-Improvement**: Extend OpenZeus capabilities with new skills
+- **Plugin Documentation**: Guides for external OpenCode plugins (swarm, beads, etc.)
 - **Performance Monitoring**: Session diagnostics and optimization
 - **Documentation**: Instant access to OpenCode docs (cached)
 
