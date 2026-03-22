@@ -249,15 +249,17 @@ These skills provide documentation and integration guides for external OpenCode 
 - Automates registration of new skills in OpenZeus
 - Expands OpenZeus expertise through guided workflows
 
-## Configuration
+## How It Works
 
-OpenZeus automatically loads appropriate skills based on user intent. Key trigger patterns:
+OpenZeus automatically loads appropriate skills based on your intent:
 
-- **"config", "opencode.json"** → zeus-core
-- **"create agent"** → zeus-agents + zeus-core  
-- **"create command"** → zeus-commands + zeus-core
-- **"docker", "container"** → zeus-docker + zeus-core
-- **"analyze self", "optimize"** → zeus-self + zeus-context
+| When you say... | OpenZeus loads... |
+|-----------------|-------------------|
+| "config", "opencode.json" | zeus-core |
+| "create agent" | zeus-agents + zeus-core |
+| "create command" | zeus-commands + zeus-core |
+| "docker", "container" | zeus-docker + zeus-core |
+| "analyze self", "optimize" | zeus-self + zeus-context |
 
 ## Development
 
