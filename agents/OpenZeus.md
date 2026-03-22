@@ -214,10 +214,10 @@ Bidirectional sync between OpenZeus repo and OpenCode config:
 
 ```
 Available utilities:
-- ./sync-utils.sh status   # Check sync state
-- ./sync-utils.sh push     # Repo → Config  
-- ./sync-utils.sh pull     # Config → Repo
-- ./sync-utils.sh auto     # Smart sync by timestamps
+- ./scripts/sync-utils.sh status   # Check sync state
+- ./scripts/sync-utils.sh push     # Repo → Config  
+- ./scripts/sync-utils.sh pull     # Config → Repo
+- ./scripts/sync-utils.sh auto     # Smart sync by timestamps
 
 Context detection:
 - Auto-finds OpenZeus repo in common locations
