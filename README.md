@@ -9,7 +9,7 @@ OpenZeus is an advanced AI agent for OpenCode that provides comprehensive system
 ## Features
 
 - **🏛️ Master Agent**: Comprehensive OpenCode knowledge and operation
-- **🛠️ 15 Zeus Skills**: Specialized skill bundles for different domains
+- **🛠️ 14 Zeus Skills**: Specialized skill bundles for different domains
 - **⚡ Smart Commands**: Custom commands for common workflows  
 - **📚 Documentation Cache**: Offline OpenCode documentation access
 - **🔧 Self-Optimization**: Continuous performance monitoring and improvement
@@ -146,8 +146,9 @@ MIT License - see LICENSE file for details
 
 ## Support
 
+- **Repository**: [GitHub.com/Aveer/OpenZeus](https://github.com/Aveer/OpenZeus)
 - **Documentation**: Check `docs/` directory
-- **Issues**: GitHub Issues
+- **Issues**: [GitHub Issues](https://github.com/Aveer/OpenZeus/issues)
 - **Discussions**: OpenCode Discord community
 
 ---
