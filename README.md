@@ -211,6 +211,7 @@ OpenZeus provides 14 specialized knowledge bundles organized into three categori
 | `zeus-core` | Complete OpenCode reference - paths, configs, schemas, troubleshooting |
 | `zeus-docker` | Docker and containerization expertise with examples and best practices |
 | `zeus-sql` | Database operations, SQL queries, schema design, and ORM patterns |
+| `zeus-llm` | Local LLM setup - [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-swap](https://github.com/ggml-org/llama-swap), [Ollama](https://github.com/ollama/ollama) |
 
 ### **🛠️ Zeus Creation & Development**  
 | Skill | Purpose |
@@ -226,13 +227,12 @@ OpenZeus provides 14 specialized knowledge bundles organized into three categori
 | `zeus-self` | **Runtime introspection** - health checks, performance analysis, session diagnostics |
 | `zeus-upskill` | **Self-improvement** - learns new skills, updates capabilities, extends knowledge |
 
-### **🔌 External Plugin Documentation**
-These skills provide documentation and integration guides for external OpenCode plugins:
+### **🔌 External Tool Documentation**
+Documentation and integration guides for external tools and OpenCode plugins:
 
-| Skill | Plugin | Repository |
-|-------|--------|------------|
+| Skill | Tool/Plugin | Repository |
+|-------|-------------|------------|
 | `zeus-swarm` | opencode-swarm | [Multi-agent orchestration](https://github.com/opencode/opencode-swarm) |
-| `zeus-llm` | Local LLM setup | [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-swap](https://github.com/ggml-org/llama-swap), [Ollama](https://github.com/ollama/ollama) |
 | `zeus-omo` | oh-my-opencode-slim | [Terminal integration](https://github.com/opencodetips/oh-my-opencode-slim) |
 | `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
 | `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
