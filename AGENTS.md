@@ -22,16 +22,16 @@ OpenZeus is an AI agent for OpenCode - a sophisticated configuration and automat
 
 ```bash
 # Validate bash syntax (single file)
-bash -n install.sh
+bash -n scripts/install.sh
 
 # Validate all bash scripts
-bash -n install.sh && bash -n sync-utils.sh && bash -n create-utils.sh && bash -n setup-hooks.sh
+bash -n scripts/install.sh && bash -n scripts/sync-utils.sh && bash -n scripts/create-utils.sh && bash -n scripts/setup-hooks.sh
 
 # Run package tests
 npm test
 
 # Full validation - syntax + npm test
-bash -n install.sh && npm test
+bash -n scripts/install.sh && npm test
 ```
 
 ### Publishing to npm
@@ -48,16 +48,16 @@ npm pack --dry-run
 
 ```bash
 # Check sync status (repo vs config)
-./sync-utils.sh status
+./scripts/sync-utils.sh status
 
 # Push changes from repo to config
-./sync-utils.sh push
+./scripts/sync-utils.sh push
 
 # Pull changes from config to repo
-./sync-utils.sh pull
+./scripts/sync-utils.sh pull
 
 # Auto-detect sync direction
-./sync-utils.sh auto
+./scripts/sync-utils.sh auto
 ```
 
 ---
@@ -210,7 +210,7 @@ End of agent.
 | Agents | `*.md` | `OpenZeus.md` |
 | Skills | `*/SKILL.md` | `zeus-core/SKILL.md` |
 | Commands | `*.md` | `zeus-git-commit.md` |
-| Scripts | `*.sh` | `sync-utils.sh` |
+| Scripts | `scripts/*.sh` | `scripts/sync-utils.sh` |
 
 ### Error Handling
 
@@ -257,7 +257,7 @@ This project uses a bidirectional sync system:
 
 **Key principle**: Changes made in the repo must sync to config, and vice versa.
 
-Scripts in `files` array of `package.json` get published to npm. Author-only scripts (sync-utils.sh, create-utils.sh, setup-hooks.sh) are excluded from npm via the `files` array - they're only in the git repo.
+Scripts in the `scripts/` folder are included in the npm package and installed to user config. The scripts folder contains: install.sh, sync-utils.sh, create-utils.sh, setup-hooks.sh
 
 ---
 
@@ -269,7 +269,7 @@ Scripts in `files` array of `package.json` get published to npm. Author-only scr
 2. Add skill metadata header (name, description)
 3. Document the skill's purpose and usage
 4. Update README.md skills table
-5. Sync: `./sync-utils.sh push`
+5. Sync: `./scripts/sync-utils.sh push`
 
 ### Adding a New Command
 

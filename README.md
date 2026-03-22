@@ -4,7 +4,7 @@
 
 OpenZeus is an advanced AI agent for OpenCode that provides comprehensive system-level operations, documentation management, and autonomous configuration management. Built with extensive skills, agents, and commands for optimal OpenCode workflow orchestration.
 
-![OpenZeus](./OpenZeus.png)
+![OpenZeus](./media/OpenZeus.png)
 
 ## Features
 
@@ -36,7 +36,7 @@ git clone https://github.com/Aveer/OpenZeus.git
 cd OpenZeus
 
 # Run installer
-./install.sh
+./scripts/install.sh
 ```
 
 ## Quick Start
@@ -131,7 +131,7 @@ Skills load automatically based on context:
 ```bash
 # Test installation locally
 npm pack
-npm install -g openzeus-1.0.3.tgz
+npm install -g openzeus-1.0.4.tgz
 
 # Verify OpenZeus is available
 @OpenZeus self
@@ -142,7 +142,7 @@ npm install -g openzeus-1.0.3.tgz
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/my-feature`
 3. Make changes and test thoroughly
-4. Run sync: `./sync-utils.sh push`
+4. Run sync: `./scripts/sync-utils.sh push`
 5. Commit: `git commit -am 'Add my feature'`
 6. Push: `git push origin feature/my-feature`
 7. Create Pull Request
