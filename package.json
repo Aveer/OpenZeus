@@ -1,0 +1,37 @@
+{
+  "name": "openzeus",
+  "version": "1.0.0",
+  "description": "Advanced AI agent for OpenCode - Master of configuration, documentation, and autonomous operations",
+  "main": "agents/OpenZeus.md",
+  "keywords": [
+    "opencode",
+    "ai-agent", 
+    "configuration",
+    "automation",
+    "skills",
+    "commands"
+  ],
+  "author": "OpenZeus Project",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/OpenZeus.git"
+  },
+  "files": [
+    "agents/",
+    "skills/",
+    "commands/",
+    "docs/",
+    "prompts/",
+    "install.sh",
+    "README.md"
+  ],
+  "engines": {
+    "opencode": ">=1.0.0"
+  },
+  "scripts": {
+    "install": "./install.sh",
+    "test": "opencode run '@OpenZeus validate system health'",
+    "dev": "opencode serve"
+  }
+}
