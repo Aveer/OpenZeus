@@ -263,11 +263,15 @@ OpenZeus automatically loads appropriate skills based on your intent:
 
 ## Development
 
-### Adding New Skills
+### Creating New Skills
 
-1. Create skill in `skills/zeus-[name]/SKILL.md`
-2. Update OpenZeus.md skill loading guide
-3. Add trigger keywords to behavior rules
+Just ask OpenZeus:
+
+```bash
+@OpenZeus create a skill for [your topic]
+```
+
+OpenZeus will handle the creation, registration, and sync automatically.
 
 ### Contributing
 
