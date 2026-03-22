@@ -235,19 +235,19 @@ These skills provide documentation and integration guides for external OpenCode 
 | `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
 | `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
 
-### **🎯 Unique Features**
+### **🎯 Specialized Skills**
 
-**zeus-self**: The only AI agent with **runtime self-awareness**
-- Monitors own performance and context health
-- Provides session diagnostics and operational insights  
-- Tracks tool usage patterns and success rates
-- Offers optimization recommendations
+**zeus-self**: Runtime diagnostics and performance monitoring
+- Session health checks and diagnostics
+- Tool usage tracking and metrics
+- Context optimization recommendations
+- Operational awareness for long-running sessions
 
-**zeus-upskill**: **Self-improving AI** that grows its capabilities
-- Creates new skills based on user needs
-- Updates its own knowledge base and trigger patterns
-- Registers new capabilities in OpenZeus automatically
-- Learns from usage patterns to expand expertise
+**zeus-upskill**: Self-improvement workflows
+- Guides creation of new OpenZeus skills
+- Updates knowledge base with new capabilities
+- Automates registration of new skills in OpenZeus
+- Expands OpenZeus expertise through guided workflows
 
 ## Configuration
 
