@@ -1,3 +1,8 @@
+---
+name: zeus-beads
+description: Expert reference for Steve Yegge's Beads issue tracker — a git-backed, dependency-aware graph tracker for AI coding agents. Covers setup, commands, workflows, and OpenCode integration.
+---
+
 # zeus-beads (Skill)
 
 Purpose: Expert reference for Steve Yegge's Beads issue tracker — a git-backed, dependency-aware graph tracker for AI coding agents. Covers setup, commands, workflows, and OpenCode integration.
