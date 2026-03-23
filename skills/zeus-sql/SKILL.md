@@ -1,3 +1,8 @@
+---
+name: zeus-sql
+description: SQL reference for database queries, schema design, and common patterns for SQLite, PostgreSQL, MySQL, and common ORMs.
+---
+
 # zeus-sql (Skill)
 
 Purpose: SQL reference for database queries, schema design, and common patterns for SQLite, PostgreSQL, MySQL, and common ORMs.

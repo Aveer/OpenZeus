@@ -1,3 +1,8 @@
+---
+name: zeus-oac
+description: Expert reference for OpenAgentsControl (OAC) — a plan-first AI development framework with approval gates, context management, and pattern control for OpenCode. Covers setup, agents, commands, and workflows.
+---
+
 # zeus-oac (Skill)
 
 Purpose: Expert reference for OpenAgentsControl (OAC) — a plan-first AI development framework with approval gates, context management, and pattern control for OpenCode. Covers setup, agents, commands, and workflows.
