@@ -4,7 +4,7 @@ mode: all
 model: opencode/big-pickle
 color: "#FFD700"
 temperature: 0.1
-steps: 20
+steps: 50
 permission:
   edit: allow
   write: allow
