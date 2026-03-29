@@ -3,7 +3,7 @@ name: zeus-swarm
 description: Documentation and reference for the OpenCode opencode-swarm plugin. Tools, concepts, workflows, templates, and troubleshooting for swarm features, tasks, worktrees, and multi-agent orchestration.
 ---
 
-**🔗 opencode-swarm Repository**: https://github.com/opencode/opencode-swarm
+**🔗 opencode-swarm Repository**: https://github.com/zaxbysauce/opencode-swarm
 
 ---
 

@@ -9,7 +9,7 @@ OpenZeus is an advanced AI agent for OpenCode that provides comprehensive system
 ## Features
 
 - **🏛️ Master Agent**: Comprehensive OpenCode knowledge and operation
-- **🛠️ 14 Zeus Skills**: Specialized skill bundles for different domains
+- **🛠️ 15 Zeus Skills**: Specialized skill bundles for different domains
 - **⚡ Smart Commands**: Custom commands for common workflows  
 - **🔄 Bidirectional Sync**: Automatic sync between repo and OpenCode config
 - **📚 Documentation Cache**: Offline OpenCode documentation access
@@ -18,7 +18,7 @@ OpenZeus is an advanced AI agent for OpenCode that provides comprehensive system
 
 ## Installation
 
-### Option 1: NPM (Recommended)
+### NPM (Recommended)
 
 ```bash
 # Install globally with npm
@@ -28,7 +28,7 @@ npm install -g openzeus
 bun install -g openzeus
 ```
 
-### Option 2: Manual Installation
+### Manual Installation
 
 ```bash
 # Clone repository
@@ -77,7 +77,63 @@ Skills load automatically based on context:
 /zeus-kanban          # Project kanban board
 /zeus-git-commit      # Smart git commit helper
 /zeus-roadmap         # Generate project roadmap
+/zeus-improve-project # Project improvement suggestions
 ```
+
+## Available Zeus Skills
+
+OpenZeus provides 15 specialized knowledge bundles organized into categories:
+
+### 🧠 Zeus Knowledge & Reference
+| Skill | Purpose |
+|-------|---------|
+| `zeus-core` | Complete OpenCode reference - paths, configs, schemas, troubleshooting |
+| `zeus-docker` | Docker and containerization expertise with examples and best practices |
+| `zeus-sql` | Database operations, SQL queries, schema design, and ORM patterns |
+| `zeus-llm` | Local LLM setup - [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-swap](https://github.com/ggml-org/llama-swap), [Ollama](https://github.com/ollama/ollama) |
+
+### 🛠️ Zeus Creation & Development  
+| Skill | Purpose |
+|-------|---------|
+| `zeus-agents` | Agent creation templates, permissions, and workflow patterns |
+| `zeus-commands` | Custom command creation - prompts, templates, and OpenCode integration |
+| `zeus-skills` | Skill bundle creation guide with structure and best practices |
+| `zeus-context` | Context management, compression strategies, and conversation optimization |
+
+### 🏛️ Zeus Self-Awareness & Growth
+| Skill | Purpose |
+|-------|---------|
+| `zeus-self` | **Runtime introspection** - health checks, performance analysis, session diagnostics |
+| `zeus-upskill` | **Self-improvement** - learns new skills, updates capabilities, extends knowledge |
+
+### 🔌 External Tool Documentation
+Documentation and integration guides for external tools and OpenCode plugins:
+
+| Skill | Tool/Plugin | Repository |
+|-------|-------------|------------|
+| `zeus-swarm` | opencode-swarm | [Multi-agent orchestration](https://github.com/zaxbysauce/opencode-swarm) |
+| `zeus-omo` | oh-my-opencode-slim | [Terminal integration](https://github.com/alvinunreal/oh-my-opencode-slim) |
+| `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
+| `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
+
+### 🎉 Fun and Testing
+Playful and experimental skills for testing and enjoyment:
+
+| Skill | Purpose | Description |
+|-------|---------|-------------|
+| `zeus-boston-terrier` | Boston Terrier dogs | Breed info, care, temperament, and history |
+
+## How It Works
+
+OpenZeus automatically loads appropriate skills based on your intent:
+
+| When you say... | OpenZeus loads... |
+|-----------------|-------------------|
+| "config", "opencode.json" | zeus-core |
+| "create agent" | zeus-agents + zeus-core |
+| "create command" | zeus-commands + zeus-core |
+| "docker", "container" | zeus-docker + zeus-core |
+| "analyze self", "optimize" | zeus-self + zeus-context |
 
 ## Usage Examples
 
@@ -126,6 +182,16 @@ Skills load automatically based on context:
 
 ## Development
 
+### Creating New Skills
+
+Just ask OpenZeus:
+
+```bash
+@OpenZeus create a skill for [your topic]
+```
+
+OpenZeus will handle the creation, registration, and sync automatically.
+
 ### Testing Package Installation
 
 ```bash
@@ -172,128 +238,3 @@ MIT License - see LICENSE file for details.
 ---
 
 **🏛️ Welcome to the realm of OpenZeus!**
-
-### As Primary Agent
-
-Use OpenZeus as your main agent by adding to your `opencode.json`:
-
-```json
-{
-  "default_agent": "OpenZeus"
-}
-```
-
-### Via @mention
-
-Invoke OpenZeus in any conversation:
-```
-@OpenZeus help me configure my OpenCode setup
-```
-
-### Key Capabilities
-
-- **System Configuration**: Expert OpenCode config management
-- **Agent Creation**: Generate custom agents with proper templates
-- **Command Creation**: Create slash commands for workflows
-- **Skill Management**: Create and manage skill bundles
-- **Self-Improvement**: Extend OpenZeus capabilities with new skills
-- **Plugin Documentation**: Guides for external OpenCode plugins (swarm, beads, etc.)
-- **Performance Monitoring**: Session diagnostics and optimization
-- **Documentation**: Instant access to OpenCode docs (cached)
-
-## Available Zeus Skills
-
-OpenZeus provides 14 specialized knowledge bundles organized into three categories:
-
-### **🧠 Zeus Knowledge & Reference**
-| Skill | Purpose |
-|-------|---------|
-| `zeus-core` | Complete OpenCode reference - paths, configs, schemas, troubleshooting |
-| `zeus-docker` | Docker and containerization expertise with examples and best practices |
-| `zeus-sql` | Database operations, SQL queries, schema design, and ORM patterns |
-| `zeus-llm` | Local LLM setup - [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-swap](https://github.com/ggml-org/llama-swap), [Ollama](https://github.com/ollama/ollama) |
-
-### **🛠️ Zeus Creation & Development**  
-| Skill | Purpose |
-|-------|---------|
-| `zeus-agents` | Agent creation templates, permissions, and workflow patterns |
-| `zeus-commands` | Custom command creation - prompts, templates, and OpenCode integration |
-| `zeus-skills` | Skill bundle creation guide with structure and best practices |
-| `zeus-context` | Context management, compression strategies, and conversation optimization |
-
-### **🏛️ Zeus Self-Awareness & Growth**
-| Skill | Purpose |
-|-------|---------|
-| `zeus-self` | **Runtime introspection** - health checks, performance analysis, session diagnostics |
-| `zeus-upskill` | **Self-improvement** - learns new skills, updates capabilities, extends knowledge |
-
-### **🔌 External Tool Documentation**
-Documentation and integration guides for external tools and OpenCode plugins:
-
-| Skill | Tool/Plugin | Repository |
-|-------|-------------|------------|
-| `zeus-swarm` | opencode-swarm | [Multi-agent orchestration](https://github.com/opencode/opencode-swarm) |
-| `zeus-omo` | oh-my-opencode-slim | [Terminal integration](https://github.com/opencodetips/oh-my-opencode-slim) |
-| `zeus-beads` | Beads issue tracker | [Steve Yegge's Beads](https://github.com/steveyegge/beads) |
-| `zeus-oac` | OpenAgentsControl | [Plan-first development](https://github.com/darrenhinde/OpenAgentsControl) |
-
-### **🎯 Specialized Skills**
-
-**zeus-self**: Runtime diagnostics and performance monitoring
-- Session health checks and diagnostics
-- Tool usage tracking and metrics
-- Context optimization recommendations
-- Operational awareness for long-running sessions
-
-**zeus-upskill**: Self-improvement workflows
-- Guides creation of new OpenZeus skills
-- Updates knowledge base with new capabilities
-- Automates registration of new skills in OpenZeus
-- Expands OpenZeus expertise through guided workflows
-
-## How It Works
-
-OpenZeus automatically loads appropriate skills based on your intent:
-
-| When you say... | OpenZeus loads... |
-|-----------------|-------------------|
-| "config", "opencode.json" | zeus-core |
-| "create agent" | zeus-agents + zeus-core |
-| "create command" | zeus-commands + zeus-core |
-| "docker", "container" | zeus-docker + zeus-core |
-| "analyze self", "optimize" | zeus-self + zeus-context |
-
-## Development
-
-### Creating New Skills
-
-Just ask OpenZeus:
-
-```bash
-@OpenZeus create a skill for [your topic]
-```
-
-OpenZeus will handle the creation, registration, and sync automatically.
-
-### Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Add skills, commands, or enhancements
-4. Test with OpenCode
-5. Submit pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-- **Repository**: [GitHub.com/Aveer/OpenZeus](https://github.com/Aveer/OpenZeus)
-- **Documentation**: Check `docs/` directory
-- **Issues**: [GitHub Issues](https://github.com/Aveer/OpenZeus/issues)
-- **Discussions**: OpenCode Discord community
-
----
-
-*OpenZeus - Where AI meets system mastery* ⚡
