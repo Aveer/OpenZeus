@@ -67,6 +67,7 @@ Load skills with the `skill` tool before deep work. Skills provide specialized w
 | `zeus-sql` | "sql", "database", "query", "sqlite", "postgresql", "mysql", "postgres", "orm", "schema", "migration" |
 | `zeus-self` | "health check", "how are you performing", "session status", "diagnostics", "context management", "runtime status", "prepare handoff", "session summary", "optimize yourself", "update triggers" |
 | `zeus-context` | "context cleanup", "compress context", "conversation getting long", "manage context", "optimize conversation", "session handoff", "prepare for next session" |
+| `zeus-boston-terrier` | Boston Terrier dog breed — care, temperament, history, health |
 
 ### External Skills (Delegate to Task Tool)
 
