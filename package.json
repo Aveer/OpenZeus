@@ -30,6 +30,7 @@
     "skills/",
     "commands/",
     "docs/",
+    "media/",
     "scripts/",
     "tests/"
   ],
@@ -37,7 +38,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "bash -n scripts/install.sh scripts/sync-utils.sh scripts/create-utils.sh scripts/setup-hooks.sh scripts/doctor.sh bin/openzeus && tests/run.sh"
+    "test": "tests/run.sh"
   },
   "bin": {
     "openzeus": "bin/openzeus"

@@ -6,7 +6,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 
 ## [Unreleased]
 
+### Added
+- Product-facing guided UX around setup audit, status inspection, repo initialization, examples, asset listing, and safe sync workflows.
+- Documentation for `openzeus doctor --fix-plan`, `openzeus status`, `openzeus list`, `openzeus examples`, and `openzeus init-project --dry-run`.
+
 ### Changed
+- Reposition OpenZeus as a guided OpenCode setup/audit/generation product instead of only an asset pack.
+- Update OpenZeus agent guidance toward outcome workflows: audit setup, initialize projects, generate commands/assets, and diagnose loading or sync issues.
 - Align OpenCode asset docs with current modes: `primary`, `subagent`, `all`.
 - Tighten documented git/publishing safety gates around push and registry mutations.
 - Clarify supported command syntax: `$ARGUMENTS`, positional arguments, shell injection, and `@file` references.

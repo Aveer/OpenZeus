@@ -2,18 +2,21 @@
 set -euo pipefail
 
 dry_run=false
+force=false
 repo_dir=""
-config_dir="${OPENCODE_CONFIG_DIR:-${HOME}/.config/opencode}"
+config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-${HOME}/.config/opencode}}"
 location=""
 type=""
+script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
     cat <<EOF
-Usage: create-utils.sh [--dry-run] [--repo [DIR]] [--config [DIR]] <agent|skill|command> <name> [description] [template]
+Usage: create-utils.sh [--dry-run] [--force] [--repo [DIR]] [--config [DIR]] <agent|skill|command> <name> [description] [template]
 
 Creates valid OpenCode asset templates. If no location is specified and the
-current directory is the OpenZeus repository, files are created in the repo;
-otherwise they are created in the OpenCode config directory.
+current directory is the OpenZeus source repository, files are created in that
+repo; otherwise they are created in the OpenCode config directory. Existing
+files are skipped unless --force is supplied.
 EOF
 }
 
@@ -28,30 +31,28 @@ yaml_quote() {
     printf '"%s"' "$value"
 }
 
+current_openzeus_repo() {
+    local root=""
+    if root="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)" && [[ -f "$root/agents/OpenZeus.md" ]]; then
+        printf '%s' "$root"
+        return 0
+    fi
+    return 1
+}
+
 detect_repo() {
     if [[ -n "$repo_dir" ]]; then
         printf '%s' "$repo_dir"
         return 0
     fi
 
-    local root=""
-    if root="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)" && [[ -f "$root/agents/OpenZeus.md" ]]; then
-        printf '%s' "$root"
-        return 0
-    fi
-
-    root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-    if [[ -f "$root/agents/OpenZeus.md" ]]; then
-        printf '%s' "$root"
-        return 0
-    fi
-
-    return 1
+    current_openzeus_repo
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --dry-run) dry_run=true ;;
+        --force) force=true ;;
         --repo)
             location="repo"
             if [[ $# -gt 1 && "$2" != --* ]] && ! is_type "$2"; then
@@ -88,7 +89,7 @@ if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
 fi
 
 if [[ -z "$location" ]]; then
-    if detect_repo >/dev/null; then
+    if repo_dir="$(current_openzeus_repo 2>/dev/null)"; then
         location="repo"
     else
         location="config"
@@ -108,11 +109,20 @@ write_file() {
     local content="$2"
 
     if [[ "$dry_run" == true ]]; then
-        printf 'WRITE %s\n' "$path"
+        if [[ -e "$path" && "$force" == false ]]; then
+            printf 'SKIP existing: %s\n' "$path"
+        else
+            printf 'WRITE %s\n' "$path"
+        fi
         return 0
     fi
 
     mkdir -p "$(dirname "$path")"
+    if [[ -e "$path" && "$force" == false ]]; then
+        printf 'SKIP existing: %s\n' "$path"
+        return 0
+    fi
+
     printf '%s\n' "$content" > "$path"
     printf 'Created %s\n' "$path"
 }

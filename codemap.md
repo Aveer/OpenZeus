@@ -2,7 +2,7 @@
 
 ## Project Responsibility
 
-OpenZeus is an OpenCode asset pack: agent definitions, slash commands, skill bundles, and install/sync utilities for OpenCode configuration workflows.
+OpenZeus is a guided OpenCode setup, audit, and asset-generation product. It ships an OpenZeus agent, skill bundles, slash commands, and CLI utilities for initializing repo-local assets, auditing configuration, creating agents/skills/commands, and syncing safely.
 
 ## Entry Points
 
@@ -12,6 +12,8 @@ OpenZeus is an OpenCode asset pack: agent definitions, slash commands, skill bun
 | `bin/openzeus` | Package CLI entrypoint |
 | `scripts/install.sh` | Installs assets into OpenCode config |
 | `scripts/sync-utils.sh` | Syncs repository assets with config assets |
+| `scripts/create-utils.sh` | Generates agents, skills, and commands |
+| `scripts/doctor.sh` | Audits setup and reports fix plans |
 | `README.md` | User-facing install and usage guide |
 | `package.json` | NPM package metadata, version, and test script |
 
@@ -52,13 +54,29 @@ Keep `opencode.json` and `tui.json` separate: `opencode.json` stores runtime con
 User request
   → OpenZeus agent
   → optional skill loading
-  → command/agent/skill/config operation
-  → install or sync when needed
+  → audit / init / create / sync workflow
+  → dry-run or fix-plan before risky writes
+  → install or sync when explicitly needed
 ```
+
+## CLI Surface
+
+| Command | Purpose | Safe behavior |
+|---|---|---|
+| `openzeus doctor --fix-plan` | Audit OpenCode setup | Prints planned fixes without applying them |
+| `openzeus status` | Show installed assets and sync state | Inspection-first |
+| `openzeus list [agents|skills|commands|all]` | List available assets | Read-only |
+| `openzeus examples` | Show starter workflows | Read-only |
+| `openzeus init-project [--target DIR] [--dry-run] [--force]` | Create repo-local `.opencode/` assets | Dry-run preview; `--force` for overwrites |
+| `openzeus create ...` | Generate agents, skills, or commands | Uses asset templates and sync guidance |
+| `openzeus sync ...` | Repo ↔ config sync | Status/auto prefer conflict refusal over guessing |
+| `openzeus install` | Install packaged assets | Copies assets into OpenCode config |
+| `openzeus hooks` | Install git sync hooks | Hooks warn/check before mutating push flow |
 
 ## Development Patterns
 
 - Markdown-based OpenCode assets.
 - Repository source of truth, synced into OpenCode config.
+- Guided CLI workflows: audit, status, list, examples, init, create, sync.
 - Minimal permissions and explicit confirmation for remote/destructive operations.
 - Concise, example-driven docs.

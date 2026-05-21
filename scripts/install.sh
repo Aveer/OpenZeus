@@ -14,7 +14,7 @@ Installs only OpenZeus-owned assets:
   agents/OpenZeus.md
   skills/zeus-*/
   commands/zeus-*.md
-  sync/create/hooks/doctor helper scripts
+  sync/create/hooks/doctor/init-project helper scripts
 
 By default, existing differing files are skipped. Use --force to overwrite;
 pair --force with --backup to preserve existing destinations first.
@@ -137,9 +137,13 @@ for command_file in "$script_dir"/commands/zeus-*.md; do
     copy_file_safe "$command_file" "$target_dir/commands/$(basename "$command_file")"
 done
 
-for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh; do
+for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh; do
     [[ -f "$script_dir/scripts/$helper" ]] || continue
     copy_file_safe "$script_dir/scripts/$helper" "$target_dir/$helper" executable
 done
 
-echo "OpenZeus assets installed to $target_dir"
+if [[ "$dry_run" == true ]]; then
+    echo "OpenZeus dry-run complete for $target_dir (no files written)"
+else
+    echo "OpenZeus assets installed to $target_dir"
+fi

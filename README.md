@@ -1,18 +1,18 @@
 # OpenZeus
 
-**Master of OpenCode — docs, agents, commands, skills, and config helpers.**
+**Guided OpenCode setup, audit, and asset generation.**
 
-OpenZeus is an OpenCode asset pack: one OpenCode agent, Zeus skill bundles, slash commands, and install/sync utilities for keeping this repository aligned with your OpenCode config.
+OpenZeus helps you make an OpenCode workspace useful fast: audit your config, initialize repo-local assets, generate agents/skills/commands, and sync safely between this repository and your OpenCode config.
 
 ![OpenZeus](./media/OpenZeus.png)
 
-## Features
+## What OpenZeus is useful for
 
-- **🏛️ OpenZeus agent**: concise operator for OpenCode workflows.
-- **🛠️ 15 Zeus skills**: domain references for OpenCode, Docker, SQL, LLMs, Beads, and more.
-- **⚡ Slash commands**: reusable workflows for commits, kanban, roadmaps, and project improvement.
-- **🔄 Repo ↔ config sync**: install and sync helpers for OpenCode assets.
-- **🎯 Intent-based routing**: OpenZeus loads relevant skills when tasks need deeper guidance.
+- **Audit setup**: inspect installed agents, commands, skills, and config drift.
+- **Initialize projects**: create repo-local `.opencode/` assets with dry-run previews.
+- **Generate assets**: create agents, skills, and commands from focused prompts.
+- **Sync safely**: compare repo ↔ config state before copying assets.
+- **Learn by example**: list installed assets and copy starter workflows.
 
 ## Installation
 
@@ -20,11 +20,6 @@ OpenZeus is an OpenCode asset pack: one OpenCode agent, Zeus skill bundles, slas
 
 ```bash
 npm install -g openzeus
-
-# CLI entrypoint
-openzeus help
-
-# Explicitly install assets into OpenCode config
 openzeus install
 ```
 
@@ -38,14 +33,65 @@ cd OpenZeus
 
 The installer copies assets into `${OPENCODE_CONFIG_DIR:-~/.config/opencode}`.
 
-## Quick Start
-
-### Use the agent
+## 30-second golden path
 
 ```bash
-@OpenZeus help me configure OpenCode for this repo
-@OpenZeus create a project command for release notes
-@OpenZeus explain OpenCode agent permissions
+npm install -g openzeus
+openzeus doctor --fix-plan        # audit setup; print planned fixes only
+openzeus install --dry-run        # preview global OpenCode asset install
+openzeus status                   # inspect installed assets and sync state
+openzeus init-project --dry-run   # preview repo-local .opencode assets
+openzeus examples                 # see copy-pasteable workflows
+```
+
+When the dry runs look right:
+
+```bash
+openzeus install
+openzeus init-project --target .
+```
+
+## Common workflows
+
+### Audit OpenCode setup
+
+```bash
+openzeus doctor --fix-plan
+openzeus status
+openzeus list all
+```
+
+### Initialize repo-local assets
+
+```bash
+openzeus init-project --target . --dry-run
+openzeus init-project --target .
+```
+
+### Create agents, skills, and commands
+
+```bash
+openzeus create agent reviewer "Reviews pull requests"
+openzeus create skill zeus-example "Project-specific guidance"
+openzeus create command release-notes "Draft release notes" 'Use $ARGUMENTS'
+```
+
+### Sync safely
+
+```bash
+openzeus sync status
+openzeus sync auto     # safe one-way sync or conflict refusal
+```
+
+## Use OpenZeus in OpenCode
+
+Ask for outcomes, not file names:
+
+```bash
+@OpenZeus audit my OpenCode setup and explain what to fix
+@OpenZeus initialize this repo with project-local OpenCode assets
+@OpenZeus turn this release process into a slash command
+@OpenZeus diagnose why my project skills are not loading
 ```
 
 ### Use commands
@@ -55,14 +101,6 @@ The installer copies assets into `${OPENCODE_CONFIG_DIR:-~/.config/opencode}`.
 /zeus-kanban          # Manage docs/team/KANBAN.md
 /zeus-roadmap         # Manage docs/team/ROADMAP.md
 /zeus-improve-project # Structured project improvement cycle
-```
-
-### Sync repo assets to OpenCode config
-
-```bash
-./scripts/sync-utils.sh status
-./scripts/sync-utils.sh push
-# or: openzeus sync status
 ```
 
 ## Zeus Skills
@@ -100,6 +138,8 @@ openzeus help
 
 ```bash
 npm test
+openzeus status
+openzeus doctor --fix-plan
 ./scripts/sync-utils.sh status
 ```
 

@@ -25,6 +25,9 @@ Confirm the package includes the expected assets:
 npm pack
 npm install -g ./openzeus-1.1.0.tgz
 openzeus help
+openzeus status
+openzeus doctor --fix-plan
+openzeus examples
 ```
 
 ## Publish
