@@ -10,6 +10,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Product-facing guided UX around setup audit, status inspection, repo initialization, examples, asset listing, and safe sync workflows.
 - Documentation for `openzeus doctor --fix-plan`, `openzeus status`, `openzeus list`, `openzeus examples`, and `openzeus init-project --dry-run`.
 - Project initialization detects npm, Makefile, and Python project files to pre-fill `/test`, `/build`, and `project-context` starter assets with likely commands.
+- `openzeus doctor --fix-plan` detects missing or differing installed OpenZeus assets and suggests concrete safe repair commands.
 
 ### Changed
 - Reposition OpenZeus as a guided OpenCode setup/audit/generation product instead of only an asset pack.

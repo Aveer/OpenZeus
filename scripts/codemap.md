@@ -24,7 +24,7 @@ OpenZeus scripts prefer **plan-before-mutation** behavior: inspect first, previe
 
 | Command | Behavior |
 |---|---|
-| `openzeus doctor [--fix-plan]` | Validate package assets and print concrete fixes without mutation |
+| `openzeus doctor [--fix-plan]` | Validate package assets, detect config/install drift, and print concrete fixes without mutation |
 | `openzeus status` | Show package root, config root, installed asset counts, and drift summary |
 | `openzeus list [agents|skills|commands|all]` | List package assets with `[installed]`, `[missing]`, or `[different]` status |
 | `openzeus examples` | Print copy-pasteable starter workflows |

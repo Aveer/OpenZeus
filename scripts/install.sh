@@ -87,6 +87,7 @@ copy_file_safe() {
             return 0
         fi
         backup_existing "$dst"
+        rm -rf "$dst"
     fi
 
     cp -f "$src" "$dst"
