@@ -68,6 +68,11 @@ openzeus init-project --target . --dry-run
 openzeus init-project --target .
 ```
 
+`init-project` detects common project files (`package.json`, `Makefile`,
+`pyproject.toml`, `setup.cfg`, `setup.py`) and pre-fills `/test`, `/build`, and
+`project-context` with likely commands such as `npm test`, `npm run build`,
+`make test`, `make build`, or `pytest`.
+
 ### Create agents, skills, and commands
 
 ```bash

@@ -69,7 +69,7 @@ This namespace boundary protects unrelated user agents, skills, and commands.
 └── skills/project-context/SKILL.md
 ```
 
-The generated files use current OpenCode conventions: Markdown frontmatter, `mode: subagent` for the starter agent, conservative `permission` defaults, command templates using `$ARGUMENTS`, and skill `name`/`description` frontmatter.
+The generated files use current OpenCode conventions: Markdown frontmatter, `mode: subagent` for the starter agent, conservative `permission` defaults, command templates using `$ARGUMENTS`, and skill `name`/`description` frontmatter. `init-project.sh` detects `package.json`, `Makefile`/`makefile`, and Python project files (`pyproject.toml`, `setup.cfg`, `setup.py`) to pre-fill likely commands such as `npm test`, `npm run build`, `make test`, `make build`, or `pytest` when available.
 
 ## Sync Model
 

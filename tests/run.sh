@@ -180,12 +180,64 @@ mkdir -p "$project_dir"
 [[ -f "$project_dir/.opencode/README.md" ]]
 assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'mode: subagent'
 assert_file_contains "$project_dir/.opencode/commands/test.md" '$ARGUMENTS'
+assert_file_contains "$project_dir/.opencode/commands/test.md" 'No obvious test command'
+assert_file_contains "$project_dir/.opencode/commands/build.md" 'No obvious build command'
+assert_file_contains "$project_dir/.opencode/skills/project-context/SKILL.md" 'Type: generic'
 
 printf '%s\n' 'keep' > "$project_dir/.opencode/README.md"
 "$root/bin/openzeus" init-project --target "$project_dir" >/dev/null
 assert_file_contains "$project_dir/.opencode/README.md" 'keep'
 "$root/bin/openzeus" init-project --force --target "$project_dir" >/dev/null
 assert_file_contains "$project_dir/.opencode/README.md" 'Starter'
+
+npm_project="$tmp/npm-project"
+mkdir -p "$npm_project"
+cat > "$npm_project/package.json" <<'EOF'
+{
+  "name": "npm-project",
+  "scripts": {
+    "test": "echo npm test",
+    "build": "echo npm build"
+  }
+}
+EOF
+(cd "$npm_project" && "$root/bin/openzeus" init-project >/dev/null)
+assert_file_contains "$npm_project/.opencode/commands/test.md" 'npm test'
+assert_file_contains "$npm_project/.opencode/commands/build.md" 'npm run build'
+assert_file_contains "$npm_project/.opencode/skills/project-context/SKILL.md" 'Type: npm'
+
+make_project="$tmp/make-project"
+mkdir -p "$make_project"
+cat > "$make_project/Makefile" <<'EOF'
+test: deps
+	@echo make test
+
+build: assets
+	@echo make build
+EOF
+(cd "$make_project" && "$root/bin/openzeus" init-project >/dev/null)
+assert_file_contains "$make_project/.opencode/commands/test.md" 'make test'
+assert_file_contains "$make_project/.opencode/commands/build.md" 'make build'
+assert_file_contains "$make_project/.opencode/skills/project-context/SKILL.md" 'Type: make'
+
+python_project="$tmp/python-project"
+mkdir -p "$python_project"
+touch "$python_project/pyproject.toml"
+(cd "$python_project" && "$root/bin/openzeus" init-project >/dev/null)
+assert_file_contains "$python_project/.opencode/commands/test.md" 'pytest'
+assert_file_contains "$python_project/.opencode/commands/build.md" 'No obvious build command'
+assert_file_contains "$python_project/.opencode/skills/project-context/SKILL.md" 'Type: python'
+
+printf '%s\n' 'keep command' > "$python_project/.opencode/commands/test.md"
+(cd "$python_project" && "$root/bin/openzeus" init-project >/dev/null)
+assert_file_contains "$python_project/.opencode/commands/test.md" 'keep command'
+(cd "$python_project" && "$root/bin/openzeus" init-project --force >/dev/null)
+assert_file_contains "$python_project/.opencode/commands/test.md" 'pytest'
+
+dry_run_project="$tmp/dry-run-project"
+mkdir -p "$dry_run_project"
+(cd "$dry_run_project" && "$root/bin/openzeus" init-project --dry-run >/dev/null)
+[[ ! -e "$dry_run_project/.opencode" ]]
 
 missing_config="$tmp/missing-config"
 fix_plan_out="$(OPENCODE_CONFIG_DIR="$missing_config" "$root/bin/openzeus" doctor --fix-plan)"
