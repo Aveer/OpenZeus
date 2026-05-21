@@ -5,16 +5,19 @@ root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-${HOME}/.config/opencode}}"
 status=0
 fix_plan=false
+ci=false
 missing_executables=()
 config_executable_fixes=()
 warnings=0
 needs_install=false
 needs_force_backup=false
 needs_sync_status=false
+install_profile="all"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --fix-plan) fix_plan=true ;;
+        --ci) ci=true ;;
         -h|--help|help) echo "Usage: doctor.sh [--fix-plan]"; exit 0 ;;
     esac
     shift
@@ -70,6 +73,28 @@ compare_installed_file() {
     needs_sync_status=true
 }
 
+if [[ -f "$config_dir/.openzeus-install-profile" ]]; then
+    IFS= read -r install_profile < "$config_dir/.openzeus-install-profile" || install_profile="all"
+fi
+
+should_check_skill() {
+    local name="$1"
+    case "$install_profile" in
+        core) [[ "$name" == zeus-core || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills || "$name" == zeus-upskill || "$name" == zeus-context ]] ;;
+        extras) [[ "$name" != zeus-core && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills && "$name" != zeus-upskill && "$name" != zeus-context ]] ;;
+        *) return 0 ;;
+    esac
+}
+
+should_check_command() {
+    local name="$1"
+    case "$install_profile" in
+        core) [[ "$name" == zeus-git-commit.md || "$name" == zeus-improve-project.md ]] ;;
+        extras) [[ "$name" != zeus-git-commit.md && "$name" != zeus-improve-project.md ]] ;;
+        *) return 0 ;;
+    esac
+}
+
 first_line_is_frontmatter() {
     local file="$1"
     local first=""
@@ -85,6 +110,11 @@ for file in \
     "$root_dir/scripts/create-utils.sh" \
     "$root_dir/scripts/setup-hooks.sh" \
     "$root_dir/scripts/init-project.sh" \
+    "$root_dir/scripts/setup.sh" \
+    "$root_dir/scripts/validate.sh" \
+    "$root_dir/scripts/capture-command.sh" \
+    "$root_dir/scripts/diff.sh" \
+    "$root_dir/scripts/upgrade.sh" \
     "$root_dir/scripts/doctor.sh"; do
     if [[ ! -x "$file" ]]; then
         fail "missing executable: $file"
@@ -122,16 +152,18 @@ else
     for skill in "$root_dir"/skills/zeus-*/SKILL.md; do
         [[ -f "$skill" ]] || continue
         skill_name="$(basename "$(dirname "$skill")")"
+        should_check_skill "$skill_name" || continue
         compare_installed_file "skill $skill_name" "$root_dir/skills/$skill_name" "$config_dir/skills/$skill_name"
     done
 
     for command in "$root_dir"/commands/zeus-*.md; do
         [[ -f "$command" ]] || continue
         command_name="$(basename "$command")"
+        should_check_command "$command_name" || continue
         compare_installed_file "command $command_name" "$root_dir/commands/$command_name" "$config_dir/commands/$command_name"
     done
 
-    for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh; do
+    for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
         helper_path="$config_dir/$helper"
         compare_installed_file "helper $helper" "$root_dir/scripts/$helper" "$helper_path"
         if [[ -f "$helper_path" && ! -x "$helper_path" ]]; then
@@ -177,6 +209,10 @@ if [[ "$fix_plan" == true ]]; then
     if [[ "$suggestions" -eq 0 ]]; then
         echo "  (none; no fixes required)"
     fi
+fi
+
+if [[ "$ci" == true && ( "$status" -ne 0 || "$warnings" -gt 0 ) ]]; then
+    exit 1
 fi
 
 exit "$status"

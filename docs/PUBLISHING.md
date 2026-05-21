@@ -6,6 +6,9 @@ OpenZeus publishes the `openzeus` npm package. Current package version: **1.1.0*
 
 ```bash
 npm test
+openzeus validate --ci
+openzeus doctor --ci
+openzeus diff --summary --ci
 npm pack --dry-run
 ```
 
@@ -25,9 +28,12 @@ Confirm the package includes the expected assets:
 npm pack
 npm install -g ./openzeus-1.1.0.tgz
 openzeus help
-openzeus status
+openzeus install --core --dry-run
+openzeus install --all --dry-run
+openzeus setup --plan --recipe node --target /tmp/openzeus-publish-smoke
+openzeus validate --ci
 openzeus doctor --fix-plan
-openzeus examples
+openzeus diff --summary
 ```
 
 ## Publish
@@ -45,6 +51,7 @@ npm publish
 npm view openzeus version
 npm install -g openzeus
 openzeus help
+openzeus validate --ci
 ```
 
 Update release notes in `docs/CHANGELOG.md` when cutting a release.
