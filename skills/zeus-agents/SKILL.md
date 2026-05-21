@@ -22,9 +22,9 @@ Create a new agent when the user:
 1. Determine identity:
    - Name (becomes file name + identifier)
    - Description (shown in @ autocomplete)
-   - Mode (primary | subagent | all)
+   - Mode (`primary`, `subagent`, or `all`)
    - Model override (if needed)
-   - Permissions (edit, write, bash, webfetch)
+   - Permissions via `permission` (`tools` is deprecated for permissions)
 
 2. Design the system prompt:
    - Role and identity statement
@@ -58,6 +58,8 @@ Create a new agent when the user:
 | `aliases` | string[] | No | Alternative names |
 | `display_name` | string | No | UI display name |
 
+Use `permission` for edit/write/bash/webfetch access. Older `tools`-based permission examples are deprecated; do not use `tools` to grant or deny permissions in new agents.
+
 ---
 
 ## Mode Semantics
@@ -86,6 +88,8 @@ permission:
     "find *": allow
     "git push": ask  # Explicit confirm before push
 ```
+
+Permission values are `allow`, `ask`, or `deny`. Keep destructive commands as `ask` unless the project explicitly authorizes automation.
 
 Bash permission glob examples:
 ```yaml
@@ -116,7 +120,7 @@ permission:
   write: allow
   webfetch: allow
   bash:
-    "*": "ask"
+    "*": ask
     "git status *": allow
     "git diff *": allow
 aliases:
@@ -228,13 +232,16 @@ permission:
   edit: allow
   write: allow
   bash:
-    "*": allow
+    "*": ask
+    "git status *": allow
+    "git diff *": allow
+    "npm test *": allow
 ---
 
 You are a fast executor. Complete tasks quickly and concisely.
 
 Rules:
-1. Execute immediately, don't ask for permission
+1. Execute routine allowed commands immediately
 2. Report what was done in 1-2 sentences
 3. Show exact commands run
 ```

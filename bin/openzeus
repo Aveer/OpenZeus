@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -euo pipefail
+
+resolve_root() {
+  local source="${BASH_SOURCE[0]}"
+  local dir=""
+
+  while [[ -L "$source" ]]; do
+    dir="$(cd -P "$(dirname "$source")" && pwd)"
+    source="$(readlink "$source")"
+    [[ "$source" == /* ]] || source="$dir/$source"
+  done
+
+  cd -P "$(dirname "$source")/.." && pwd
+}
+
+SCRIPT_DIR="$(resolve_root)"
+
+usage() {
+  cat <<EOF
+OpenZeus CLI
+
+Usage: openzeus <install|sync|create|hooks|doctor|help> [args...]
+
+Commands:
+  install   Install OpenZeus assets into an OpenCode config directory
+  sync      Compare or sync repo assets with an OpenCode config directory
+  create    Create an agent, skill, or command template
+  hooks     Install optional Git hooks for repo/config sync checks
+  doctor    Run non-mutating health checks
+
+EOF
+}
+
+doctor() {
+  if [[ -x "$SCRIPT_DIR/scripts/doctor.sh" ]]; then
+    exec "$SCRIPT_DIR/scripts/doctor.sh" "$@"
+  fi
+  echo "doctor unavailable"
+  return 1
+}
+
+case "${1:-help}" in
+  install) exec "$SCRIPT_DIR/scripts/install.sh" "${@:2}" ;;
+  sync) exec "$SCRIPT_DIR/scripts/sync-utils.sh" "${@:2}" ;;
+  create) exec "$SCRIPT_DIR/scripts/create-utils.sh" "${@:2}" ;;
+  hooks) exec "$SCRIPT_DIR/scripts/setup-hooks.sh" "${@:2}" ;;
+  doctor) shift || true; doctor "$@" ;;
+  help|-h|--help) usage ;;
+  *) echo "Unknown command: ${1:-}"; usage; exit 1 ;;
+esac

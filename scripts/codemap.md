@@ -32,39 +32,37 @@ main() {
 
 **Files**: `sync-utils.sh:254-286`, `create-utils.sh:292-318`
 
-### 2. **Repository Locator Pattern** (detect_zeus_repo)
-A three-tier fallback strategy for locating the OpenZeus repository:
+### 2. **Repository Locator Pattern** (`detect_repo`)
+A bounded fallback strategy for locating the OpenZeus repository:
 
 | Priority | Method | Detection Logic |
 |----------|--------|-----------------|
-| 1 | Current Directory | Check if `pwd` basename is "OpenZeus" and `agents/OpenZeus.md` exists |
-| 2 | Common Paths | Scan `$HOME/projects/OpenZeus`, `$HOME/OpenZeus`, etc. |
-| 3 | Git Remotes | Search all git repos for remote URLs containing "OpenZeus" |
+| 1 | Explicit flag/env | Use `--repo DIR` or `OPENZEUS_REPO` when provided |
+| 2 | Current Git root | Use `git rev-parse --show-toplevel` when it contains `agents/OpenZeus.md` |
+| 3 | Script parent | Fall back to the repository containing the running script |
 
-**Files**: `sync-utils.sh:12-47`, `create-utils.sh:13-36`
+The scripts intentionally avoid home-wide repository scans.
 
-### 3. **Strategy Pattern for Sync Direction** (auto_sync)
-Timestamp-based decision logic chooses between push/pull strategies:
+### 3. **Safe Sync Direction Strategy** (`auto_sync`)
+Manifest comparison chooses a safe direction or refuses ambiguous changes:
 
 ```
-if repo_newest > config_newest → push_to_config()
-else if config_newest > repo_newest → pull_from_config()
+if repo-only changes and no config-only/conflicting changes → repo → config
+if config-only changes and no repo-only/conflicting changes → config → repo
+if both locations changed the same asset or directions are mixed → conflict
 else → already in sync
 ```
 
-**File**: `sync-utils.sh:221-252`
+This avoids timestamp heuristics and protects local edits by default.
 
 ### 4. **Template Expansion Pattern** (create-utils.sh)
-Uses heredoc (`<<EOF`) for generating structured markdown files from templates with variable interpolation:
+Generates current OpenCode markdown assets with YAML frontmatter:
 
 ```bash
-cat > "$output_file" << EOF
-# $name
-Content with $variables
-EOF
+create-utils.sh --config ~/.config/opencode agent reviewer "Reviews PRs"
+create-utils.sh --repo . skill zeus-example "Example skill"
+create-utils.sh command release-notes "Draft release notes" 'Use $ARGUMENTS'
 ```
-
-**Files**: `create-utils.sh:107-133` (agent), `165-187` (skill), `227-253` (command)
 
 ### 5. **Context-Aware Factory Pattern** (create-utils.sh)
 Intelligent routing determines creation target based on execution context:
@@ -148,27 +146,22 @@ chmod +x "$HOOKS_DIR/post-merge"
 │   └─ Sync commands: cp zeus-*.md → config/commands/            │
 │                                                                  │
 ├─ Command: pull (config → repo)                                  │
-│   ├─ detect_zeus_repo()                                         │
-│   ├─ For each file: cmp -s (compare)                            │
-│   │   └─ If different: cp config → repo                         │
-│   ├─ Track changes flag                                         │
-│   └─ If changes=true: suggest git commit                        │
+│   ├─ detect_repo()                                              │
+│   ├─ Build OpenZeus manifest from both locations                 │
+│   ├─ Compare files/dirs byte-for-byte                           │
+│   └─ Copy config → repo unless conflict requires --force         │
 │                                                                  │
 ├─ Command: status                                                │
-│   ├─ detect_zeus_repo()                                         │
-│   ├─ cmp OpenZeus.md (agent file)                               │
-│   ├─ Count zeus-* skills in both locations                      │
-│   └─ Count zeus-*.md commands in both locations                │
+│   ├─ detect_repo()                                              │
+│   ├─ Build OpenZeus manifest from both locations                 │
+│   └─ Report OK / DIFF / MISSING per tracked asset               │
 │                                                                  │
-└─ Command: auto (timestamp-based)                               │
-    ├─ detect_zeus_repo()                                         │
-    ├─ Find newest .md file in repo (stat -c %Y)                  │
-    ├─ Find newest .md file in config                             │
-    ├─ Compare timestamps                                         │
-    │   ├─ repo newer → push_to_config()                         │
-    │   ├─ config newer → pull_from_config()                     │
-    │   └─ equal → "Already in sync"                             │
-    └─ Execute determined direction                                │
+└─ Command: auto                                                  │
+    ├─ detect_repo()                                              │
+    ├─ Build manifest and compare both locations                  │
+    ├─ Choose repo → config only for one-way repo-only changes     │
+    ├─ Choose config → repo only for one-way config-only changes   │
+    └─ Refuse ambiguous conflicts                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -236,7 +229,7 @@ chmod +x "$HOOKS_DIR/post-merge"
 │    └─ File: .git/hooks/pre-push                                │
 │       └─ Content:                                               │
 │          if OpenZeus repo detected:                            │
-│              invoke sync-utils.sh pull                         │
+│              invoke sync-utils.sh status                       │
 │                                                                  │
 │ 3. chmod +x on both hooks                                      │
 │                                                                  │
@@ -248,8 +241,8 @@ Git Workflow Integration:
 │ git pull/merge → post-merge hook → sync-utils.sh push          │
 │     (brings repo up-to-date → syncs to config)                  │
 │                                                                  │
-│ git push → pre-push hook → sync-utils.sh pull                  │
-│     (checks for external config changes → merges to repo first) │
+│ git push → pre-push hook → sync-utils.sh status                │
+│     (warns about repo/config drift without mutating the repo)   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -267,7 +260,7 @@ Git Workflow Integration:
      ▲                           │                         │
      │         auto_sync()       │                         │
      └───────────────────────────┴─────────────────────────┘
-                    (timestamp comparison)
+           (safe one-way sync or conflict refusal)
 ```
 
 ### Location State (create-utils.sh)
@@ -290,7 +283,7 @@ UNDEFINED → determine_location()
 
 | Dependency | Source | Used By | Purpose |
 |------------|--------|---------|---------|
-| OpenCode config | `$HOME/.config/opencode/` | All scripts | Target runtime directory |
+| OpenCode config | `${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}` | All scripts | Target runtime directory |
 | OpenZeus repo | Auto-detected | sync-utils.sh, create-utils.sh | Source of truth for version-controlled assets |
 | Git | System binary | sync-utils.sh (detect_zeus_repo), setup-hooks.sh | Repository detection and hooks |
 | bash | System shell | All scripts | Execution environment |
@@ -301,7 +294,7 @@ UNDEFINED → determine_location()
 |----------|-------------------|---------|
 | OpenCode runtime | Directory scan | Loads agents, skills, commands from config |
 | Git hooks | Executable hooks | Triggers sync on VCS operations |
-| npm package | install.sh | Installs scripts during `npm install` |
+| npm package | `bin/openzeus` | Explicit CLI; install with `openzeus install` |
 
 ### Directory Structure Contract
 
@@ -318,7 +311,9 @@ UNDEFINED → determine_location()
 │   ├── zeus-kanban.md           # Kanban board command
 │   └── zeus-*.md                # Extensible commands
 ├── sync-utils.sh                # Sync utility (installed)
-└── create-utils.sh              # Creator utility (installed)
+├── create-utils.sh              # Creator utility (installed)
+├── setup-hooks.sh               # Optional Git hook installer
+└── doctor.sh                    # Non-mutating health check
 
 $OPENZEUS_REPO/                  # OpenZeus version-controlled repo
 ├── agents/OpenZeus.md
@@ -329,8 +324,8 @@ $OPENZEUS_REPO/                  # OpenZeus version-controlled repo
 │   ├── create-utils.sh
 │   └── setup-hooks.sh
 └── .git/hooks/
-    ├── post-merge               # Auto-sync trigger
-    └── pre-push                 # Pre-push sync trigger
+    ├── post-merge               # Repo → config sync trigger
+    └── pre-push                 # Non-mutating sync status check
 ```
 
 ### API Surface (CLI Commands)
@@ -341,8 +336,7 @@ $OPENZEUS_REPO/                  # OpenZeus version-controlled repo
 | `sync-utils.sh` | `push` | — | Repo → Config sync |
 | `sync-utils.sh` | `pull` | — | Config → Repo sync |
 | `sync-utils.sh` | `status` | — | Show sync state |
-| `sync-utils.sh` | `auto` | — | Timestamp-based auto-sync |
-| `sync-utils.sh` | `install` | — | Alias for push |
+| `sync-utils.sh` | `auto` | — | Safe one-way sync or conflict refusal |
 | `create-utils.sh` | `agent` | `<name> [desc]` | Create agent file |
 | `create-utils.sh` | `skill` | `<name> [desc]` | Create skill module |
 | `create-utils.sh` | `command` | `<name> [desc] [template]` | Create command file |
@@ -363,10 +357,10 @@ $OPENZEUS_REPO/                  # OpenZeus version-controlled repo
 
 2. **Zeus-Prefix Convention**: Only files/directories prefixed with `zeus-` are synced, preventing accidental sync of third-party or user-specific assets.
 
-3. **Non-Destructive Sync**: Pull operations use `cmp -s` to avoid unnecessary file overwrites; push operations are unconditional.
+3. **Non-Destructive Sync**: Push/pull compare files first and refuse conflicts unless `--force` is supplied; `--backup` preserves overwritten destinations.
 
 4. **Install vs. Sync Separation**: `install.sh` is a one-time deployment, while `sync-utils.sh` handles ongoing bidirectional synchronization.
 
 5. **Context-Aware Defaults**: Creation utilities detect execution context to minimize user prompting while maintaining flexibility.
 
-6. **Git Hook Integration**: Hooks automate sync at natural VCS workflow boundaries (post-merge, pre-push), ensuring runtime config stays current.
+6. **Git Hook Integration**: Hooks sync after merges and warn on pre-push drift without mutating the repo during push.

@@ -164,21 +164,21 @@ bd init
 
 ## Workflow: Session Close Protocol
 
-**CRITICAL** — Before ending a session:
+Before ending a session, follow the repository's `AGENTS.md` and Beads policy. Some projects require commit/push; others explicitly forbid it. Remote pushes require explicit user or project authorization.
 
 ```bash
 # 1. Check what changed
 git status
 
-# 2. Commit code
-git add .
-git commit -m "message"
+# 2. Review Beads work state
+bd list --status=in_progress
 
-# 3. Sync beads
-bd sync
+# 3. Update issues/notes according to project policy
+bd show <issue-id>
+bd update <issue-id> --notes "session handoff context"
 
-# 4. Push
-git push
+# 4. Commit/sync/push only when authorized by AGENTS.md or the user
+git status
 ```
 
 ---
@@ -197,9 +197,11 @@ bd update bd-xxx --claim
 
 # 4. Implement...
 
-# 5. Close and commit
+# 5. Close and commit only if project policy and user scope allow it
 bd close bd-xxx --reason "Implemented feature X"
-git add . && git commit -m "feat: implement X" && git push
+git add <files>
+git commit -m "feat: implement X"
+# git push requires explicit user/project authorization
 ```
 
 ---
@@ -270,13 +272,13 @@ bd init --stealth
 
 ```
 [ ] 1. git status              (check what changed)
-[ ] 2. git add <files>         (stage code changes)
-[ ] 3. git commit -m "..."     (commit code)
-[ ] 4. bd sync                 (sync beads to Dolt)
-[ ] 5. git push                (push to remote)
+[ ] 2. bd list --status=in_progress
+[ ] 3. Update/close beads allowed by current task scope
+[ ] 4. Commit only if authorized by user/project policy
+[ ] 5. Push only if explicitly authorized by user/project policy
 ```
 
-**NEVER skip this.** Work is not done until pushed.
+Always follow the active repository's `AGENTS.md`/Beads instructions. Do not claim remote work is complete unless the authorized push/sync actually succeeded.
 
 ---
 
@@ -296,6 +298,55 @@ bd init --stealth
 |---|---|
 | [opencode-beads](https://github.com/joshuadavidthomas/opencode-beads) | OpenCode integration with /bd-* commands |
 | [beads-compound](https://github.com/roberto-mello/beads-compound-plugin) | Enhanced with memory/knowledge capture |
+
+---
+
+## Web Visualization
+
+Beads has multiple web UI options for visualizing your issue tracker:
+
+### Community Web UIs
+
+| Tool | Description | Install |
+|------|-------------|---------|
+| **[beads-ui](https://github.com/mantoni/beads-ui)** | Local web interface with live updates and kanban board. Recommended by official docs. | `npx beads-ui start` |
+| **[BeadBoard](https://github.com/zenchantlive/beadboard)** | Next.js dashboard with DAG dependency graph, multi-agent orchestration, swarm coordination | `npx skills add zenchantlive/beadboard` |
+| **[beads-web](https://github.com/weselow/beads-web)** | Actively maintained fork. 7 visual themes, drag-and-drop, cross-platform binary | Download from releases |
+| **[Foolery](https://github.com/acartine/foolery)** | Visual control surface with dependency-aware wave planning, terminal monitoring | See project README for current install command |
+
+### Quick Start (beads-ui)
+
+```bash
+# From your project directory (where .beads/ exists)
+npx beads-ui start
+
+# Opens at http://127.0.0.1:3000
+```
+
+### For Permanent Installation
+
+```bash
+npm install -g beads-ui
+beads-ui start  # From any project with .beads/
+```
+
+### Official Web UI (monitor-webui)
+
+The beads repository includes an official web UI example at `examples/monitor-webui`. However, it requires Go to build and the beads daemon to be running.
+
+---
+
+## OpenCode Integration
+
+The `opencode-beads` plugin is bundled with OpenCode. Add to your `opencode.json`:
+
+```json
+{
+  "plugin": ["opencode-beads"]
+}
+```
+
+This provides `/bd-*` slash commands for beads operations within OpenCode.
 
 ---
 

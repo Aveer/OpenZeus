@@ -1,329 +1,193 @@
 #!/bin/bash
+set -euo pipefail
 
-# OpenZeus Context-Aware Creator
-# Detects context and chooses appropriate creation location
+dry_run=false
+repo_dir=""
+config_dir="${OPENCODE_CONFIG_DIR:-${HOME}/.config/opencode}"
+location=""
+type=""
 
-set -e
+usage() {
+    cat <<EOF
+Usage: create-utils.sh [--dry-run] [--repo [DIR]] [--config [DIR]] <agent|skill|command> <name> [description] [template]
 
-OPENCODE_DIR="$HOME/.config/opencode"
-OPENZEUS_REPO=""
-CREATE_LOCATION="config"  # config | repo | ask
+Creates valid OpenCode asset templates. If no location is specified and the
+current directory is the OpenZeus repository, files are created in the repo;
+otherwise they are created in the OpenCode config directory.
+EOF
+}
 
-# Source sync utilities for repo detection
-detect_zeus_repo() {
-    # Method 1: Check if we're in OpenZeus repo
-    if [[ "$(basename "$(pwd)")" == "OpenZeus" && -f "agents/OpenZeus.md" ]]; then
-        OPENZEUS_REPO="$(pwd)"
+is_type() {
+    [[ "$1" == agent || "$1" == skill || "$1" == command ]]
+}
+
+yaml_quote() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    printf '"%s"' "$value"
+}
+
+detect_repo() {
+    if [[ -n "$repo_dir" ]]; then
+        printf '%s' "$repo_dir"
         return 0
     fi
-    
-    # Method 2: Check common locations
-    local common_paths=(
-        "$HOME/projects/OpenZeus"
-        "$HOME/OpenZeus" 
-        "$HOME/code/OpenZeus"
-        "$HOME/src/OpenZeus"
-    )
-    
-    for path in "${common_paths[@]}"; do
-        if [[ -d "$path" && -f "$path/agents/OpenZeus.md" ]]; then
-            OPENZEUS_REPO="$path"
-            return 0
-        fi
-    done
-    
+
+    local root=""
+    if root="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)" && [[ -f "$root/agents/OpenZeus.md" ]]; then
+        printf '%s' "$root"
+        return 0
+    fi
+
+    root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    if [[ -f "$root/agents/OpenZeus.md" ]]; then
+        printf '%s' "$root"
+        return 0
+    fi
+
     return 1
 }
 
-# Determine where to create the item
-determine_location() {
-    local type="$1"  # agent | skill | command
-    
-    # If we're in OpenZeus repo, default to repo
-    if [[ "$(basename "$(pwd)")" == "OpenZeus" && -f "agents/OpenZeus.md" ]]; then
-        echo "📍 Detected OpenZeus repo context → creating in repo"
-        CREATE_LOCATION="repo"
-        OPENZEUS_REPO="$(pwd)"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run) dry_run=true ;;
+        --repo)
+            location="repo"
+            if [[ $# -gt 1 && "$2" != --* ]] && ! is_type "$2"; then
+                repo_dir="$2"
+                shift
+            fi
+            ;;
+        --config)
+            location="config"
+            if [[ $# -gt 1 && "$2" != --* ]] && ! is_type "$2"; then
+                config_dir="$2"
+                shift
+            fi
+            ;;
+        -h|--help|help) usage; exit 0 ;;
+        agent|skill|command) type="$1" ;;
+        *) break ;;
+    esac
+    shift
+done
+
+if [[ -z "$type" || $# -lt 1 ]]; then
+    usage >&2
+    exit 1
+fi
+
+name="$1"
+description="${2:-Useful OpenCode asset for $name.}"
+template="${3:-Use \$ARGUMENTS as the complete command input.}"
+
+if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+    echo "Invalid name: $name" >&2
+    exit 1
+fi
+
+if [[ -z "$location" ]]; then
+    if detect_repo >/dev/null; then
+        location="repo"
+    else
+        location="config"
+    fi
+fi
+
+target_root() {
+    if [[ "$location" == repo ]]; then
+        detect_repo || { echo "OpenZeus repo not found; pass --repo DIR" >&2; exit 1; }
+    else
+        printf '%s' "$config_dir"
+    fi
+}
+
+write_file() {
+    local path="$1"
+    local content="$2"
+
+    if [[ "$dry_run" == true ]]; then
+        printf 'WRITE %s\n' "$path"
         return 0
     fi
-    
-    # If OpenZeus repo is found elsewhere, ask user
-    if detect_zeus_repo; then
-        echo "📍 Found OpenZeus repo at: $OPENZEUS_REPO"
-        echo ""
-        echo "Where should I create this $type?"
-        echo "[1] OpenZeus project repo (recommended — version controlled)"
-        echo "[2] Global config (~/.config/opencode/) — local only"
-        echo ""
-        read -p "Choose [1-2]: " choice
-        
-        case "$choice" in
-            1)
-                CREATE_LOCATION="repo"
-                echo "✅ Creating in OpenZeus repo"
-                ;;
-            2)
-                CREATE_LOCATION="config"
-                echo "✅ Creating in global config"
-                ;;
-            *)
-                CREATE_LOCATION="config"
-                echo "⚠️  Invalid choice, defaulting to global config"
-                ;;
-        esac
-    else
-        echo "📍 OpenZeus repo not found → creating in global config"
-        CREATE_LOCATION="config"
-    fi
+
+    mkdir -p "$(dirname "$path")"
+    printf '%s\n' "$content" > "$path"
+    printf 'Created %s\n' "$path"
 }
 
-# Get target directory based on location choice
-get_target_dir() {
-    local type="$1"  # agents | skills | commands
-    
-    if [[ "$CREATE_LOCATION" == "repo" && -n "$OPENZEUS_REPO" ]]; then
-        echo "$OPENZEUS_REPO/$type"
-    else
-        echo "$OPENCODE_DIR/$type"
-    fi
-}
+case "$type" in
+    agent)
+        write_file "$(target_root)/agents/$name.md" "---
+description: $(yaml_quote "$description")
+mode: subagent
+permission:
+  edit: ask
+  bash: ask
+---
 
-# Create agent with context awareness
-create_agent() {
-    local name="$1"
-    local description="$2"
-    
-    determine_location "agent"
-    
-    local target_dir=$(get_target_dir "agents")
-    mkdir -p "$target_dir"
-    
-    local agent_file="$target_dir/$name.md"
-    
-    echo "🤖 Creating agent: $name"
-    echo "📁 Location: $agent_file"
-    
-    # Create agent content (simplified)
-    cat > "$agent_file" << EOF
-# Agent: $name
+You are $name, a focused OpenCode subagent.
+
+## Purpose
 
 $description
 
----
+## Operating Rules
 
-## Instructions
-
-[Agent instructions go here]
-
----
-
-## Tools
-
-- All standard tools available
-
----
-
-## Examples
-
-Example usage patterns...
-
----
-
-End of agent.
-EOF
-    
-    echo "✅ Agent '$name' created at $agent_file"
-    
-    # If created in repo, offer to sync
-    if [[ "$CREATE_LOCATION" == "repo" ]]; then
-        echo "🔄 Syncing to global config..."
-        if [[ -f "$OPENZEUS_REPO/sync-utils.sh" ]]; then
-            "$OPENZEUS_REPO/sync-utils.sh" push
-        else
-            cp -f "$agent_file" "$OPENCODE_DIR/agents/"
-            echo "   ✅ Copied to ~/.config/opencode/agents/"
+- Stay within the delegated scope.
+- Ask before editing files or running mutating shell commands.
+- Prefer small, reversible changes.
+- Return a concise summary with verification evidence.
+"
+        ;;
+    skill)
+        if [[ ! "$name" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "Skill names must be lowercase kebab-case: $name" >&2
+            exit 1
         fi
-    fi
-}
-
-# Create skill with context awareness  
-create_skill() {
-    local name="$1"
-    local description="$2"
-    
-    determine_location "skill"
-    
-    local target_dir=$(get_target_dir "skills")
-    mkdir -p "$target_dir/$name"
-    
-    local skill_file="$target_dir/$name/SKILL.md"
-    
-    echo "🛠️  Creating skill: $name"
-    echo "📁 Location: $skill_file"
-    
-    # Create skill content
-    cat > "$skill_file" << EOF
-# Skill: $name
-
-# $name (Skill)
-
-Purpose: $description
-
+        write_file "$(target_root)/skills/$name/SKILL.md" "---
+name: $name
+description: $(yaml_quote "$description")
 ---
 
-## Section 1
+# $name
 
-[Content goes here...]
+## Summary
 
----
+$description
 
-## Section 2
+## When to Use
 
-[More content...]
+Use this skill when the user asks for workflows related to $name.
+
+## Workflow
+
+1. Identify the relevant files, tools, or docs.
+2. Apply the smallest useful pattern.
+3. Verify the result before reporting success.
 
 ---
 
 End of skill.
-EOF
-    
-    echo "✅ Skill '$name' created at $skill_file"
-    
-    # If created in repo, offer to sync
-    if [[ "$CREATE_LOCATION" == "repo" ]]; then
-        echo "🔄 Syncing to global config..."
-        if [[ -f "$OPENZEUS_REPO/sync-utils.sh" ]]; then
-            "$OPENZEUS_REPO/sync-utils.sh" push
-        else
-            cp -rf "$target_dir/$name" "$OPENCODE_DIR/skills/"
-            echo "   ✅ Copied to ~/.config/opencode/skills/"
-        fi
-    fi
-    
-    # Update OpenZeus.md if it's a zeus-* skill
-    if [[ "$name" == zeus-* ]]; then
-        echo "📝 Adding to OpenZeus skill loading guide..."
-        # TODO: Add logic to update OpenZeus.md
-        echo "   ⚠️  Manual step: Add to OpenZeus.md skill table"
-    fi
-}
-
-# Create command with context awareness
-create_command() {
-    local name="$1" 
-    local description="$2"
-    local template="$3"
-    
-    determine_location "command"
-    
-    local target_dir=$(get_target_dir "commands")
-    mkdir -p "$target_dir"
-    
-    local command_file="$target_dir/$name.md"
-    
-    echo "⚡ Creating command: $name"
-    echo "📁 Location: $command_file"
-    
-    # Create command content
-    cat > "$command_file" << EOF
-# Command: /$name
-
-**Description**: $description
-
+"
+        ;;
+    command)
+        write_file "$(target_root)/commands/$name.md" "---
+description: $(yaml_quote "$description")
 ---
 
-## Template
+# Command: /$name
+
+Use \$ARGUMENTS as the full user request. Positional arguments such as \$1 and \$2 may be used when the command needs structured inputs.
+
+## Prompt
 
 $template
 
----
+## Input
 
-## Usage
-
-\`/$name [arguments]\`
-
----
-
-## Examples
-
-\`/$name example\` — Example usage
-
----
-
-End of command.
-EOF
-    
-    echo "✅ Command '$name' created at $command_file"
-    
-    # If created in repo, offer to sync
-    if [[ "$CREATE_LOCATION" == "repo" ]]; then
-        echo "🔄 Syncing to global config..."
-        if [[ -f "$OPENZEUS_REPO/sync-utils.sh" ]]; then
-            "$OPENZEUS_REPO/sync-utils.sh" push
-        else
-            cp -f "$command_file" "$OPENCODE_DIR/commands/"
-            echo "   ✅ Copied to ~/.config/opencode/commands/"
-        fi
-    fi
-}
-
-# Show usage
-usage() {
-    echo "OpenZeus Context-Aware Creator"
-    echo ""
-    echo "Usage: $0 <type> <name> [description] [template]"
-    echo ""
-    echo "Types:"
-    echo "  agent     Create an OpenCode agent"
-    echo "  skill     Create an OpenCode skill"  
-    echo "  command   Create an OpenCode command"
-    echo ""
-    echo "Examples:"
-    echo "  $0 agent mybot 'My custom agent'"
-    echo "  $0 skill myskill 'Domain expertise for X'"
-    echo "  $0 command mycmd 'Custom command' 'Do something with {args}'"
-    echo ""
-    echo "Location Logic:"
-    echo "  • In OpenZeus repo → creates in repo + syncs to config"
-    echo "  • OpenZeus found → prompts user for location choice"
-    echo "  • No OpenZeus → creates in global config only"
-}
-
-# Main function
-main() {
-    local type="$1"
-    local name="$2" 
-    local description="${3:-Default description}"
-    local template="${4:-Default template}"
-    
-    case "$type" in
-        agent)
-            create_agent "$name" "$description"
-            ;;
-        skill)
-            create_skill "$name" "$description"
-            ;;
-        command)
-            create_command "$name" "$description" "$template"
-            ;;
-        help|--help|-h|"")
-            usage
-            ;;
-        *)
-            echo "❌ Unknown type: $type"
-            echo ""
-            usage
-            exit 1
-            ;;
-    esac
-}
-
-# Non-interactive mode flag
-if [[ "$1" == "--repo" ]]; then
-    CREATE_LOCATION="repo"
-    shift
-elif [[ "$1" == "--config" ]]; then
-    CREATE_LOCATION="config" 
-    shift
-fi
-
-main "$@"
+\$ARGUMENTS
+"
+        ;;
+esac

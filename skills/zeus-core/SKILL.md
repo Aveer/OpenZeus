@@ -31,6 +31,17 @@ description: Exhaustive OpenCode knowledge reference. Config paths, schema, URL 
 | `skills/` | Project-specific skills |
 | `plugins/` | Project-specific plugins |
 
+### Skill Discovery Paths
+
+| Scope | Path |
+|---|---|
+| Project OpenCode | `.opencode/skills/<name>/SKILL.md` |
+| Global OpenCode | `~/.config/opencode/skills/<name>/SKILL.md` |
+| Project Claude-compatible | `.claude/skills/<name>/SKILL.md` |
+| Global Claude-compatible | `~/.claude/skills/<name>/SKILL.md` |
+| Project agents-compatible | `.agents/skills/<name>/SKILL.md` |
+| Global agents-compatible | `~/.agents/skills/<name>/SKILL.md` |
+
 ---
 
 ## Config Precedence (later overrides earlier)
@@ -166,6 +177,8 @@ JSONC example:
 }
 ```
 
+Agent modes are `primary`, `subagent`, and `all`. Use `permission` for tool access; `tools` is deprecated for permissions.
+
 ---
 
 ## Command Config Schema
@@ -183,6 +196,25 @@ JSONC example:
   }
 }
 ```
+
+Command markdown supports `$ARGUMENTS`, positional `$1`/`$2`, shell output injection with backticks, and `@file` references.
+
+---
+
+## Skill Frontmatter Schema
+
+```yaml
+---
+name: my-skill
+description: Brief description of what this skill provides.
+license: MIT              # optional
+compatibility: opencode   # optional
+metadata:                 # optional
+  owner: docs
+---
+```
+
+Required fields: `name`, `description`. Recognized optional fields include `license`, `compatibility`, and `metadata`.
 
 ---
 

@@ -27,8 +27,8 @@ Create a new command when the user:
 2. Design the template:
    - Instructions for the agent
    - Use $ARGUMENTS for user input
-   - Use !`command` to inject shell output
-   - Use @filename to include file content
+   - Use backticks to inject shell output
+   - Use @file references to include file content
 
 3. Write the markdown file:
    - Global: ~/.config/opencode/commands/<name>.md
@@ -56,8 +56,8 @@ Create a new command when the user:
 |---|---|---|
 | `$ARGUMENTS` | Everything after command name | `/deploy production` → "production" |
 | `$1`, `$2`...`$9` | Positional arguments | `/create user alice admin` → $1="user", $2="alice", $3="admin" |
-| `!`command`` | Bash output injected | `!`git status`` → git status output |
-| `@filename` | File content included | `@README.md` → README.md contents |
+| Backtick shell block | Bash output injected | See shell examples below |
+| `@file` | File content included | `@README.md` → README.md contents |
 
 ### Placeholder Examples
 
@@ -77,22 +77,22 @@ Result: `Create a component named Button`
 Template: `Create a $1 named $2 with role $3`
 Result: `Create a user named alice with role admin`
 
-#### !`command` — Shell output injection
+#### Backticks — Shell output injection
 
 ```
 ---
 description: Review recent changes
 ---
 Recent commits:
-!`git log --oneline -5`
+`git log --oneline -5`
 
 Changed files:
-!`git diff --stat`
+`git diff --stat`
 
 Review these changes.
 ```
 
-#### @filename — File content inclusion
+#### @file — File content inclusion
 
 ```
 ---
@@ -117,8 +117,8 @@ subtask: false
 [Template body with instructions and placeholders]
 
 [Use $ARGUMENTS, $1, $2 for input]
-[Use !`command` for shell output]
-[Use @filename for file inclusion]
+[Use shell commands in backticks for output injection]
+[Use @file references for file inclusion]
 ```
 
 ---
@@ -174,10 +174,10 @@ agent: general
 ---
 
 Recent git commits:
-!`git log --oneline -10`
+`git log --oneline -10`
 
 Changed files:
-!`git diff --stat`
+`git diff --stat`
 
 Review these changes and suggest improvements.
 ```
@@ -203,12 +203,13 @@ agent: general
 ---
 
 Project status:
-!`git status`
+`git status`
 
 Recent changes:
-!`git log --oneline -5`
+`git log --oneline -5`
 
-Current branch: !`git branch --show-current`
+Current branch:
+`git branch --show-current`
 
 Provide a summary of the project state.
 ```
@@ -224,9 +225,10 @@ agent: build
 Deploy application to $ARGUMENTS environment.
 
 Steps:
-1. Run tests: !`npm test`
-2. Build: !`npm run build`
-3. Deploy: !`deploy $ARGUMENTS`
+1. Review target environment: `$ARGUMENTS`
+2. Run tests with `npm test`
+3. Build with `npm run build`
+4. Ask before running the project-specific deploy command.
 
 Report deployment status.
 ```
@@ -242,10 +244,10 @@ agent: general
 Analyze the codebase for complexity issues.
 
 File structure:
-!`find . -name "*.py" -o -name "*.js" | head -20`
+`find . \( -name "*.py" -o -name "*.js" \) | head -20`
 
 Line counts:
-!`wc -l !`find . -name "*.py" -o -name "*.js"` | sort -n | tail -10`
+`find . \( -name "*.py" -o -name "*.js" \) -print0 | xargs -0 wc -l | sort -n | tail -10`
 
 Report top 5 most complex files.
 ```
@@ -289,7 +291,7 @@ write /path/to/project/.opencode/commands/<name>.md
 | Trigger | `/name` in TUI | `@name` or Tab switch |
 | Template | Yes — prompt template | Yes — system prompt |
 | Arguments | Yes — $ARGUMENTS, $1-$9 | No (unless combined) |
-| Shell injection | Yes — !`command` | No |
+| Shell injection | Yes — backtick shell commands | No |
 | Mode | Always subtask | Primary or subagent |
 | Persistence | Ephemeral template | Persistent persona |
 
@@ -304,7 +306,7 @@ Agents are great for: persistent personas, complex reasoning, multi-step tasks.
 |---|---|
 | Command not found | Check file is in `commands/` with correct name |
 | Overrides built-in | Custom commands can override `/init`, `/help`, etc. |
-| Placeholders not replaced | Use exact syntax: `$ARGUMENTS`, `$1`, `!`command`` |
+| Placeholders not replaced | Use exact syntax: `$ARGUMENTS`, `$1`, `$2`, backtick shell commands, `@file` |
 | Arguments not parsing | Check positional markers `$1`/`$2` match usage |
 | Wrong agent invoked | Set `agent` in frontmatter |
 | Model not overridden | Set `model` in frontmatter |

@@ -1,94 +1,145 @@
 #!/bin/bash
+set -euo pipefail
 
-# OpenZeus Installation Script
-# Installs OpenZeus agent, skills, and commands to OpenCode configuration
+dry_run=false
+force=false
+backup=false
+target_dir="${OPENCODE_CONFIG_DIR:-${HOME}/.config/opencode}"
 
-set -e
+usage() {
+    cat <<EOF
+Usage: install.sh [--dry-run] [--force] [--backup] [--target DIR]
 
-OPENCODE_DIR="$HOME/.config/opencode"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+Installs only OpenZeus-owned assets:
+  agents/OpenZeus.md
+  skills/zeus-*/
+  commands/zeus-*.md
+  sync/create/hooks/doctor helper scripts
 
-echo "🏛️  OpenZeus Installation Script"
-echo "================================"
+By default, existing differing files are skipped. Use --force to overwrite;
+pair --force with --backup to preserve existing destinations first.
+EOF
+}
 
-# Check if OpenCode config directory exists
-if [ ! -d "$OPENCODE_DIR" ]; then
-    echo "❌ OpenCode configuration directory not found at $OPENCODE_DIR"
-    echo "   Please install and configure OpenCode first."
-    exit 1
-fi
-
-echo "✅ Found OpenCode configuration at $OPENCODE_DIR"
-
-# Create directories if they don't exist
-mkdir -p "$OPENCODE_DIR/agents"
-mkdir -p "$OPENCODE_DIR/skills"
-mkdir -p "$OPENCODE_DIR/commands"
-
-echo "📁 Created necessary directories"
-
-# Install OpenZeus agent
-echo "🤖 Installing OpenZeus agent..."
-cp -f "$SCRIPT_DIR/agents/OpenZeus.md" "$OPENCODE_DIR/agents/"
-echo "   ✅ Installed agents/OpenZeus.md"
-
-# Install Zeus skills
-echo "🛠️  Installing Zeus skills..."
-for skill_dir in "$SCRIPT_DIR/skills"/zeus-*; do
-    if [ -d "$skill_dir" ]; then
-        skill_name=$(basename "$skill_dir")
-        cp -rf "$skill_dir" "$OPENCODE_DIR/skills/"
-        echo "   ✅ Installed skills/$skill_name"
+require_value() {
+    local flag="$1"
+    local value="${2:-}"
+    if [[ -z "$value" || "$value" == --* ]]; then
+        echo "Missing value for $flag" >&2
+        exit 1
     fi
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run) dry_run=true ;;
+        --force) force=true ;;
+        --backup) backup=true ;;
+        --target)
+            require_value "$1" "${2:-}"
+            target_dir="$2"
+            shift
+            ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+    esac
+    shift
 done
 
-# Install Zeus commands (optional)
-echo "⚡ Installing Zeus commands..."
-for command_file in "$SCRIPT_DIR/commands"/zeus-*.md; do
-    if [ -f "$command_file" ]; then
-        command_name=$(basename "$command_file")
-        cp -f "$command_file" "$OPENCODE_DIR/commands/"
-        echo "   ✅ Installed commands/$command_name"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+backup_existing() {
+    local dst="$1"
+    [[ "$backup" == true && -e "$dst" ]] || return 0
+
+    local bak="${dst}.bak.$(date +%Y%m%d%H%M%S)"
+    if [[ -d "$dst" ]]; then
+        cp -R "$dst" "$bak"
+    else
+        cp -p "$dst" "$bak"
     fi
+    echo "backup: $bak"
+}
+
+same_file() {
+    [[ -f "$1" && -f "$2" ]] && cmp -s "$1" "$2"
+}
+
+same_dir() {
+    [[ -d "$1" && -d "$2" ]] && diff -qr "$1" "$2" >/dev/null
+}
+
+copy_file_safe() {
+    local src="$1"
+    local dst="$2"
+    local mode="${3:-}"
+
+    if [[ "$dry_run" == true ]]; then
+        echo "copy file: $src -> $dst"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$dst")"
+    if [[ -e "$dst" ]]; then
+        same_file "$src" "$dst" && return 0
+        if [[ "$force" != true ]]; then
+            echo "skip existing: $dst"
+            return 0
+        fi
+        backup_existing "$dst"
+    fi
+
+    cp -f "$src" "$dst"
+    if [[ "$mode" == executable ]]; then
+        chmod +x "$dst"
+    fi
+    return 0
+}
+
+copy_dir_safe() {
+    local src="$1"
+    local dst="$2"
+
+    if [[ "$dry_run" == true ]]; then
+        echo "copy dir: $src -> $dst"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$dst")"
+    if [[ -e "$dst" ]]; then
+        same_dir "$src" "$dst" && return 0
+        if [[ "$force" != true ]]; then
+            echo "skip existing: $dst"
+            return 0
+        fi
+        backup_existing "$dst"
+        rm -rf "$dst"
+    fi
+
+    cp -R "$src" "$dst"
+}
+
+if [[ "$dry_run" == true ]]; then
+    echo "mkdir -p $target_dir/agents $target_dir/skills $target_dir/commands"
+else
+    mkdir -p "$target_dir/agents" "$target_dir/skills" "$target_dir/commands"
+fi
+
+copy_file_safe "$script_dir/agents/OpenZeus.md" "$target_dir/agents/OpenZeus.md"
+
+for skill_dir in "$script_dir"/skills/zeus-*; do
+    [[ -d "$skill_dir" ]] || continue
+    copy_dir_safe "$skill_dir" "$target_dir/skills/$(basename "$skill_dir")"
 done
 
-# Install sync utilities (optional but recommended)
-if [ -f "$SCRIPT_DIR/sync-utils.sh" ]; then
-    echo "🔄 Installing sync utilities..."
-    cp -f "$SCRIPT_DIR/sync-utils.sh" "$OPENCODE_DIR/sync-utils.sh"
-    chmod +x "$OPENCODE_DIR/sync-utils.sh"
-    echo "   ✅ Installed sync-utils.sh"
-fi
+for command_file in "$script_dir"/commands/zeus-*.md; do
+    [[ -f "$command_file" ]] || continue
+    copy_file_safe "$command_file" "$target_dir/commands/$(basename "$command_file")"
+done
 
-if [ -f "$SCRIPT_DIR/create-utils.sh" ]; then
-    echo "🛠️  Installing creation utilities..."
-    cp -f "$SCRIPT_DIR/create-utils.sh" "$OPENCODE_DIR/create-utils.sh" 
-    chmod +x "$OPENCODE_DIR/create-utils.sh"
-    echo "   ✅ Installed create-utils.sh"
-fi
+for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh; do
+    [[ -f "$script_dir/scripts/$helper" ]] || continue
+    copy_file_safe "$script_dir/scripts/$helper" "$target_dir/$helper" executable
+done
 
-# Install documentation cache (optional)
-if [ -d "$SCRIPT_DIR/docs/docs-cache" ]; then
-    echo "📚 Installing documentation cache..."
-    mkdir -p "$OPENCODE_DIR/docs-cache"
-    cp -rf "$SCRIPT_DIR/docs/docs-cache"/* "$OPENCODE_DIR/docs-cache/" 2>/dev/null || true
-    echo "   ✅ Installed documentation cache"
-fi
-
-echo ""
-echo "🎉 OpenZeus installation complete!"
-echo ""
-echo "Usage:"
-echo "  • Set as default agent: Add \"default_agent\": \"OpenZeus\" to opencode.json"
-echo "  • Use via @mention: @OpenZeus help me configure OpenCode"
-echo "  • Access skills: Available automatically based on context"
-echo "  • Use commands: /zeus-kanban, /zeus-roadmap, /zeus-git-commit"
-echo ""
-echo "Sync Management:"
-echo "  • Check sync status: ~/.config/opencode/sync-utils.sh status"
-echo "  • Sync repo to config: ~/.config/opencode/sync-utils.sh push"
-echo "  • Sync config to repo: ~/.config/opencode/sync-utils.sh pull"
-echo "  • Auto-detect sync: ~/.config/opencode/sync-utils.sh auto"
-echo ""
-echo "📖 See README.md for full documentation"
-echo "🏛️  Welcome to the realm of OpenZeus!"
+echo "OpenZeus assets installed to $target_dir"
