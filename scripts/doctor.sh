@@ -4,6 +4,18 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-${HOME}/.config/opencode}}"
 status=0
+fix_plan=false
+missing_executables=()
+warnings=0
+needs_install=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --fix-plan) fix_plan=true ;;
+        -h|--help|help) echo "Usage: doctor.sh [--fix-plan]"; exit 0 ;;
+    esac
+    shift
+done
 
 fail() {
     echo "FAIL $1"
@@ -12,6 +24,7 @@ fail() {
 
 warn() {
     echo "WARN $1"
+    warnings=$((warnings + 1))
 }
 
 contains() {
@@ -34,8 +47,12 @@ for file in \
     "$root_dir/scripts/sync-utils.sh" \
     "$root_dir/scripts/create-utils.sh" \
     "$root_dir/scripts/setup-hooks.sh" \
+    "$root_dir/scripts/init-project.sh" \
     "$root_dir/scripts/doctor.sh"; do
-    [[ -x "$file" ]] || fail "missing executable: $file"
+    if [[ ! -x "$file" ]]; then
+        fail "missing executable: $file"
+        missing_executables+=("${file#$root_dir/}")
+    fi
 done
 
 [[ -f "$root_dir/agents/OpenZeus.md" ]] || fail "missing agents/OpenZeus.md"
@@ -61,10 +78,51 @@ contains "$root_dir/package.json" '"postinstall"' && fail "package.json should n
 
 if [[ ! -d "$config_dir" ]]; then
     warn "OpenCode config dir absent: $config_dir (install will create it)"
+    needs_install=true
+else
+    if [[ ! -f "$config_dir/agents/OpenZeus.md" ]]; then
+        warn "OpenZeus agent missing from config: $config_dir/agents/OpenZeus.md"
+        needs_install=true
+    fi
+
+    config_skill_count=0
+    config_command_count=0
+    [[ -d "$config_dir/skills" ]] && config_skill_count=$(find "$config_dir/skills" -maxdepth 1 -mindepth 1 -type d -name 'zeus-*' | wc -l | tr -d ' ')
+    [[ -d "$config_dir/commands" ]] && config_command_count=$(find "$config_dir/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
+    if [[ "$config_skill_count" -eq 0 ]]; then
+        warn "No Zeus skills installed in config: $config_dir/skills"
+        needs_install=true
+    fi
+    if [[ "$config_command_count" -eq 0 ]]; then
+        warn "No Zeus commands installed in config: $config_dir/commands"
+        needs_install=true
+    fi
 fi
 
-if [[ "$status" -eq 0 ]]; then
+if [[ "$status" -eq 0 && "$warnings" -eq 0 ]]; then
     echo "OpenZeus doctor: ok"
+elif [[ "$status" -eq 0 ]]; then
+    echo "OpenZeus doctor: warnings"
+fi
+
+if [[ "$fix_plan" == true ]]; then
+    echo "Suggested commands:"
+    suggestions=0
+    if [[ "$needs_install" == true ]]; then
+        echo "  openzeus install"
+        suggestions=$((suggestions + 1))
+    fi
+    for file in "${missing_executables[@]}"; do
+        echo "  chmod +x $file"
+        suggestions=$((suggestions + 1))
+    done
+    if [[ "$status" -ne 0 ]]; then
+        echo "  inspect FAIL lines above, fix the referenced package files, then rerun openzeus doctor --fix-plan"
+        suggestions=$((suggestions + 1))
+    fi
+    if [[ "$suggestions" -eq 0 ]]; then
+        echo "  (none; no fixes required)"
+    fi
 fi
 
 exit "$status"

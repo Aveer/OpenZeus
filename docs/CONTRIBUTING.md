@@ -9,6 +9,7 @@ git clone https://github.com/Aveer/OpenZeus.git
 cd OpenZeus
 npm install
 ./scripts/install.sh
+openzeus status
 ```
 
 Use `${OPENCODE_CONFIG_DIR:-~/.config/opencode}` for global OpenCode assets.
@@ -25,6 +26,17 @@ Use `${OPENCODE_CONFIG_DIR:-~/.config/opencode}` for global OpenCode assets.
 | `codemap.md` | Repository architecture map |
 
 ## Common Changes
+
+Prefer guided workflows in user-facing docs and examples:
+
+```bash
+openzeus doctor --fix-plan
+openzeus status
+openzeus init-project --dry-run
+openzeus examples
+```
+
+Document dry-run or fix-plan behavior before commands that write files.
 
 ### Add a skill
 
@@ -79,6 +91,8 @@ Use current OpenCode modes: `primary`, `subagent`, or `all`. Grant minimal permi
 
 ```bash
 npm test
+openzeus doctor --fix-plan
+openzeus status
 ./scripts/sync-utils.sh status
 ```
 
@@ -86,6 +100,9 @@ For manual runtime testing:
 
 ```bash
 ./scripts/install.sh
+openzeus list all
+openzeus examples
+openzeus init-project --target /tmp/openzeus-smoke --dry-run
 opencode run "@OpenZeus help"
 ```
 
@@ -96,6 +113,13 @@ opencode run "@OpenZeus help"
 ./scripts/sync-utils.sh push     # repo → config
 ./scripts/sync-utils.sh pull     # config → repo
 ./scripts/sync-utils.sh auto     # safe one-way sync or conflict refusal
+```
+
+CLI equivalents:
+
+```bash
+openzeus sync status
+openzeus sync auto
 ```
 
 ## Commit Style
