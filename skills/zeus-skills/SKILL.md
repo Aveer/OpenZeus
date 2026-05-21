@@ -3,202 +3,101 @@ name: zeus-skills
 description: Guide for creating new skills for OpenCode. Use this when the user wants to create a custom skill.
 ---
 
+# zeus-skills (Skill)
+
+Canonical guide for creating and editing OpenCode skills.
+
 ---
 
 ## What is a Skill?
 
-A skill is a reusable capability bundle for OpenCode agents. Skills are markdown files that:
-- Provide domain-specific knowledge and templates
-- Are loaded on-demand by agents via the `skill` tool
-- Live in `~/.config/opencode/skills/` (global) or `<repo>/.opencode/skills/` (project)
+A skill is a reusable markdown knowledge bundle loaded by agents with the `skill` tool.
+
+Use a skill when you need:
+- Reusable domain knowledge
+- Copy-pasteable templates or commands
+- Focused troubleshooting/reference material
+- A capability that should be shared across sessions or agents
 
 ---
 
-## Skill Structure
+## Discovery Paths
 
-```
+OpenCode discovers skills from these locations:
+
+| Scope | Path |
+|---|---|
+| Project OpenCode | `.opencode/skills/<name>/SKILL.md` |
+| Global OpenCode | `~/.config/opencode/skills/<name>/SKILL.md` |
+| Project Claude-compatible | `.claude/skills/<name>/SKILL.md` |
+| Global Claude-compatible | `~/.claude/skills/<name>/SKILL.md` |
+| Project agents-compatible | `.agents/skills/<name>/SKILL.md` |
+| Global agents-compatible | `~/.agents/skills/<name>/SKILL.md` |
+
+Prefer `.opencode/skills/` for project-specific skills and `~/.config/opencode/skills/` for user-wide skills.
+
+---
+
+## Skill Directory Structure
+
+```text
 skills/
-├── my-skill/
-│   ├── SKILL.md          # Main skill file (required)
-│   ├── README.md         # Optional documentation
-│   └── [supporting files] # Optional resources
+└── my-skill/
+    ├── SKILL.md          # Required
+    ├── README.md         # Optional human-facing notes
+    └── templates/        # Optional supporting files
 ```
 
 ---
 
-## SKILL.md Format
+## SKILL.md Frontmatter
 
-Skills use YAML frontmatter at the top:
+`SKILL.md` requires YAML frontmatter with `name` and `description`.
 
 ```yaml
 ---
 name: my-skill
 description: Brief description of what this skill provides.
 ---
-
----
-
-## Section 1
-
-[Content...]
-
-## Section 2
-
-[Content...]
-
----
-
-End of skill.
 ```
 
-**Required frontmatter fields:**
-- `name`: Skill identifier (matches directory name)
-- `description`: One-line purpose summary
+| Field | Required | Notes |
+|---|---:|---|
+| `name` | Yes | Skill identifier; usually matches directory name |
+| `description` | Yes | One-line purpose and trigger guidance |
+| `license` | No | Recognized optional metadata |
+| `compatibility` | No | Recognized optional compatibility notes |
+| `metadata` | No | Recognized optional structured metadata |
 
 ---
 
-## When to Create a Skill
+## Minimal Skill Template
 
-Create a skill when:
-- The user wants reusable domain knowledge
-- You keep loading the same reference content
-- You want to modularize agent capabilities
-- A specific topic deserves deep, focused documentation
+````markdown
+---
+name: my-skill
+description: Short purpose and when to use this skill.
+---
+
+# my-skill (Skill)
+
+Purpose: Short, concrete purpose statement.
 
 ---
 
-## Skill Creation Workflow
+## Quick Reference
 
-```
-1. Determine skill identity:
-   - Name (becomes directory name)
-   - Purpose (one-liner)
-   - Contents (what sections to include)
-
-2. Create directory:
-   - Global: ~/.config/opencode/skills/<name>/
-   - Project: <repo>/.opencode/skills/<name>/
-
-3. Write SKILL.md:
-   - Start with YAML frontmatter (name + description)
-   - Add content sections
-   - End with "---" or "End of skill."
-
-4. Optional: Add supporting files (README.md, templates, etc.)
-
-5. Report location and how to use:
-   "Skill '<name>' created at ~/.config/opencode/skills/<name>/. 
-    Load with: skill('<name>')"
-```
+| Task | Example |
+|---|---|
+| Do the common thing | `example command` |
 
 ---
 
-## Example: Creating a Git Master Skill
+## Workflow
 
-### Step 1: Determine identity
-- Name: `git-master`
-- Purpose: Expert git workflows, branching, rebasing, and troubleshooting
-
-### Step 2: Create directory
 ```bash
-mkdir -p ~/.config/opencode/skills/git-master/
-```
-
-### Step 3: Write SKILL.md
-
-```yaml
----
-name: git-master
-description: Expert git workflows, branching, rebasing, and troubleshooting.
----
-
----
-
-## Common Git Commands
-
-| Task | Command |
-|---|---|
-| Create branch | `git checkout -b feature-name` |
-| Squash commits | `git rebase -i HEAD~3` |
-| Undo last commit | `git reset --soft HEAD~1` |
-
-## Branching Strategies
-
-### GitFlow
-- main, develop, feature/*, release/*, hotfix/*
-
-### Trunk-Based
-- Short-lived feature branches from main
-
----
-
----
-
-End of skill.
-```
-
-### Step 4: Report
-
-```
-Skill 'git-master' created at ~/.config/opencode/skills/git-master/
-Load with: skill('git-master')
-```
-
----
-
-## Example: Creating a Docker Skill
-
-```yaml
----
-name: docker-basics
-description: Common Docker commands and troubleshooting.
----
-
----
-
-## Common Commands
-
-| Task | Command |
-|---|---|
-| Build image | `docker build -t myapp .` |
-| Run container | `docker run -d -p 8080:80 myapp` |
-| List containers | `docker ps -a` |
-| Stop all | `docker stop $(docker ps -q)` |
-
-## Troubleshooting
-
-| Problem | Solution |
-|---|---|
-| Port already bound | Change port mapping: `-p 8081:80` |
-| Out of disk space | `docker system prune -a` |
-| Container won't start | `docker logs <container>` |
-
----
-
-End of skill.
-```
-
----
-
-## Skill Best Practices
-
-1. **Start with Purpose** — One-line description of what the skill provides
-2. **Use Tables** — For quick reference tables (commands, troubleshooting)
-3. **Include Examples** — Real, copy-pasteable examples
-4. **End Clearly** — Use `---` or "End of skill." to mark completion
-5. **Keep Focused** — One skill = one domain
-6. **Name Clearly** — Skill name should be obvious: `git-master`, `docker-basics`, `python-testing`
-
----
-
-## Adding Skill to an Agent
-
-To make an agent load a skill, update the agent's skill loading guide:
-
-```markdown
-| Skill Name | Load When |
-|---|---|
-| `my-skill` | When user asks about [topic] |
+# Copy-pasteable commands only
+example command --safe-flag
 ```
 
 ---
@@ -207,15 +106,80 @@ To make an agent load a skill, update the agent's skill loading guide:
 
 | Problem | Fix |
 |---|---|
-| Skill not loading | Check path: `~/.config/opencode/skills/<name>/SKILL.md` |
-| Skill not found | Ensure directory name matches skill name in `skill()` call |
-| Empty skill | Add content to SKILL.md |
+| Skill not loading | Check `<path>/<name>/SKILL.md` and frontmatter |
 
 ---
 
-## Relevant Documentation
+End of skill.
+````
+
+---
+
+## Creation Workflow
+
+```text
+1. Choose a focused name and one-line description.
+2. Create <skill-root>/<name>/SKILL.md.
+3. Add required frontmatter: name + description.
+4. Write concise sections with tables and copy-pasteable examples.
+5. Add optional supporting files only when they reduce clutter.
+6. Load/test with skill("<name>") where available.
+```
+
+Example:
+
+```bash
+mkdir -p ~/.config/opencode/skills/git-master
+cat > ~/.config/opencode/skills/git-master/SKILL.md <<'EOF'
+---
+name: git-master
+description: Expert git workflows, branching, rebasing, and troubleshooting.
+---
+
+# git-master (Skill)
+
+## Quick Reference
+
+| Task | Command |
+|---|---|
+| Create branch | `git switch -c feature-name` |
+| Show changes | `git diff --stat` |
+| Undo last commit | `git reset --soft HEAD~1` |
+
+---
+
+End of skill.
+EOF
+```
+
+---
+
+## Best Practices
+
+- **One domain per skill**: keep scope narrow.
+- **Concise sections**: prefer tables and examples over prose.
+- **Safe examples**: avoid destructive commands unless clearly guarded.
+- **Stable frontmatter**: preserve `name` and `description` when editing.
+- **Portable content**: no secrets, local-only credentials, or brittle paths.
+- **Clear ending**: use `---` and `End of skill.` for consistency.
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| Skill not found | Verify discovery path and directory name |
+| Frontmatter ignored | Ensure YAML starts at line 1 and closes with `---` |
+| Skill too noisy | Move long examples to supporting files or shorten tables |
+| Wrong scope | Use project path for project-specific knowledge; global path for reusable knowledge |
+
+---
+
+## Related Documentation
 
 - OpenCode Skills: https://opencode.ai/docs/skills/
+- OpenCode Agents: https://opencode.ai/docs/agents/
 
 ---
 

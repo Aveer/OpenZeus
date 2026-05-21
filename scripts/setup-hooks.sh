@@ -1,51 +1,73 @@
 #!/bin/bash
-# Setup Git hooks for OpenZeus auto-sync
+set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOOKS_DIR="$SCRIPT_DIR/.git/hooks"
+dry_run=false
+force=false
 
-echo "🪝 Setting up OpenZeus git hooks..."
+usage() {
+    cat <<EOF
+Usage: setup-hooks.sh [--dry-run] [--force]
 
-# Create post-merge hook
-cat > "$HOOKS_DIR/post-merge" << 'EOF'
-#!/bin/bash
-# OpenZeus post-merge hook
-# Automatically syncs OpenZeus repo changes to OpenCode config after git pull/merge
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
-
-# Only run if we're in an OpenZeus repo
-if [[ -f "$SCRIPT_DIR/agents/OpenZeus.md" && -f "$SCRIPT_DIR/sync-utils.sh" ]]; then
-    echo "🔄 OpenZeus post-merge: syncing changes to config..."
-    "$SCRIPT_DIR/sync-utils.sh" push
-    echo "✅ Sync complete"
-fi
+Installs optional Git hooks into the current repository:
+  post-merge  syncs repo -> config after pulls/merges
+  pre-push    runs sync status and warns about divergence
 EOF
+}
 
-chmod +x "$HOOKS_DIR/post-merge"
-echo "✅ Created post-merge hook: auto-sync after git pull"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run) dry_run=true ;;
+        --force) force=true ;;
+        -h|--help|help) usage; exit 0 ;;
+        *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+    esac
+    shift
+done
 
-# Create pre-push hook for pull sync
-cat > "$HOOKS_DIR/pre-push" << 'EOF'
-#!/bin/bash
-# OpenZeus pre-push hook
-# Pulls any external changes from config before pushing
+repo_root="$(git rev-parse --show-toplevel)"
+hooks_path="$(git -C "$repo_root" rev-parse --git-path hooks)"
+case "$hooks_path" in
+    /*) hooks_dir="$hooks_path" ;;
+    *) hooks_dir="$repo_root/$hooks_path" ;;
+esac
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+write_hook() {
+    local path="$1"
+    local body="$2"
 
-# Only run if we're in an OpenZeus repo
-if [[ -f "$SCRIPT_DIR/agents/OpenZeus.md" && -f "$SCRIPT_DIR/sync-utils.sh" ]]; then
-    echo "🔄 OpenZeus pre-push: checking for external changes..."
-    "$SCRIPT_DIR/sync-utils.sh" pull
-fi
-EOF
+    if [[ "$dry_run" == true ]]; then
+        printf 'WRITE %s\n' "$path"
+        return 0
+    fi
 
-chmod +x "$HOOKS_DIR/pre-push"
-echo "✅ Created pre-push hook: pull external changes before push"
+    if [[ -e "$path" && "$force" != true ]]; then
+        echo "skip existing hook: $path"
+        return 0
+    fi
 
-echo ""
-echo "🎯 Git hooks installed!"
-echo "• post-merge: Auto-sync repo → config after git pull"
-echo "• pre-push: Pull config → repo before git push"
-echo ""
-echo "To disable: rm .git/hooks/{post-merge,pre-push}"
+    mkdir -p "$(dirname "$path")"
+    printf '%s\n' "$body" > "$path"
+    chmod +x "$path"
+    echo "installed hook: $path"
+}
+
+post_merge='#!/bin/bash
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+if [[ -x "$repo_root/scripts/sync-utils.sh" ]]; then
+    "$repo_root/scripts/sync-utils.sh" push
+fi'
+
+pre_push='#!/bin/bash
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+if [[ -x "$repo_root/scripts/sync-utils.sh" ]]; then
+    "$repo_root/scripts/sync-utils.sh" status || {
+        echo "OpenZeus sync status has differences; run scripts/sync-utils.sh status" >&2
+    }
+fi'
+
+write_hook "$hooks_dir/post-merge" "$post_merge"
+write_hook "$hooks_dir/pre-push" "$pre_push"
+
+echo "OpenZeus hooks configured in $hooks_dir"

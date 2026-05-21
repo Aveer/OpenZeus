@@ -1,289 +1,290 @@
 #!/bin/bash
+set -euo pipefail
 
-# OpenZeus Sync Utilities
-# Handles bidirectional sync between OpenZeus repo and OpenCode config
+dry_run=false
+force=false
+backup=false
+repo_dir="${OPENZEUS_REPO:-}"
+config_dir="${OPENCODE_CONFIG_DIR:-${HOME}/.config/opencode}"
+command="status"
+manifest_items=""
 
-set -e
+usage() {
+    cat <<EOF
+Usage: sync-utils.sh [--dry-run] [--force] [--backup] [--repo DIR] [--config DIR] <status|push|pull|auto>
 
-OPENCODE_DIR="$HOME/.config/opencode"
-OPENZEUS_REPO=""
+Synchronizes only OpenZeus-owned assets:
+  agents/OpenZeus.md
+  skills/zeus-*/
+  commands/zeus-*.md
 
-# Auto-detect OpenZeus repository location
-detect_zeus_repo() {
-    # Method 1: Check if we're in OpenZeus repo
-    if [[ "$(basename "$(pwd)")" == "OpenZeus" && -f "agents/OpenZeus.md" ]]; then
-        OPENZEUS_REPO="$(pwd)"
+By default, conflicting destination files are not overwritten. Use --force to
+overwrite and --backup to preserve the old destination first.
+EOF
+}
+
+require_value() {
+    local flag="$1"
+    local value="${2:-}"
+    if [[ -z "$value" || "$value" == --* ]]; then
+        echo "Missing value for $flag" >&2
+        exit 1
+    fi
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run) dry_run=true ;;
+        --force) force=true ;;
+        --backup) backup=true ;;
+        --repo)
+            require_value "$1" "${2:-}"
+            repo_dir="$2"
+            shift
+            ;;
+        --config)
+            require_value "$1" "${2:-}"
+            config_dir="$2"
+            shift
+            ;;
+        push|pull|status|auto) command="$1" ;;
+        -h|--help|help) usage; exit 0 ;;
+        *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+    esac
+    shift
+done
+
+detect_repo() {
+    if [[ -n "$repo_dir" && -f "$repo_dir/agents/OpenZeus.md" ]]; then
         return 0
     fi
-    
-    # Method 2: Check common locations
-    local common_paths=(
-        "$HOME/projects/OpenZeus"
-        "$HOME/OpenZeus" 
-        "$HOME/code/OpenZeus"
-        "$HOME/src/OpenZeus"
-    )
-    
-    for path in "${common_paths[@]}"; do
-        if [[ -d "$path" && -f "$path/agents/OpenZeus.md" ]]; then
-            OPENZEUS_REPO="$path"
-            return 0
-        fi
-    done
-    
-    # Method 3: Ask git for OpenZeus remotes
-    local git_repos=$(find "$HOME" -name ".git" -type d 2>/dev/null | head -20)
-    for git_dir in $git_repos; do
-        local repo_dir=$(dirname "$git_dir")
-        if git -C "$repo_dir" remote get-url origin 2>/dev/null | grep -q "OpenZeus"; then
-            if [[ -f "$repo_dir/agents/OpenZeus.md" ]]; then
-                OPENZEUS_REPO="$repo_dir"
-                return 0
-            fi
-        fi
-    done
-    
+
+    local root=""
+    if root="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)" && [[ -f "$root/agents/OpenZeus.md" ]]; then
+        repo_dir="$root"
+        return 0
+    fi
+
+    root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    if [[ -f "$root/agents/OpenZeus.md" ]]; then
+        repo_dir="$root"
+        return 0
+    fi
+
+    echo "OpenZeus repository not found; pass --repo DIR" >&2
     return 1
 }
 
-# Push from repo to config (repo → config)
-push_to_config() {
-    echo "🔄 Syncing OpenZeus repo → OpenCode config..."
-    
-    if [[ ! -d "$OPENZEUS_REPO" ]]; then
-        echo "❌ OpenZeus repo not found at: $OPENZEUS_REPO"
-        return 1
-    fi
-    
-    # Sync agents
-    if [[ -d "$OPENZEUS_REPO/agents" ]]; then
-        mkdir -p "$OPENCODE_DIR/agents"
-        cp -f "$OPENZEUS_REPO/agents"/*.md "$OPENCODE_DIR/agents/" 2>/dev/null || true
-        echo "   ✅ Synced agents"
-    fi
-    
-    # Sync skills  
-    if [[ -d "$OPENZEUS_REPO/skills" ]]; then
-        mkdir -p "$OPENCODE_DIR/skills"
-        for skill_dir in "$OPENZEUS_REPO/skills"/zeus-*; do
-            if [[ -d "$skill_dir" ]]; then
-                skill_name=$(basename "$skill_dir")
-                cp -rf "$skill_dir" "$OPENCODE_DIR/skills/"
-                echo "   ✅ Synced skills/$skill_name"
-            fi
-        done
-    fi
-    
-    # Sync commands
-    if [[ -d "$OPENZEUS_REPO/commands" ]]; then
-        mkdir -p "$OPENCODE_DIR/commands"
-        cp -f "$OPENZEUS_REPO/commands"/zeus-*.md "$OPENCODE_DIR/commands/" 2>/dev/null || true
-        echo "   ✅ Synced commands"
-    fi
-}
+item_label() {
+    local item="$1"
+    local type="${item%%:*}"
+    local name="${item#*:}"
 
-# Pull from config to repo (config → repo) 
-pull_from_config() {
-    echo "🔄 Syncing OpenCode config → OpenZeus repo..."
-    
-    if [[ ! -d "$OPENZEUS_REPO" ]]; then
-        echo "❌ OpenZeus repo not found at: $OPENZEUS_REPO"
-        return 1
-    fi
-    
-    local changes=false
-    
-    # Pull agents (OpenZeus.md specifically)
-    if [[ -f "$OPENCODE_DIR/agents/OpenZeus.md" ]]; then
-        mkdir -p "$OPENZEUS_REPO/agents"
-        if ! cmp -s "$OPENCODE_DIR/agents/OpenZeus.md" "$OPENZEUS_REPO/agents/OpenZeus.md"; then
-            cp -f "$OPENCODE_DIR/agents/OpenZeus.md" "$OPENZEUS_REPO/agents/"
-            echo "   ✅ Updated agents/OpenZeus.md"
-            changes=true
-        fi
-    fi
-    
-    # Pull skills (zeus-* only)
-    if [[ -d "$OPENCODE_DIR/skills" ]]; then
-        mkdir -p "$OPENZEUS_REPO/skills"
-        for skill_dir in "$OPENCODE_DIR/skills"/zeus-*; do
-            if [[ -d "$skill_dir" ]]; then
-                skill_name=$(basename "$skill_dir")
-                local repo_skill="$OPENZEUS_REPO/skills/$skill_name"
-                
-                # Check if skill is different
-                if [[ ! -d "$repo_skill" ]] || ! diff -r "$skill_dir" "$repo_skill" >/dev/null 2>&1; then
-                    cp -rf "$skill_dir" "$OPENZEUS_REPO/skills/"
-                    echo "   ✅ Updated skills/$skill_name"
-                    changes=true
-                fi
-            fi
-        done
-    fi
-    
-    # Pull commands (zeus-* only)
-    if [[ -d "$OPENCODE_DIR/commands" ]]; then
-        mkdir -p "$OPENZEUS_REPO/commands"
-        for cmd_file in "$OPENCODE_DIR/commands"/zeus-*.md; do
-            if [[ -f "$cmd_file" ]]; then
-                cmd_name=$(basename "$cmd_file")
-                local repo_cmd="$OPENZEUS_REPO/commands/$cmd_name"
-                
-                if ! cmp -s "$cmd_file" "$repo_cmd"; then
-                    cp -f "$cmd_file" "$OPENZEUS_REPO/commands/"
-                    echo "   ✅ Updated commands/$cmd_name"
-                    changes=true
-                fi
-            fi
-        done
-    fi
-    
-    if [[ "$changes" == "true" ]]; then
-        echo ""
-        echo "📝 Changes detected. Consider committing to git:"
-        echo "   cd '$OPENZEUS_REPO'"
-        echo "   git add -A && git commit -m 'sync: pull external changes from config'"
-    else
-        echo "   ℹ️  No changes detected"
-    fi
-}
-
-# Status check - show sync state
-status() {
-    echo "📊 OpenZeus Sync Status"
-    echo "======================="
-    
-    if detect_zeus_repo; then
-        echo "✅ OpenZeus repo: $OPENZEUS_REPO"
-    else
-        echo "❌ OpenZeus repo: Not found"
-        return 1
-    fi
-    
-    echo "✅ Config dir: $OPENCODE_DIR"
-    echo ""
-    
-    # Compare key files
-    echo "File Comparison (Repo vs Config):"
-    echo "--------------------------------"
-    
-    # OpenZeus.md
-    if [[ -f "$OPENZEUS_REPO/agents/OpenZeus.md" && -f "$OPENCODE_DIR/agents/OpenZeus.md" ]]; then
-        if cmp -s "$OPENZEUS_REPO/agents/OpenZeus.md" "$OPENCODE_DIR/agents/OpenZeus.md"; then
-            echo "✅ OpenZeus.md: In sync"
-        else
-            echo "⚠️  OpenZeus.md: Out of sync"
-        fi
-    else
-        echo "❌ OpenZeus.md: Missing files"
-    fi
-    
-    # Skills count
-    local repo_skills=$(find "$OPENZEUS_REPO/skills" -name "zeus-*" -type d 2>/dev/null | wc -l)
-    local config_skills=$(find "$OPENCODE_DIR/skills" -name "zeus-*" -type d 2>/dev/null | wc -l)
-    if [[ "$repo_skills" -eq "$config_skills" ]]; then
-        echo "✅ Zeus skills: $repo_skills skills in both locations"
-    else
-        echo "⚠️  Zeus skills: Repo=$repo_skills, Config=$config_skills"
-    fi
-    
-    # Commands count  
-    local repo_cmds=$(find "$OPENZEUS_REPO/commands" -name "zeus-*.md" 2>/dev/null | wc -l)
-    local config_cmds=$(find "$OPENCODE_DIR/commands" -name "zeus-*.md" 2>/dev/null | wc -l)
-    if [[ "$repo_cmds" -eq "$config_cmds" ]]; then
-        echo "✅ Zeus commands: $repo_cmds commands in both locations"  
-    else
-        echo "⚠️  Zeus commands: Repo=$repo_cmds, Config=$config_cmds"
-    fi
-}
-
-# Show usage
-usage() {
-    echo "OpenZeus Sync Utilities"
-    echo ""
-    echo "Usage: $0 <command>"
-    echo ""
-    echo "Commands:"
-    echo "  push      Push changes from OpenZeus repo to OpenCode config"
-    echo "  pull      Pull changes from OpenCode config to OpenZeus repo" 
-    echo "  status    Show sync status and detect differences"
-    echo "  auto      Auto-detect and sync in appropriate direction"
-    echo "  install   Same as push (compatibility with install.sh)"
-    echo ""
-    echo "Examples:"
-    echo "  $0 status         # Check if repo and config are in sync"
-    echo "  $0 push          # After modifying files in OpenZeus repo"
-    echo "  $0 pull          # After OpenZeus creates new skills in other projects"
-    echo "  $0 auto          # Smart sync based on timestamps"
-}
-
-# Auto sync - detect which direction to sync
-auto_sync() {
-    if ! detect_zeus_repo; then
-        echo "❌ Cannot auto-sync: OpenZeus repo not found"
-        return 1
-    fi
-    
-    echo "🤖 Auto-detecting sync direction..."
-    
-    # Compare timestamps to determine direction
-    local repo_newest=0
-    local config_newest=0
-    
-    # Find newest file in repo
-    if [[ -d "$OPENZEUS_REPO" ]]; then
-        repo_newest=$(find "$OPENZEUS_REPO" -name "*.md" -path "*/agents/*" -o -path "*/skills/*" -o -path "*/commands/*" -exec stat -c %Y {} \; 2>/dev/null | sort -n | tail -1)
-    fi
-    
-    # Find newest file in config
-    if [[ -d "$OPENCODE_DIR" ]]; then
-        config_newest=$(find "$OPENCODE_DIR" -name "*.md" -path "*/agents/*" -o -path "*/skills/zeus-*" -o -path "*/commands/*" -exec stat -c %Y {} \; 2>/dev/null | sort -n | tail -1)
-    fi
-    
-    if [[ "$repo_newest" -gt "$config_newest" ]]; then
-        echo "📤 Repo is newer → pushing to config"
-        push_to_config
-    elif [[ "$config_newest" -gt "$repo_newest" ]]; then
-        echo "📥 Config is newer → pulling to repo"
-        pull_from_config
-    else
-        echo "✅ Already in sync"
-    fi
-}
-
-# Main command dispatcher
-main() {
-    if ! detect_zeus_repo; then
-        echo "⚠️  Warning: OpenZeus repository not found"
-        echo "   Searched: current dir, ~/projects/OpenZeus, git remotes"
-        echo "   Some commands may not work properly"
-        echo ""
-    fi
-    
-    case "${1:-status}" in
-        push|install)
-            push_to_config
-            ;;
-        pull)
-            pull_from_config
-            ;;
-        status)
-            status
-            ;;
-        auto)
-            auto_sync
-            ;;
-        help|--help|-h)
-            usage
-            ;;
-        *)
-            echo "❌ Unknown command: $1"
-            echo ""
-            usage
-            exit 1
-            ;;
+    case "$type" in
+        agent) printf 'agents/%s' "$name" ;;
+        skill) printf 'skills/%s' "$name" ;;
+        command) printf 'commands/%s' "$name" ;;
     esac
 }
 
-# Run main function with all arguments
-main "$@"
+item_path() {
+    local base="$1"
+    local item="$2"
+    local type="${item%%:*}"
+    local name="${item#*:}"
+
+    case "$type" in
+        agent) printf '%s/agents/%s' "$base" "$name" ;;
+        skill) printf '%s/skills/%s' "$base" "$name" ;;
+        command) printf '%s/commands/%s' "$base" "$name" ;;
+    esac
+}
+
+append_item() {
+    local item="$1"
+    case "$manifest_items" in
+        *$'\n'"$item"$'\n'*) return 0 ;;
+    esac
+    manifest_items+="$item"$'\n'
+}
+
+collect_manifest() {
+    local base="$1"
+    [[ -d "$base" ]] || return 0
+
+    [[ -f "$base/agents/OpenZeus.md" ]] && append_item "agent:OpenZeus.md"
+
+    local path=""
+    for path in "$base"/skills/zeus-*; do
+        [[ -d "$path" ]] || continue
+        append_item "skill:$(basename "$path")"
+    done
+
+    for path in "$base"/commands/zeus-*.md; do
+        [[ -f "$path" ]] || continue
+        append_item "command:$(basename "$path")"
+    done
+}
+
+build_manifest() {
+    manifest_items=$'\n'
+    collect_manifest "$repo_dir"
+    collect_manifest "$config_dir"
+}
+
+same_item() {
+    local left="$1"
+    local right="$2"
+
+    if [[ -f "$left" && -f "$right" ]]; then
+        cmp -s "$left" "$right"
+        return $?
+    fi
+
+    if [[ -d "$left" && -d "$right" ]]; then
+        diff -qr "$left" "$right" >/dev/null
+        return $?
+    fi
+
+    return 1
+}
+
+backup_existing() {
+    local dst="$1"
+    [[ "$backup" == true && -e "$dst" ]] || return 0
+
+    local bak="${dst}.bak.$(date +%Y%m%d%H%M%S)"
+    if [[ -d "$dst" ]]; then
+        cp -R "$dst" "$bak"
+    else
+        cp -p "$dst" "$bak"
+    fi
+    echo "backup: $bak"
+}
+
+copy_item() {
+    local src_base="$1"
+    local dst_base="$2"
+    local item="$3"
+    local src dst label
+
+    src="$(item_path "$src_base" "$item")"
+    dst="$(item_path "$dst_base" "$item")"
+    label="$(item_label "$item")"
+
+    [[ -e "$src" ]] || return 0
+
+    if [[ -e "$dst" ]]; then
+        same_item "$src" "$dst" && return 0
+        if [[ "$force" != true ]]; then
+            echo "CONFLICT $label"
+            return 1
+        fi
+    fi
+
+    if [[ "$dry_run" == true ]]; then
+        echo "copy $label"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$dst")"
+    backup_existing "$dst"
+    rm -rf "$dst"
+
+    if [[ -d "$src" ]]; then
+        cp -R "$src" "$dst"
+    else
+        cp -f "$src" "$dst"
+    fi
+}
+
+sync_direction() {
+    local src_base="$1"
+    local dst_base="$2"
+    local item status=0
+
+    build_manifest
+    while IFS= read -r item; do
+        [[ -n "$item" ]] || continue
+        [[ -e "$(item_path "$src_base" "$item")" ]] || continue
+        copy_item "$src_base" "$dst_base" "$item" || status=1
+    done <<< "$manifest_items"
+
+    return "$status"
+}
+
+show_status() {
+    detect_repo
+    build_manifest
+
+    local item repo_path config_path status=0 label
+    while IFS= read -r item; do
+        [[ -n "$item" ]] || continue
+        repo_path="$(item_path "$repo_dir" "$item")"
+        config_path="$(item_path "$config_dir" "$item")"
+        label="$(item_label "$item")"
+
+        if [[ -e "$repo_path" && -e "$config_path" ]]; then
+            if same_item "$repo_path" "$config_path"; then
+                echo "OK $label"
+            else
+                echo "DIFF $label"
+                status=1
+            fi
+        elif [[ -e "$repo_path" ]]; then
+            echo "MISSING config:$label"
+            status=1
+        elif [[ -e "$config_path" ]]; then
+            echo "MISSING repo:$label"
+            status=1
+        fi
+    done <<< "$manifest_items"
+
+    return "$status"
+}
+
+auto_sync() {
+    detect_repo
+    build_manifest
+
+    local item repo_path config_path push_needed=false pull_needed=false conflict=false label
+    while IFS= read -r item; do
+        [[ -n "$item" ]] || continue
+        repo_path="$(item_path "$repo_dir" "$item")"
+        config_path="$(item_path "$config_dir" "$item")"
+        label="$(item_label "$item")"
+
+        if [[ -e "$repo_path" && -e "$config_path" ]]; then
+            if ! same_item "$repo_path" "$config_path"; then
+                echo "CONFLICT $label differs in both locations"
+                conflict=true
+            fi
+        elif [[ -e "$repo_path" ]]; then
+            push_needed=true
+        elif [[ -e "$config_path" ]]; then
+            pull_needed=true
+        fi
+    done <<< "$manifest_items"
+
+    if [[ "$conflict" == true || ( "$push_needed" == true && "$pull_needed" == true ) ]]; then
+        echo "Auto-sync refused: ambiguous bidirectional changes"
+        return 1
+    fi
+
+    if [[ "$push_needed" == true ]]; then
+        echo "Auto-sync direction: repo -> config"
+        sync_direction "$repo_dir" "$config_dir"
+    elif [[ "$pull_needed" == true ]]; then
+        echo "Auto-sync direction: config -> repo"
+        sync_direction "$config_dir" "$repo_dir"
+    else
+        echo "Already in sync"
+    fi
+}
+
+case "$command" in
+    status) show_status ;;
+    push) detect_repo; sync_direction "$repo_dir" "$config_dir" ;;
+    pull) detect_repo; sync_direction "$config_dir" "$repo_dir" ;;
+    auto) auto_sync ;;
+esac

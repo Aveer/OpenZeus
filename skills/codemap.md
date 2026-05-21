@@ -41,7 +41,7 @@ skills/zeus-<name>/
                           ▼
 ┌─────────────────────────────────────────────────────┐
 │  SKILL.md Content (per skill)                       │
-│  - YAML frontmatter (name, description)             │
+│  - YAML frontmatter (required: name, description)   │
 │  - Markdown sections (documentation)                 │
 │  - Tables, code blocks, templates                   │
 └─────────────────────────────────────────────────────┘
@@ -55,6 +55,7 @@ All skills use YAML frontmatter for discovery and loading:
 ---
 name: zeus-<name>           # Skill identifier (matches directory)
 description: Brief purpose    # One-line summary for autocomplete
+# Optional recognized fields: license, compatibility, metadata
 ---
 ```
 
@@ -63,6 +64,9 @@ description: Brief purpose    # One-line summary for autocomplete
 |-------|------|----------|---------|
 | `name` | string | Yes | Skill identifier for `skill()` loading |
 | `description` | string | Yes | Shown in skill selection UIs |
+| `license` | string | No | Optional license metadata |
+| `compatibility` | string/object | No | Optional compatibility metadata |
+| `metadata` | object | No | Optional structured metadata |
 
 ### Pattern 3: Trigger-Keyword → Skill Mapping
 
@@ -103,8 +107,11 @@ Command Creation:
 Docker + DevOps:
   zeus-docker → zeus-core
 
-Self-Improvement:
-  zeus-upskill → update OpenZeus.md
+Skill Creation:
+  zeus-skills → generic OpenCode skill guidance
+
+OpenZeus Self-Extension:
+  zeus-upskill → README/metadata/OpenZeus registration workflow
 ```
 
 ---
@@ -130,7 +137,7 @@ skill("<skill-name>")
     ▼
 ┌──────────────────────────────────────────────────────┐
 │  OpenCode Skill Tool                                  │
-│  - Locates: ~/.config/opencode/skills/<name>/        │
+│  - Locates configured skill discovery paths          │
 │  - Reads: SKILL.md                                   │
 │  - Injects content into agent context                │
 └──────────────────────────────────────────────────────┘
@@ -276,6 +283,17 @@ skill("<skill-name>")
 └── skills/                          # Project-specific skills
 ```
 
+OpenCode skill discovery also recognizes Claude/agents-compatible skill roots:
+
+```text
+.opencode/skills/<name>/SKILL.md
+~/.config/opencode/skills/<name>/SKILL.md
+.claude/skills/<name>/SKILL.md
+~/.claude/skills/<name>/SKILL.md
+.agents/skills/<name>/SKILL.md
+~/.agents/skills/<name>/SKILL.md
+```
+
 ---
 
 ## Skill Taxonomy
@@ -285,10 +303,10 @@ skill("<skill-name>")
 | Skill | Responsibility | Lines |
 |-------|----------------|-------|
 | `zeus-core` | OpenCode config, schema, URLs, built-in agents/commands | ~240 |
-| `zeus-agents` | Agent creation templates, patterns, permissions | ~451 |
-| `zeus-commands` | Command templates, placeholders, shell injection | ~314 |
-| `zeus-skills` | Skill creation guide, structure, best practices | ~222 |
-| `zeus-upskill` | OpenZeus self-extension workflow | ~219 |
+| `zeus-agents` | Agent creation templates, current modes, permissions | ~455 |
+| `zeus-commands` | Command templates, arguments, backtick shell injection, `@file` references | ~315 |
+| `zeus-skills` | Canonical general skill creation/editing guide | ~170 |
+| `zeus-upskill` | OpenZeus skill registration workflow; delegates general concepts to `zeus-skills` | ~120 |
 
 ### Category 2: Infrastructure Skills
 
@@ -336,8 +354,8 @@ Each skill is self-contained with all relevant information, avoiding cross-skill
 ### 4. Trigger-Keyword Matching
 Simple keyword detection enables automatic skill loading without complex intent classification.
 
-### 5. Two-Tier Organization
-Global skills (`~/.config/opencode/skills/`) + Project skills (`<repo>/.opencode/skills/`).
+### 5. Multi-Root Discovery
+OpenCode skills can live in `.opencode`, global OpenCode config, Claude-compatible roots, or agents-compatible roots.
 
 ### 6. Bidirectional Sync
 OpenZeus repo ↔ config directory sync via `sync-utils.sh` scripts.
@@ -370,13 +388,11 @@ OpenZeus repo ↔ config directory sync via `sync-utils.sh` scripts.
 When ending a session involving skill modifications:
 
 ```
-1. git status          # Check changed files
-2. skill("zeus-self")  # Verify system health
-3. skill("zeus-beads") # Ensure issues updated
-4. git add .           # Stage changes
-5. git commit          # Commit work
-6. ./sync-utils.sh push  # Sync to config (if in repo)
-7. git push            # Push to remote
+1. git status                 # Check changed files
+2. skill("zeus-self")         # Verify system health if needed
+3. skill("zeus-beads")        # Follow project Beads policy
+4. Run required verification  # e.g., frontmatter check, npm test
+5. Commit/sync/push only when authorized by user/project policy
 ```
 
 ---
