@@ -4,17 +4,18 @@ set -euo pipefail
 dry_run=false
 force=false
 backup=false
-target_dir="${OPENCODE_CONFIG_DIR:-${HOME}/.config/opencode}"
+install_mode="all"
+target_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-${HOME}/.config/opencode}}"
 
 usage() {
     cat <<EOF
-Usage: install.sh [--dry-run] [--force] [--backup] [--target DIR]
+Usage: install.sh [--dry-run] [--force] [--backup] [--core|--extras|--all] [--target DIR]
 
 Installs only OpenZeus-owned assets:
   agents/OpenZeus.md
   skills/zeus-*/
-  commands/zeus-*.md
-  sync/create/hooks/doctor/init-project helper scripts
+  commands/zeus-*.md (filtered by --core/--extras/--all)
+  sync/create/hooks/doctor/init-project/setup/validate/capture-command/diff/upgrade helper scripts
 
 By default, existing differing files are skipped. Use --force to overwrite;
 pair --force with --backup to preserve existing destinations first.
@@ -35,6 +36,9 @@ while [[ $# -gt 0 ]]; do
         --dry-run) dry_run=true ;;
         --force) force=true ;;
         --backup) backup=true ;;
+        --core) install_mode="core" ;;
+        --extras) install_mode="extras" ;;
+        --all) install_mode="all" ;;
         --target)
             require_value "$1" "${2:-}"
             target_dir="$2"
@@ -120,25 +124,47 @@ copy_dir_safe() {
     cp -R "$src" "$dst"
 }
 
+should_install_skill() {
+    local name="$1"
+    case "$install_mode" in
+        all) return 0 ;;
+        core) [[ "$name" == zeus-core || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills || "$name" == zeus-upskill || "$name" == zeus-context ]] ;;
+        extras) [[ "$name" != zeus-core && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills && "$name" != zeus-upskill && "$name" != zeus-context ]] ;;
+    esac
+}
+
+should_install_command() {
+    local name="$1"
+    case "$install_mode" in
+        all) return 0 ;;
+        core) [[ "$name" == zeus-git-commit.md || "$name" == zeus-improve-project.md ]] ;;
+        extras) [[ "$name" != zeus-git-commit.md && "$name" != zeus-improve-project.md ]] ;;
+    esac
+}
+
 if [[ "$dry_run" == true ]]; then
     echo "mkdir -p $target_dir/agents $target_dir/skills $target_dir/commands"
+    echo "write install profile: $install_mode"
 else
     mkdir -p "$target_dir/agents" "$target_dir/skills" "$target_dir/commands"
+    printf '%s\n' "$install_mode" > "$target_dir/.openzeus-install-profile"
 fi
 
 copy_file_safe "$script_dir/agents/OpenZeus.md" "$target_dir/agents/OpenZeus.md"
 
 for skill_dir in "$script_dir"/skills/zeus-*; do
     [[ -d "$skill_dir" ]] || continue
+    should_install_skill "$(basename "$skill_dir")" || continue
     copy_dir_safe "$skill_dir" "$target_dir/skills/$(basename "$skill_dir")"
 done
 
 for command_file in "$script_dir"/commands/zeus-*.md; do
     [[ -f "$command_file" ]] || continue
+    should_install_command "$(basename "$command_file")" || continue
     copy_file_safe "$command_file" "$target_dir/commands/$(basename "$command_file")"
 done
 
-for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh; do
+for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
     [[ -f "$script_dir/scripts/$helper" ]] || continue
     copy_file_safe "$script_dir/scripts/$helper" "$target_dir/$helper" executable
 done

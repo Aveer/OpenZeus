@@ -7,12 +7,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 ## [Unreleased]
 
 ### Added
+- `openzeus setup --plan|--apply` with recipes: `node`, `python`, `docs`, `beads`, and `solo-dev`.
+- `openzeus validate [--ci] [--project DIR]` for package/config and project asset checks.
+- `openzeus capture-command --name NAME --prompt TEXT` for prompt-to-command generation.
+- `openzeus recipes` and `openzeus context init` for setup discovery and persistent project context files.
+- `openzeus diff [--summary] [--ci]` for profile-aware package/config drift reporting.
+- `openzeus upgrade --dry-run|--apply` and `openzeus rollback --dry-run|--apply` with local config backups.
 - Product-facing guided UX around setup audit, status inspection, repo initialization, examples, asset listing, and safe sync workflows.
 - Documentation for `openzeus doctor --fix-plan`, `openzeus status`, `openzeus list`, `openzeus examples`, and `openzeus init-project --dry-run`.
 - Project initialization detects npm, Makefile, and Python project files to pre-fill `/test`, `/build`, and `project-context` starter assets with likely commands.
 - `openzeus doctor --fix-plan` detects missing or differing installed OpenZeus assets and suggests concrete safe repair commands.
 
 ### Changed
+- `openzeus install` now documents `--core`, `--extras`, and `--all` profiles; the OpenZeus agent and helper scripts are always installed, while skills/commands are profile-filtered.
+- `doctor`, `diff`, and `upgrade` now use the saved install profile so filtered assets are not treated as missing.
+- CI-oriented docs now prefer `openzeus validate --ci`, `openzeus doctor --ci`, and `openzeus diff --summary --ci`.
 - Reposition OpenZeus as a guided OpenCode setup/audit/generation product instead of only an asset pack.
 - Update OpenZeus agent guidance toward outcome workflows: audit setup, initialize projects, generate commands/assets, and diagnose loading or sync issues.
 - Align OpenCode asset docs with current modes: `primary`, `subagent`, `all`.

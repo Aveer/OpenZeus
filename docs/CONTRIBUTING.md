@@ -8,8 +8,8 @@ Thanks for contributing. Keep changes small, documented, and tested against the 
 git clone https://github.com/Aveer/OpenZeus.git
 cd OpenZeus
 npm install
-./scripts/install.sh
-openzeus status
+./scripts/install.sh --all
+openzeus validate --ci
 ```
 
 Use `${OPENCODE_CONFIG_DIR:-~/.config/opencode}` for global OpenCode assets.
@@ -30,13 +30,13 @@ Use `${OPENCODE_CONFIG_DIR:-~/.config/opencode}` for global OpenCode assets.
 Prefer guided workflows in user-facing docs and examples:
 
 ```bash
+openzeus setup --plan --target .
+openzeus validate --ci
 openzeus doctor --fix-plan
-openzeus status
-openzeus init-project --dry-run
-openzeus examples
+openzeus diff --summary
 ```
 
-Document dry-run or fix-plan behavior before commands that write files.
+Document `--plan`, `--dry-run`, `--fix-plan`, or `--ci` behavior before commands that write files or fail automation.
 
 ### Add a skill
 
@@ -91,20 +91,35 @@ Use current OpenCode modes: `primary`, `subagent`, or `all`. Grant minimal permi
 
 ```bash
 npm test
-openzeus doctor --fix-plan
-openzeus status
+openzeus validate --ci
+openzeus validate --ci --project .
+openzeus doctor --ci
+openzeus diff --summary --ci
 ./scripts/sync-utils.sh status
 ```
 
 For manual runtime testing:
 
 ```bash
-./scripts/install.sh
+./scripts/install.sh --core
 openzeus list all
 openzeus examples
-openzeus init-project --target /tmp/openzeus-smoke --dry-run
+openzeus setup --plan --recipe node --target /tmp/openzeus-smoke
+openzeus setup --apply --recipe node --target /tmp/openzeus-smoke --dry-run
+openzeus capture-command --name smoke --prompt 'Echo $ARGUMENTS' --target /tmp/openzeus-smoke/.opencode --dry-run
+openzeus context init --target /tmp/openzeus-smoke --dry-run
 opencode run "@OpenZeus help"
 ```
+
+Use install profiles deliberately:
+
+```bash
+openzeus install --core --dry-run
+openzeus install --extras --dry-run
+openzeus install --all --dry-run
+```
+
+`doctor`, `diff`, and `upgrade` respect the saved `.openzeus-install-profile`.
 
 ## Sync
 

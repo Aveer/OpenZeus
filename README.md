@@ -1,18 +1,18 @@
 # OpenZeus
 
-**Guided OpenCode setup, audit, and asset generation.**
+**Guided OpenCode setup, validation, and asset generation.**
 
-OpenZeus helps you make an OpenCode workspace useful fast: audit your config, initialize repo-local assets, generate agents/skills/commands, and sync safely between this repository and your OpenCode config.
+OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, install profile-aware assets, validate config, capture commands from prompts, and upgrade safely with local backups.
 
 ![OpenZeus](./media/OpenZeus.png)
 
 ## What OpenZeus is useful for
 
-- **Audit setup**: inspect installed agents, commands, skills, and config drift.
-- **Initialize projects**: create repo-local `.opencode/` assets with dry-run previews.
-- **Generate assets**: create agents, skills, and commands from focused prompts.
-- **Sync safely**: compare repo ↔ config state before copying assets.
-- **Learn by example**: list installed assets and copy starter workflows.
+- **Plan setup**: preview repo-local `.opencode/` assets before writing.
+- **Install profiles**: install `core`, `extras`, or `all` OpenZeus assets.
+- **Validate CI**: fail fast on package, project, or config drift problems.
+- **Capture commands**: turn repeatable prompts into slash commands.
+- **Upgrade safely**: back up local config and preserve the active install profile.
 
 ## Installation
 
@@ -20,7 +20,7 @@ OpenZeus helps you make an OpenCode workspace useful fast: audit your config, in
 
 ```bash
 npm install -g openzeus
-openzeus install
+openzeus install --all
 ```
 
 ### Manual
@@ -28,7 +28,7 @@ openzeus install
 ```bash
 git clone https://github.com/Aveer/OpenZeus.git
 cd OpenZeus
-./scripts/install.sh
+./scripts/install.sh --all
 ```
 
 The installer copies assets into `${OPENCODE_CONFIG_DIR:-~/.config/opencode}`.
@@ -37,41 +37,85 @@ The installer copies assets into `${OPENCODE_CONFIG_DIR:-~/.config/opencode}`.
 
 ```bash
 npm install -g openzeus
-openzeus doctor --fix-plan        # audit setup; print planned fixes only
-openzeus install --dry-run        # preview global OpenCode asset install
-openzeus status                   # inspect installed assets and sync state
-openzeus init-project --dry-run   # preview repo-local .opencode assets
-openzeus examples                 # see copy-pasteable workflows
+openzeus install --core           # agent + helpers + core skills/commands
+openzeus setup --plan             # preview repo-local .opencode setup
+openzeus setup --apply --target . # write starter assets
+openzeus validate --ci            # CI-friendly package/config validation
+openzeus diff --summary           # count config drift issues
 ```
 
-When the dry runs look right:
+For a stack-specific setup:
 
 ```bash
-openzeus install
-openzeus init-project --target .
+openzeus recipes
+openzeus setup --plan --recipe node --target .
+openzeus setup --apply --recipe node --target .
 ```
 
 ## Common workflows
 
-### Audit OpenCode setup
+### Install profiles
 
 ```bash
-openzeus doctor --fix-plan
-openzeus status
-openzeus list all
+openzeus install --core    # OpenZeus agent, helpers, core skills/commands
+openzeus install --extras  # non-core skills/commands plus agent/helpers
+openzeus install --all     # everything
 ```
 
-### Initialize repo-local assets
+The agent and helper scripts are always installed. Skills and commands are filtered by profile. `doctor`, `diff`, and `upgrade` use the saved `.openzeus-install-profile` so profile-filtered assets are not reported as missing.
+
+### Plan and apply project setup
 
 ```bash
-openzeus init-project --target . --dry-run
-openzeus init-project --target .
+openzeus recipes
+openzeus setup --plan --recipe python --target .
+openzeus setup --apply --recipe python --target .
 ```
 
-`init-project` detects common project files (`package.json`, `Makefile`,
-`pyproject.toml`, `setup.cfg`, `setup.py`) and pre-fills `/test`, `/build`, and
-`project-context` with likely commands such as `npm test`, `npm run build`,
-`make test`, `make build`, or `pytest`.
+Recipes: `node`, `python`, `docs`, `beads`, `solo-dev`. Add `--dry-run` to preview writes and `--force` to replace existing starter files.
+
+### Validate and inspect drift
+
+```bash
+openzeus validate --ci
+openzeus validate --ci --project .
+openzeus doctor --ci
+openzeus diff --summary --ci
+```
+
+`--ci` exits non-zero on validation failures or drift warnings.
+
+### Capture a slash command
+
+```bash
+openzeus capture-command \
+  --name release-notes \
+  --prompt 'Draft release notes from $ARGUMENTS' \
+  --target .opencode \
+  --dry-run
+```
+
+Remove `--dry-run` to write `.opencode/commands/release-notes.md`. Use `--force` to overwrite.
+
+### Initialize project context
+
+```bash
+openzeus context init --target . --dry-run
+openzeus context init --target .
+```
+
+Writes `.opencode/context/{architecture.md,commands.md,testing.md}` with detected stack, test, and build notes.
+
+### Upgrade or rollback local config
+
+```bash
+openzeus upgrade --dry-run
+openzeus upgrade --apply
+openzeus rollback --dry-run
+openzeus rollback --apply
+```
+
+Upgrade creates a local backup under the OpenCode config directory, then reinstalls using the saved install profile.
 
 ### Create agents, skills, and commands
 
@@ -94,9 +138,9 @@ Ask for outcomes, not file names:
 
 ```bash
 @OpenZeus audit my OpenCode setup and explain what to fix
-@OpenZeus initialize this repo with project-local OpenCode assets
+@OpenZeus plan setup for this repo, then apply it after I review
 @OpenZeus turn this release process into a slash command
-@OpenZeus diagnose why my project skills are not loading
+@OpenZeus validate this project for CI
 ```
 
 ### Use commands
@@ -143,8 +187,9 @@ openzeus help
 
 ```bash
 npm test
-openzeus status
-openzeus doctor --fix-plan
+openzeus validate --ci
+openzeus doctor --ci
+openzeus diff --summary --ci
 ./scripts/sync-utils.sh status
 ```
 
@@ -162,10 +207,11 @@ openzeus doctor --fix-plan
 
 | Issue | Try |
 |---|---|
-| `OpenZeus` not available | Run `npm install -g openzeus` or `./scripts/install.sh`, then restart OpenCode. |
+| `OpenZeus` not available | Run `npm install -g openzeus && openzeus install --core`, then restart OpenCode. |
 | Skills not found | Check `${OPENCODE_CONFIG_DIR:-~/.config/opencode}/skills/`. |
 | Commands not found | Check `${OPENCODE_CONFIG_DIR:-~/.config/opencode}/commands/`. |
 | Config path differs | Set `OPENCODE_CONFIG_DIR` before installing/syncing. |
+| CI fails on drift | Run `openzeus diff --summary` and `openzeus doctor --fix-plan`. |
 
 ## Version
 

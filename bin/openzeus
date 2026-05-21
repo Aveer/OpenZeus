@@ -21,7 +21,7 @@ usage() {
   cat <<EOF
 OpenZeus CLI
 
-Usage: openzeus <install|sync|create|hooks|doctor|status|list|examples|init-project|help> [args...]
+Usage: openzeus <install|sync|create|hooks|doctor|status|list|examples|init-project|setup|validate|capture-command|recipes|diff|upgrade|rollback|context|help> [args...]
 
 Commands:
   install   Install OpenZeus assets into an OpenCode config directory
@@ -33,6 +33,14 @@ Commands:
   list      List package assets and installation status
   examples  Show copy-paste examples
   init-project  Create project-local .opencode starter assets
+  setup     Plan or apply repo-local setup
+  validate  Validate package, config, or project assets
+  capture-command  Generate a command from a prompt
+  recipes   List supported setup recipes
+  diff      Show package/config drift summary
+  upgrade   Backup and refresh installed config assets
+  rollback  Restore the latest config backup
+  context   Project context helpers
 
 EOF
 }
@@ -125,6 +133,9 @@ CLI examples:
   openzeus status
   openzeus list all
   openzeus doctor --fix-plan
+  openzeus setup --plan
+  openzeus validate --ci
+  openzeus recipes
   openzeus install --dry-run
   openzeus init-project --target .
 
@@ -145,6 +156,14 @@ case "${1:-help}" in
   list) shift || true; list_assets "${1:-all}" ;;
   examples) examples ;;
   init-project) exec "$SCRIPT_DIR/scripts/init-project.sh" "${@:2}" ;;
+  setup) exec "$SCRIPT_DIR/scripts/setup.sh" "${@:2}" ;;
+  validate) exec "$SCRIPT_DIR/scripts/validate.sh" "${@:2}" ;;
+  capture-command) exec "$SCRIPT_DIR/scripts/capture-command.sh" "${@:2}" ;;
+  recipes) exec "$SCRIPT_DIR/scripts/setup.sh" recipes "${@:2}" ;;
+  diff) exec "$SCRIPT_DIR/scripts/diff.sh" "${@:2}" ;;
+  upgrade) exec "$SCRIPT_DIR/scripts/upgrade.sh" upgrade "${@:2}" ;;
+  rollback) exec "$SCRIPT_DIR/scripts/upgrade.sh" rollback "${@:2}" ;;
+  context) exec "$SCRIPT_DIR/scripts/setup.sh" context "${@:2}" ;;
   doctor) shift || true; doctor "$@" ;;
   help|-h|--help) usage ;;
   *) echo "Unknown command: ${1:-}"; usage; exit 1 ;;
