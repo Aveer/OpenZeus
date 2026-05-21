@@ -11,6 +11,7 @@ OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, inst
 - **Plan setup**: preview repo-local `.opencode/` assets before writing.
 - **Install profiles**: install `core`, `extras`, or `all` OpenZeus assets.
 - **Validate CI**: fail fast on package, project, or config drift problems.
+- **Create assets**: generate OpenCode agents, skills, and commands safely.
 - **Capture commands**: turn repeatable prompts into slash commands.
 - **Upgrade safely**: back up local config and preserve the active install profile.
 
@@ -119,10 +120,26 @@ Upgrade creates a local backup under the OpenCode config directory, then reinsta
 
 ### Create agents, skills, and commands
 
+The original OpenZeus idea is still first-class: it can create OpenCode assets directly, with valid frontmatter, no-overwrite defaults, `--dry-run`, and `--force` when you intentionally want replacement.
+
 ```bash
-openzeus create agent reviewer "Reviews pull requests"
-openzeus create skill zeus-example "Project-specific guidance"
-openzeus create command release-notes "Draft release notes" 'Use $ARGUMENTS'
+openzeus create agent reviewer "Reviews pull requests for correctness and maintainability"
+openzeus create skill project-workflow "Use when following this repo's release workflow"
+openzeus create command release-notes "Draft release notes" 'Use $ARGUMENTS to choose the release range.'
+```
+
+| Asset | Output |
+|---|---|
+| Agent | Markdown agent with current `description`, `mode`, and conservative `permission` frontmatter |
+| Skill | `SKILL.md` bundle with required `name` and `description` frontmatter |
+| Command | Slash command Markdown with frontmatter and `$ARGUMENTS`-ready prompt body |
+
+Related generators:
+
+```bash
+openzeus capture-command --name triage --prompt 'Triage $ARGUMENTS and propose next steps' --target .opencode
+openzeus setup --plan --target .
+openzeus setup --apply --target .
 ```
 
 ### Sync safely
@@ -154,14 +171,25 @@ Ask for outcomes, not file names:
 
 ## Zeus Skills
 
-OpenZeus currently ships **15** Zeus skills.
+OpenZeus currently ships **15** Zeus skills. Install the focused product surface with `openzeus install --core`, or install every skill with `openzeus install --all`.
 
-| Category | Skills |
+| Skill | Purpose |
 |---|---|
-| OpenCode | `zeus-core`, `zeus-agents`, `zeus-commands`, `zeus-skills`, `zeus-upskill` |
-| Workflow | `zeus-context`, `zeus-self`, `zeus-beads`, `zeus-swarm`, `zeus-oac`, `zeus-omo` |
-| Technical | `zeus-docker`, `zeus-sql`, `zeus-llm` |
-| Fun/testing | `zeus-boston-terrier` |
+| `zeus-core` | OpenCode config, paths, permissions, docs, and troubleshooting reference |
+| `zeus-agents` | Design and create OpenCode agents with current modes and permissions |
+| `zeus-commands` | Create reusable slash commands and prompt templates |
+| `zeus-skills` | Canonical guide for writing OpenCode skills |
+| `zeus-upskill` | Add/register new `zeus-*` capabilities into OpenZeus |
+| `zeus-context` | Context management, session handoff, and repo knowledge workflows |
+| `zeus-self` | Runtime self-diagnostics and OpenZeus operational awareness |
+| `zeus-beads` | Beads issue-tracking workflows and command reference |
+| `zeus-swarm` | opencode-swarm workflows and multi-agent orchestration |
+| `zeus-oac` | OpenAgentsControl reference and plan-first workflows |
+| `zeus-omo` | oh-my-opencode-slim reference and tmux/provider workflows |
+| `zeus-docker` | Docker and containerization reference |
+| `zeus-sql` | SQL/database patterns and query guidance |
+| `zeus-llm` | Local LLM tooling: llama.cpp, llama-swap, Ollama |
+| `zeus-boston-terrier` | Fun/example skill for Boston Terrier knowledge |
 
 Example routing:
 
