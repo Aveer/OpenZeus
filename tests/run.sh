@@ -93,6 +93,21 @@ env_install="$tmp/env-install"
 OPENCODE_CONFIG_DIR="$env_install" "$root/scripts/install.sh" >/dev/null
 [[ -f "$env_install/agents/OpenZeus.md" ]]
 
+type_mismatch_config="$tmp/type-mismatch-config"
+"$root/scripts/install.sh" --target "$type_mismatch_config" >/dev/null
+rm -f "$type_mismatch_config/commands/zeus-git-commit.md"
+mkdir -p "$type_mismatch_config/commands/zeus-git-commit.md"
+printf '%s\n' 'nested stale file' > "$type_mismatch_config/commands/zeus-git-commit.md/stale.txt"
+"$root/scripts/install.sh" --force --backup --target "$type_mismatch_config" >/dev/null
+[[ -f "$type_mismatch_config/commands/zeus-git-commit.md" ]]
+assert_file_contains "$type_mismatch_config/commands/zeus-git-commit.md" 'description:'
+type_backup_found=false
+for backup in "$type_mismatch_config"/commands/zeus-git-commit.md.bak.*; do
+  [[ -e "$backup" ]] || continue
+  type_backup_found=true
+done
+[[ "$type_backup_found" == true ]]
+
 git init -q "$repo"
 (cd "$repo" && "$root/scripts/setup-hooks.sh" --dry-run >/dev/null)
 (cd "$repo" && "$root/scripts/setup-hooks.sh" >/dev/null)
@@ -130,6 +145,25 @@ auto_out="$(OPENCODE_CONFIG_DIR="$config" "$root/scripts/sync-utils.sh" --repo "
 
 doctor_out="$(OPENCODE_CONFIG_DIR="$install_dir" "$root/bin/openzeus" doctor)"
 [[ "$doctor_out" == *"OpenZeus doctor: ok"* ]]
+
+drift_config="$tmp/drift-config"
+cp -R "$install_dir" "$drift_config"
+rm -f "$drift_config/agents/OpenZeus.md"
+printf '%s\n' 'different skill' > "$drift_config/skills/zeus-core/SKILL.md"
+printf '%s\n' 'different command' > "$drift_config/commands/zeus-git-commit.md"
+printf '%s\n' 'different helper' > "$drift_config/doctor.sh"
+chmod -x "$drift_config/init-project.sh"
+drift_fix_plan_out="$(OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" doctor --fix-plan)"
+[[ "$drift_fix_plan_out" == *"WARN OpenZeus agent missing from config"* ]]
+[[ "$drift_fix_plan_out" == *"WARN skill zeus-core differs in config"* ]]
+[[ "$drift_fix_plan_out" == *"WARN command zeus-git-commit.md differs in config"* ]]
+[[ "$drift_fix_plan_out" == *"WARN helper doctor.sh differs in config"* ]]
+[[ "$drift_fix_plan_out" == *"WARN helper init-project.sh is not executable in config"* ]]
+[[ "$drift_fix_plan_out" == *"openzeus install"* ]]
+[[ "$drift_fix_plan_out" == *"openzeus install --force --backup"* ]]
+[[ "$drift_fix_plan_out" == *"openzeus sync status"* ]]
+[[ "$drift_fix_plan_out" == *"chmod +x $drift_config/init-project.sh"* ]]
+[[ "$drift_fix_plan_out" != *"(none; no fixes required)" ]]
 
 status_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" status)"
 [[ "$status_out" == *"Package root:"* && "$status_out" == *"OpenZeus agent:"* ]]
