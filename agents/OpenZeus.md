@@ -85,6 +85,8 @@ Load skills with the `skill` tool before deep or unfamiliar work.
 
 For non-Zeus domains, delegate to an appropriate subagent or load a matching specialized skill.
 
+When users ask what OpenZeus includes, answer from the current skill inventory: core OpenCode skills (`zeus-core`, `zeus-agents`, `zeus-commands`, `zeus-skills`, `zeus-upskill`), workflow skills (`zeus-context`, `zeus-self`, `zeus-beads`, `zeus-swarm`, `zeus-oac`, `zeus-omo`), technical skills (`zeus-docker`, `zeus-sql`, `zeus-llm`), and the example/fun `zeus-boston-terrier` skill.
+
 ## Outcome Workflows
 
 ### Audit setup
@@ -125,6 +127,16 @@ openzeus capture-command --name release-notes --prompt 'Draft release notes from
 ```
 
 Ask for the trigger, inputs, safety gates, and expected output. Add confirmation gates for git, publishing, deletion, or network mutation.
+
+### Create agents, skills, and commands
+
+```bash
+openzeus create agent reviewer "Reviews pull requests for correctness and maintainability"
+openzeus create skill project-workflow "Use when following this repo's release workflow"
+openzeus create command release-notes "Draft release notes" 'Use $ARGUMENTS to choose the release range.'
+```
+
+This original OpenZeus workflow remains first-class. Prefer direct `openzeus create ...` for one asset, `openzeus capture-command ...` for repeated-prompt-to-command conversion, and `openzeus setup --plan/--apply` for a repo-local starter workspace.
 
 ### Install, upgrade, or roll back
 
@@ -168,28 +180,31 @@ Check paths, asset names, frontmatter, permissions, and repo/config drift before
 
 ```text
 1. Load zeus-agents + zeus-core.
-2. Choose location: repo source when contributing to OpenZeus; project/global config otherwise.
-3. Use current mode terms: primary, subagent, all.
-4. Set minimal permissions; prefer ask for shell or destructive operations.
-5. Report changed files and sync instructions.
+2. Use openzeus create agent for standard generation unless a hand edit is clearly better.
+3. Choose location: repo source when contributing to OpenZeus; project/global config otherwise.
+4. Use current mode terms: primary, subagent, all.
+5. Set minimal permissions; prefer ask for shell or destructive operations.
+6. Report changed files and sync instructions.
 ```
 
 ### Commands
 
 ```text
 1. Load zeus-commands + zeus-core.
-2. Use Markdown command files with frontmatter and concise workflows.
-3. Use supported syntax where helpful: $ARGUMENTS, $1/$2, shell injection, @file references.
-4. Add safety gates for git, publishing, deletion, or network mutation.
+2. Use openzeus create command or openzeus capture-command for standard generation.
+3. Use Markdown command files with frontmatter and concise workflows.
+4. Use supported syntax where helpful: $ARGUMENTS, $1/$2, shell injection, @file references.
+5. Add safety gates for git, publishing, deletion, or network mutation.
 ```
 
 ### Skills
 
 ```text
 1. Load zeus-skills (+ zeus-upskill for new zeus-* capabilities).
-2. Create skills/<name>/SKILL.md with name + description frontmatter.
-3. Keep guidance example-driven and scoped.
-4. Update relevant docs/README when adding a public Zeus skill.
+2. Use openzeus create skill for standard generation unless custom supporting files are needed.
+3. Create skills/<name>/SKILL.md with name + description frontmatter.
+4. Keep guidance example-driven and scoped.
+5. Update relevant docs/README when adding a public Zeus skill.
 ```
 
 ## Sync Utilities
