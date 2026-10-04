@@ -1,158 +1,145 @@
 # Contributing to OpenZeus
 
-Thanks for contributing. Keep changes small, documented, and tested against the OpenCode asset layout.
+OpenZeus is an OpenCode companion agent. Contributions should improve
+OpenCode-specific inspection, diagnostics, migration, or asset design rather
+than turn the project back into a general-purpose toolkit.
+
+Read first:
+
+- [OpenZeus 2 plan](plans/openzeus-2-refocus.md)
+- [OpenZeus 2 continuity](continuity/openzeus-2.md)
+- [Repository atlas](../codemap.md)
 
 ## Setup
+
+Use Node **22.19+**.
 
 ```bash
 git clone https://github.com/Aveer/OpenZeus.git
 cd OpenZeus
-npm install
-./scripts/install.sh --all
-openzeus validate --ci
+npm install --ignore-scripts --no-audit --no-fund
+npm test
 ```
 
-Use `${OPENCODE_CONFIG_DIR:-~/.config/opencode}` for global OpenCode assets.
+Local tracker/tool state such as `.beads/`, `.slim/`, credentials and user
+OpenCode config must remain untracked.
 
-## Project Structure
+## Project structure
 
 | Path | Purpose |
 |---|---|
-| `agents/` | Agent definitions, including `OpenZeus.md` |
-| `commands/` | Slash command templates |
-| `skills/` | Zeus skill bundles (`skills/<name>/SKILL.md`) |
-| `scripts/` | Install/sync/create/hook utilities |
-| `docs/` | Contributor and publishing docs |
-| `codemap.md` | Repository architecture map |
+| `agents/OpenZeus.md` | Primary conversational agent |
+| `src/plugin.js` | Native OpenCode V2 Promise plugin entrypoint; registers `skills/` as a directory source |
+| `skills/` | Five focused OpenCode skills |
+| `scripts/inspect.mjs` | Filesystem inventory/provenance |
+| `scripts/audit.mjs` | User-facing diagnostics |
+| `scripts/migrate.mjs` | Non-mutating migration planning |
+| `scripts/create-utils.sh` | Asset authoring primitive |
+| `scripts/install-agent.sh` | Transitional one-file agent bootstrap |
+| `scripts/validate.sh` | Structural validation |
+| `bin/openzeus` | Extensionless npm executable exposed as `openzeus` |
+| `docs/plans/` | Architecture plans |
+| `docs/continuity/` | Campaign/session continuity |
 
-## Common Changes
+## Native-first rule
 
-Prefer guided workflows in user-facing docs and examples:
+Do not reimplement an OpenCode feature without a concrete reason.
 
-```bash
-openzeus setup --plan --target .
-openzeus validate --ci
-openzeus doctor --fix-plan
-openzeus diff --summary
-```
+New OpenZeus-owned assets must use current OpenCode V2 conventions:
 
-Document `--plan`, `--dry-run`, `--fix-plan`, or `--ci` behavior before commands that write files or fail automation.
+- ordered `permissions`;
+- `shell` rather than legacy `bash`;
+- `subagent` rather than `subtask`/`task`;
+- no legacy agent `tools`, `permission`, `temperature`, `top_p`,
+  `prompt`, `disable`, or `maxSteps` fields;
+- no hard-coded model unless the feature explicitly needs one.
 
-### Add a skill
+## Focused skills
 
-```bash
-mkdir -p skills/zeus-example
-$EDITOR skills/zeus-example/SKILL.md
-```
+The shipped core is intentionally limited to:
 
-```markdown
----
-name: zeus-example
-description: Short purpose statement
----
+- `zeus-diagnostics`;
+- `zeus-migration`;
+- `zeus-agents`;
+- `zeus-commands`;
+- `zeus-skills`.
 
-# Zeus Example
+A new skill must have a clear OpenCode-specific reason to exist. Do not add
+generic Docker/SQL/LLM/domain packs or copied documentation for unrelated
+plugins.
 
-## Usage
+## Common authoring
 
-Concrete examples first.
-```
-
-Then update README skill listings and OpenZeus routing if the skill should be public.
-
-### Add a command
-
-```bash
-$EDITOR commands/zeus-example.md
-```
-
-```markdown
----
-description: What this command does
-agent: OpenZeus
----
-
-# Zeus Example
-
-Workflow instructions.
-
-**User's input**: $ARGUMENTS
-```
-
-### Add or update an agent
+Use the CLI primitive when useful:
 
 ```bash
-$EDITOR agents/Example.md
+openzeus create skill release-workflow "Use for release preparation"
+openzeus create agent reviewer "Reviews changes for correctness"
+openzeus create command release-notes "Draft release notes"
 ```
 
-Use current OpenCode modes: `primary`, `subagent`, or `all`. Grant minimal permissions.
+For basic agent scaffolding in normal OpenCode usage, prefer the native:
 
-## Validate
+```bash
+opencode agent create
+```
+
+## Validation
+
+Before pushing a coherent checkpoint:
 
 ```bash
 npm test
-openzeus validate --ci
-openzeus validate --ci --project .
-openzeus doctor --ci
-openzeus diff --summary --ci
-./scripts/sync-utils.sh status
+node tests/plugin.mjs
+./bin/openzeus validate --ci
+npm pack --dry-run
 ```
 
-For manual runtime testing:
+CI runs on branch pushes and is part of the development loop; do not leave a
+checkpoint red.
 
-```bash
-./scripts/install.sh --core
-openzeus list all
-openzeus examples
-openzeus setup --plan --recipe node --target /tmp/openzeus-smoke
-openzeus setup --apply --recipe node --target /tmp/openzeus-smoke --dry-run
-openzeus capture-command --name smoke --prompt 'Echo $ARGUMENTS' --target /tmp/openzeus-smoke/.opencode --dry-run
-openzeus context init --target /tmp/openzeus-smoke --dry-run
-opencode run "@OpenZeus help"
-```
+## Migration safety
 
-Use install profiles deliberately:
+`openzeus migrate --plan` is non-mutating.
 
-```bash
-openzeus install --core --dry-run
-openzeus install --extras --dry-run
-openzeus install --all --dry-run
-```
+Do not add `--apply` as regex/text replacement. A supported automatic
+migration requires:
 
-`doctor`, `diff`, and `upgrade` respect the saved `.openzeus-install-profile`.
+1. parser-backed understanding;
+2. explicit change plan;
+3. backup;
+4. post-change validation;
+5. rollback on failure.
 
-## Sync
+## Privacy and portability
 
-```bash
-./scripts/sync-utils.sh status   # inspect
-./scripts/sync-utils.sh push     # repo → config
-./scripts/sync-utils.sh pull     # config → repo
-./scripts/sync-utils.sh auto     # safe one-way sync or conflict refusal
-```
+Never commit:
 
-CLI equivalents:
+- absolute contributor paths;
+- tokens, credentials, private keys, or secret config values;
+- user-specific OpenCode configuration;
+- transient local tool state.
 
-```bash
-openzeus sync status
-openzeus sync auto
-```
+Resolve user paths at runtime from OpenCode context/environment instead.
 
-## Commit Style
+## Commit style
 
-Use clear, imperative commit messages:
+Use small, imperative commits that describe one coherent change.
+
+Examples:
 
 ```text
-docs(readme): update install flow
-fix(commands): require push confirmation
-feat(skills): add zeus-example skill
+feat: add runtime provenance check
+fix: preserve agent permission ordering
+docs: clarify plugin bootstrap
 ```
 
-## Pull Requests
+## Pull requests
 
-- Explain what changed and why.
-- Include validation output.
-- Note any sync or install behavior changes.
-- Do not include secrets, generated caches, or unrelated formatting churn.
+- explain the user-visible reason for the change;
+- include or reference tests for behavior changes;
+- note compatibility/migration impact;
+- do not include unrelated formatting churn.
 
 ## License
 

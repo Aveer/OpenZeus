@@ -6,6 +6,37 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [2.0.0] - 2026-10-04
+
+### Added
+- Add a native OpenCode V2 Promise plugin entrypoint using `@opencode-ai/plugin/v2/promise`, registering the packaged `skills/` directory as a native skill source.
+- Add `openzeus audit [--json] [--ci]` as the user-facing diagnostic summary built on inspector evidence.
+- Add focused `zeus-diagnostics` and `zeus-migration` skills.
+
+### Changed
+- Remove the last stale 1.x helper references from the OpenZeus agent and refresh the agent/repository atlases for the V2 plugin architecture.
+- Validate the package against the real current OpenCode V2 Promise plugin package/API.
+- Rewrite publishing and contributing docs for the native-plugin/agent-bootstrap architecture.
+- Move canonical refocus planning under `docs/plans/` and keep local Beads state out of the repository.
+- Clean README/atlas wording after the CLI simplification; document the extensionless `bin/openzeus` npm executable explicitly.
+- Reduce installation to a guarded `install-agent` bootstrap for `agents/OpenZeus.md`; the V2 plugin owns skills and runtime tooling.
+- Collapse the old core/extras split around the focused five-skill core; legacy `--extras` now installs the focused core with a deprecation warning.
+- Make OpenZeus generators emit native V2 agent permissions (`permissions` + `shell`) and make validation reject legacy fields in newly managed assets.
+- Replace the stale contributor guide with the OpenZeus 2 native-first/privacy/CI contract.
+- Refocus OpenZeus around the `@OpenZeus` companion-agent experience: OpenCode environment understanding, diagnostics, migration and asset design.
+- Update the shipped OpenZeus agent to native V2-style `permissions`, remove the hard-coded model/request tuning, and prefer OpenCode-native features and schema.
+- Rewrite README and repository architecture docs around the agent-first product direction.
+
+### Removed
+- Retire 1.x copy-management helpers: repo/config sync, sync hooks, bundle doctor/diff, refresh/upgrade and rollback. Native OpenCode plugin lifecycle now owns the focused skills.
+- Remove generic project bootstrap helpers: `setup`, `init-project`, recipes, `context init`, and `capture-command`; OpenCode's native `/init` owns project initialization.
+- Remove bundled generic slash commands (`zeus-git-commit`, `zeus-kanban`, `zeus-roadmap`, `zeus-improve-project`); command authoring remains part of OpenZeus.
+- Remove unrelated/general-purpose skills: `zeus-boston-terrier`, `zeus-docker`, `zeus-sql`, and `zeus-llm`.
+- Remove copied external-integration skills from core: `zeus-beads`, `zeus-swarm`, `zeus-oac`, and `zeus-omo`.
+- Remove legacy broad/meta skills `zeus-core`, `zeus-upskill`, `zeus-context`, and `zeus-self`; their useful responsibilities are folded into focused diagnostics/migration/authoring skills.
+
 ## [1.2.0] - 2026-10-04
 
 ### Added

@@ -1,18 +1,16 @@
 {
   "name": "openzeus",
-  "version": "1.2.0",
-  "description": "OpenCode operator kit with agents, skills, commands, and safe sync utilities",
-  "main": "bin/openzeus",
+  "version": "2.0.0",
+  "description": "OpenCode companion agent for workspace diagnostics, migration, and asset design",
+  "main": "./src/plugin.js",
   "keywords": [
     "opencode",
-    "ai-agent", 
+    "ai-agent",
     "configuration",
-    "automation",
+    "diagnostics",
     "skills",
-    "commands",
-    "zeus",
-    "ai-assistant",
-    "code-generation"
+    "agents",
+    "developer-tools"
   ],
   "author": "OpenZeus Project <https://github.com/Aveer/OpenZeus>",
   "license": "MIT",
@@ -25,17 +23,15 @@
     "url": "https://github.com/Aveer/OpenZeus.git"
   },
   "files": [
+    "src/",
     "bin/",
     "agents/",
     "skills/",
-    "commands/",
-    "docs/",
     "media/",
-    "scripts/",
-    "tests/"
+    "scripts/"
   ],
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "test": "tests/run.sh"
@@ -47,5 +43,12 @@
     "darwin",
     "linux"
   ],
-  "preferGlobal": true
+  "preferGlobal": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/plugin.js"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.18.34"
+  }
 }

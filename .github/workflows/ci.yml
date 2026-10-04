@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -25,22 +23,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22.19.0"
+
+      - name: Install package dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Run test suite
-        run: npm test
+        run: OPENZEUS_NODE="$(command -v node)" npm test
+
+      - name: Test V2 plugin entrypoint
+        run: node tests/plugin.mjs
 
       - name: Validate package assets
         run: ./bin/openzeus validate --ci
 
-      - name: Validate clean install
+      - name: Validate agent bootstrap
         shell: bash
         run: |
           set -euo pipefail
           export OPENCODE_CONFIG_DIR="$RUNNER_TEMP/openzeus-config"
-          ./bin/openzeus install --all
-          ./bin/openzeus doctor --ci
-          ./bin/openzeus diff --summary --ci
+          ./bin/openzeus install-agent
+          cmp agents/OpenZeus.md "$OPENCODE_CONFIG_DIR/agents/OpenZeus.md"
 
       - name: Verify npm package contents
         run: npm pack --dry-run

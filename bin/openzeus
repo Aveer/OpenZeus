@@ -1,170 +1,86 @@
 #!/bin/bash
-
 set -euo pipefail
 
 resolve_root() {
-  local source="${BASH_SOURCE[0]}"
-  local dir=""
-
+  local source="${BASH_SOURCE[0]}" dir=""
   while [[ -L "$source" ]]; do
     dir="$(cd -P "$(dirname "$source")" && pwd)"
     source="$(readlink "$source")"
     [[ "$source" == /* ]] || source="$dir/$source"
   done
-
   cd -P "$(dirname "$source")/.." && pwd
 }
 
 SCRIPT_DIR="$(resolve_root)"
 
+node_bin() {
+  local resolved="${OPENZEUS_NODE:-${npm_node_execpath:-}}"
+  if [[ -z "$resolved" ]]; then
+    resolved="$(command -v node 2>/dev/null || true)"
+  fi
+  [[ -n "$resolved" ]] || { echo "OpenZeus requires Node.js for this command" >&2; exit 1; }
+  printf '%s\n' "$resolved"
+}
+
 usage() {
   cat <<EOF
 OpenZeus CLI
 
-Usage: openzeus <install|sync|create|hooks|doctor|status|list|examples|init-project|setup|validate|capture-command|recipes|diff|upgrade|rollback|context|help> [args...]
+Usage: openzeus <audit|inspect|migrate|install-agent|create|validate|examples|help> [args...]
 
 Commands:
-  install   Install OpenZeus assets into an OpenCode config directory
-  sync      Compare or sync repo assets with an OpenCode config directory
-  create    Create an agent, skill, or command template
-  hooks     Install optional Git hooks for repo/config sync checks
-  doctor    Run non-mutating health checks
-  status    Show install/sync health summary
-  list      List package assets and installation status
-  examples  Show copy-paste examples
-  init-project  Create project-local .opencode starter assets
-  setup     Plan or apply repo-local setup
-  validate  Validate package, config, or project assets
-  capture-command  Generate a command from a prompt
-  recipes   List supported setup recipes
-  diff      Show package/config drift summary
-  upgrade   Backup and refresh installed config assets
-  rollback  Restore the latest config backup
-  context   Project context helpers
+  audit          Summarize actionable OpenCode findings
+  inspect        Inventory filesystem-visible OpenCode sources and precedence
+  install-agent  Install only the @OpenZeus agent file
+  create         Create an OpenCode agent, skill, or command template
+  validate       Validate OpenZeus/OpenCode asset structure
+  examples       Show common OpenZeus workflows
 
+The five focused Zeus skills and live runtime tool are provided by the native
+OpenCode V2 plugin. Manage it with:
+  opencode plugin add openzeus
+  opencode plugin list
+  opencode plugin update openzeus
+  opencode plugin remove openzeus
 EOF
-}
-
-doctor() {
-  if [[ -x "$SCRIPT_DIR/scripts/doctor.sh" ]]; then
-    exec "$SCRIPT_DIR/scripts/doctor.sh" "$@"
-  fi
-  echo "doctor unavailable"
-  return 1
-}
-
-status() {
-  local config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-$HOME/.config/opencode}}"
-  local skill_pkg_count command_pkg_count skill_inst_count command_inst_count drift_lines
-  skill_pkg_count=$(find "$SCRIPT_DIR/skills" -maxdepth 1 -mindepth 1 -type d -name 'zeus-*' | wc -l | tr -d ' ')
-  command_pkg_count=$(find "$SCRIPT_DIR/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
-  skill_inst_count=0; command_inst_count=0
-  [[ -d "$config_dir/skills" ]] && skill_inst_count=$(find "$config_dir/skills" -maxdepth 1 -mindepth 1 -type d -name 'zeus-*' | wc -l | tr -d ' ')
-  [[ -d "$config_dir/commands" ]] && command_inst_count=$(find "$config_dir/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
-  echo "Package root: $SCRIPT_DIR"
-  echo "Config dir: $config_dir"
-  echo "OpenZeus agent: $( [[ -f "$config_dir/agents/OpenZeus.md" ]] && echo installed || echo missing )"
-  echo "Zeus skills: $skill_inst_count/$skill_pkg_count installed"
-  echo "Zeus commands: $command_inst_count/$command_pkg_count installed"
-  if [[ -d "$config_dir" ]]; then
-    local drift
-    drift="$($SCRIPT_DIR/scripts/sync-utils.sh --repo "$SCRIPT_DIR" --config "$config_dir" status 2>/dev/null || true)"
-    drift_lines=$(printf '%s\n' "$drift" | grep -E '^(DIFF|MISSING)([[:space:]]|:)' || true)
-    drift_lines=$(printf '%s\n' "$drift_lines" | sed '/^$/d' | wc -l | tr -d ' ')
-    if [[ "$drift_lines" -eq 0 ]]; then
-      echo "Sync drift: clean"
-    else
-      echo "Sync drift: $drift_lines issue(s)"
-      echo "Next: openzeus list all; openzeus sync status"
-    fi
-  else
-    echo "Sync drift: config missing"
-    echo "Next: openzeus install --dry-run"
-  fi
-}
-
-list_assets() {
-  local kind="${1:-all}" config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-$HOME/.config/opencode}}"
-  printf 'Package assets (%s)\n' "$kind"
-  list_agent() {
-    local pkg="$SCRIPT_DIR/agents/OpenZeus.md" cfg="$config_dir/agents/OpenZeus.md" status='[missing]'
-    [[ -f "$cfg" ]] && status='[different]'
-    [[ -f "$cfg" ]] && cmp -s "$pkg" "$cfg" && status='[installed]'
-    printf 'agent: agents/OpenZeus.md %s\n' "$status"
-  }
-  list_skills() {
-    local pkg name cfg status
-    for pkg in "$SCRIPT_DIR"/skills/zeus-*; do
-      [[ -d "$pkg" ]] || continue
-      name="$(basename "$pkg")"
-      cfg="$config_dir/skills/$name"
-      status='[missing]'
-      if [[ -d "$cfg" ]]; then
-        diff -qr "$pkg" "$cfg" >/dev/null 2>&1 && status='[installed]' || status='[different]'
-      fi
-      printf 'skill: %s %s\n' "$name" "$status"
-    done
-  }
-  list_commands() {
-    local pkg name cfg status
-    for pkg in "$SCRIPT_DIR"/commands/zeus-*.md; do
-      [[ -f "$pkg" ]] || continue
-      name="$(basename "$pkg")"
-      cfg="$config_dir/commands/$name"
-      status='[missing]'
-      if [[ -f "$cfg" ]]; then
-        cmp -s "$pkg" "$cfg" && status='[installed]' || status='[different]'
-      fi
-      printf 'command: %s %s\n' "$name" "$status"
-    done
-  }
-  case "$kind" in
-    agents) list_agent ;;
-    skills) list_skills ;;
-    commands) list_commands ;;
-    all) list_agent; list_skills; list_commands ;;
-    *) echo "Unknown list kind: $kind"; exit 1 ;;
-  esac
 }
 
 examples() {
   cat <<EOF
-CLI examples:
-  openzeus status
-  openzeus list all
-  openzeus doctor --fix-plan
-  openzeus setup --plan
-  openzeus validate --ci
-  openzeus recipes
-  openzeus install --dry-run
-  openzeus init-project --target .
+Bootstrap after the OpenZeus 2 package is published:
+  opencode plugin add openzeus
+  openzeus install-agent
+
+Diagnostics:
+  openzeus audit
+  openzeus audit --json
+  openzeus inspect --json
+
+Authoring:
+  openzeus create skill release-workflow "Use for release preparation and validation"
+  openzeus create agent reviewer "Reviews changes for correctness"
+  openzeus create command release-notes "Draft release notes"
 
 OpenCode prompts:
-  @OpenZeus audit my OpenCode setup and give me a fix plan
-  @OpenZeus initialize this repo safely with project-local OpenCode assets
-  @OpenZeus turn this repeated release workflow into a slash command
-  @OpenZeus diagnose why my custom skill is not loading
+  @OpenZeus audit my OpenCode setup and explain what to fix
+  @OpenZeus where did this skill come from?
+  @OpenZeus migrate this old agent to current OpenCode
+  @OpenZeus design a portable skill for this workflow
 EOF
 }
 
 case "${1:-help}" in
-  install) exec "$SCRIPT_DIR/scripts/install.sh" "${@:2}" ;;
-  sync) exec "$SCRIPT_DIR/scripts/sync-utils.sh" "${@:2}" ;;
+  audit) exec "$(node_bin)" "$SCRIPT_DIR/scripts/audit.mjs" "${@:2}" ;;
+  inspect) exec "$(node_bin)" "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}" ;;
+  migrate) exec "$(node_bin)" "$SCRIPT_DIR/scripts/migrate.mjs" "${@:2}" ;;
+  install-agent) exec "$SCRIPT_DIR/scripts/install-agent.sh" "${@:2}" ;;
+  install)
+    echo "WARN: 'openzeus install' is deprecated; installing only the agent bootstrap." >&2
+    exec "$SCRIPT_DIR/scripts/install-agent.sh" "${@:2}"
+    ;;
   create) exec "$SCRIPT_DIR/scripts/create-utils.sh" "${@:2}" ;;
-  hooks) exec "$SCRIPT_DIR/scripts/setup-hooks.sh" "${@:2}" ;;
-  status) shift || true; status "$@" ;;
-  list) shift || true; list_assets "${1:-all}" ;;
-  examples) examples ;;
-  init-project) exec "$SCRIPT_DIR/scripts/init-project.sh" "${@:2}" ;;
-  setup) exec "$SCRIPT_DIR/scripts/setup.sh" "${@:2}" ;;
   validate) exec "$SCRIPT_DIR/scripts/validate.sh" "${@:2}" ;;
-  capture-command) exec "$SCRIPT_DIR/scripts/capture-command.sh" "${@:2}" ;;
-  recipes) exec "$SCRIPT_DIR/scripts/setup.sh" recipes "${@:2}" ;;
-  diff) exec "$SCRIPT_DIR/scripts/diff.sh" "${@:2}" ;;
-  upgrade) exec "$SCRIPT_DIR/scripts/upgrade.sh" upgrade "${@:2}" ;;
-  rollback) exec "$SCRIPT_DIR/scripts/upgrade.sh" rollback "${@:2}" ;;
-  context) exec "$SCRIPT_DIR/scripts/setup.sh" context "${@:2}" ;;
-  doctor) shift || true; doctor "$@" ;;
+  examples) examples ;;
   help|-h|--help) usage ;;
-  *) echo "Unknown command: ${1:-}"; usage; exit 1 ;;
+  *) echo "Unknown command: ${1:-}" >&2; usage >&2; exit 1 ;;
 esac

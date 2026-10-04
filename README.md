@@ -4,255 +4,171 @@
 [![npm](https://img.shields.io/npm/v/openzeus)](https://www.npmjs.com/package/openzeus)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Guided OpenCode setup, validation, and asset generation.**
+## Your OpenCode setup, explained
 
-OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, install profile-aware assets, validate config, capture commands from prompts, and upgrade safely with local backups.
+OpenZeus is an **OpenCode companion agent** for understanding and maintaining
+your actual OpenCode environment.
+
+Ask it why an agent is not loading, where a skill comes from, which
+configuration wins, whether an old definition should be migrated, or how to
+design a new OpenCode skill or agent.
+
+```text
+@OpenZeus why isn't my reviewer agent loading?
+@OpenZeus where did this skill come from?
+@OpenZeus audit my OpenCode setup and explain the problems.
+@OpenZeus migrate this old agent to the current OpenCode format.
+@OpenZeus design a portable skill for this workflow.
+```
 
 <p align="center">
-  <img src="./media/OpenZeus.png" alt="OpenZeus" width="420">
+  <img src="./media/OpenZeus.png" alt="OpenZeus" width="360">
 </p>
 
-## What OpenZeus is useful for
+OpenZeus uses OpenCode's native configuration, agents, skills, commands and
+plugins wherever possible. Its value is the layer on top: inspection,
+diagnosis, migration guidance and higher-level asset design.
 
-- **Plan setup**: preview repo-local `.opencode/` assets before writing.
-- **Install profiles**: install `core`, `extras`, or `all` OpenZeus assets.
-- **Validate CI**: fail fast on package, project, or config drift problems.
-- **Create assets**: generate OpenCode agents, skills, and commands safely.
-- **Capture commands**: turn repeatable prompts into slash commands.
-- **Upgrade safely**: back up local config and preserve the active install profile.
+## What it is for
+
+- **Understand the effective setup** — global vs project configuration,
+  discovered assets, precedence and eventually provenance/shadowing.
+- **Diagnose OpenCode problems** — invalid definitions, missing assets,
+  configuration drift and compatibility issues.
+- **Evolve old setups safely** — inspect first, plan changes, validate, back up
+  and roll back when needed.
+- **Design OpenCode assets** — especially reusable skills and more complex
+  agent/command setups where a simple scaffold is not enough.
+- **Prefer native OpenCode behavior** — OpenZeus should not duplicate a core
+  feature just because it can.
 
 ## Installation
 
-OpenZeus supports **Linux and macOS** directly. On Windows, use **WSL**; native
-Windows is intentionally not listed in the npm package's supported OS targets.
+OpenZeus 2 is moving to native OpenCode plugin delivery. The plugin owns the
+focused five-skill core. Until OpenCode allows plugins to
+add agents, one small bootstrap step installs only `agents/OpenZeus.md`.
 
-### NPM
-
-```bash
-npm install -g openzeus
-openzeus install --all
-```
-
-### Manual
-
-```bash
-git clone https://github.com/Aveer/OpenZeus.git
-cd OpenZeus
-./scripts/install.sh --all
-```
-
-The installer copies assets into `${OPENCODE_CONFIG_DIR:-~/.config/opencode}`.
-
-## 30-second golden path
+Linux and macOS are supported directly. On Windows, use WSL.
 
 ```bash
 npm install -g openzeus
-openzeus install --core           # agent + helpers + core skills/commands
-openzeus setup --plan             # preview repo-local .opencode setup
-openzeus setup --apply --target . # write starter assets
-openzeus validate --ci            # CI-friendly package/config validation
-openzeus diff --summary           # count config drift issues
+opencode plugin add openzeus
+openzeus install-agent
 ```
 
-For a stack-specific setup:
+The current installer resolves the target at runtime. You can override it with
+`OPENCODE_CONFIG_DIR`; repository files do not contain user-specific absolute
+paths.
 
-```bash
-openzeus recipes
-openzeus setup --plan --recipe node --target .
-openzeus setup --apply --recipe node --target .
+> OpenZeus 2 includes a native OpenCode V2 Promise plugin. It registers the
+> packaged `skills/` directory as a native skill source through
+> `@opencode-ai/plugin/v2/promise`. Current OpenCode V2 cannot add a new agent
+> from a plugin because `AgentDraft` has no `add()`; the small agent-file
+> bootstrap therefore remains transitional until upstream exposes that API.
+
+## Use OpenZeus
+
+The agent is the primary interface. The CLI is support machinery.
+
+### Diagnose
+
+```text
+@OpenZeus audit my OpenCode setup.
+@OpenZeus why isn't this skill available?
+@OpenZeus explain which config applies here.
 ```
 
-## Common workflows
-
-### Install profiles
+Current deterministic helpers:
 
 ```bash
-openzeus install --core    # OpenZeus agent, helpers, core skills/commands
-openzeus install --extras  # non-core skills/commands plus agent/helpers
-openzeus install --all     # everything
-```
-
-The agent and helper scripts are always installed. Skills and commands are filtered by profile. `doctor`, `diff`, and `upgrade` use the saved `.openzeus-install-profile` so profile-filtered assets are not reported as missing.
-
-### Plan and apply project setup
-
-```bash
-openzeus recipes
-openzeus setup --plan --recipe python --target .
-openzeus setup --apply --recipe python --target .
-```
-
-Recipes: `node`, `python`, `docs`, `beads`, `solo-dev`. Add `--dry-run` to preview writes and `--force` to replace existing starter files.
-
-### Validate and inspect drift
-
-```bash
+openzeus audit
+openzeus audit --json
+openzeus inspect --json
 openzeus validate --ci
-openzeus validate --ci --project .
-openzeus doctor --ci
-openzeus diff --summary --ci
 ```
 
-`--ci` exits non-zero on validation failures or drift warnings.
+`audit` is the user-facing diagnostic summary. `inspect` exposes the raw
+filesystem evidence used for provenance, precedence and compatibility checks.
 
-### Capture a slash command
+### Create or improve a skill
+
+```text
+@OpenZeus create a reusable skill for our release workflow.
+@OpenZeus review this SKILL.md for discovery and portability problems.
+```
+
+OpenZeus keeps dedicated skill-authoring guidance because OpenCode can load
+skills natively but does not currently provide an equivalent dedicated skill
+creator workflow.
+
+### Work with agents
+
+For a basic agent scaffold, prefer OpenCode's native creator:
 
 ```bash
-openzeus capture-command \
-  --name release-notes \
-  --prompt 'Draft release notes from $ARGUMENTS' \
-  --target .opencode \
-  --dry-run
+opencode agent create
 ```
 
-Remove `--dry-run` to write `.opencode/commands/release-notes.md`. Use `--force` to overwrite.
+Use OpenZeus when the problem is architectural rather than mechanical:
 
-### Initialize project context
-
-```bash
-openzeus context init --target . --dry-run
-openzeus context init --target .
+```text
+@OpenZeus design a reviewer agent with safe permissions and two specialist subagents.
+@OpenZeus migrate this legacy agent definition without changing its behavior.
 ```
 
-Writes `.opencode/context/{architecture.md,commands.md,testing.md}` with detected stack, test, and build notes.
+## Focused skills
 
-### Upgrade or rollback local config
+OpenZeus now ships only skills that directly help operate or author OpenCode.
 
-```bash
-openzeus upgrade --dry-run
-openzeus upgrade --apply
-openzeus rollback --dry-run
-openzeus rollback --apply
-```
-
-Upgrade creates a local backup under the OpenCode config directory, then reinstalls using the saved install profile.
-
-### Create agents, skills, and commands
-
-The original OpenZeus idea is still first-class: it can create OpenCode assets directly, with valid frontmatter, no-overwrite defaults, `--dry-run`, and `--force` when you intentionally want replacement.
-
-```bash
-openzeus create agent reviewer "Reviews pull requests for correctness and maintainability"
-openzeus create skill project-workflow "Use when following this repo's release workflow"
-openzeus create command release-notes "Draft release notes" 'Use $ARGUMENTS to choose the release range.'
-```
-
-| Asset | Output |
+| Skill | Role |
 |---|---|
-| Agent | Markdown agent with current `description`, `mode`, and conservative `permission` frontmatter |
-| Skill | `SKILL.md` bundle with required `name` and `description` frontmatter |
-| Command | Slash command Markdown with frontmatter and `$ARGUMENTS`-ready prompt body |
+| `zeus-diagnostics` | Runtime/config discovery, precedence and troubleshooting |
+| `zeus-migration` | Safe OpenCode migration planning |
+| `zeus-agents` | Advanced agent design and maintenance |
+| `zeus-commands` | Command design and maintenance |
+| `zeus-skills` | Skill authoring, discovery and portability |
 
-Related generators:
+Generic domain packs, pseudo-introspection skills and copied documentation for
+external plugins are intentionally outside the OpenZeus core.
 
-```bash
-openzeus capture-command --name triage --prompt 'Triage $ARGUMENTS and propose next steps' --target .opencode
-openzeus setup --plan --target .
-openzeus setup --apply --target .
+## Current CLI
+
+The CLI is intentionally small:
+
+```text
+audit          Summarize actionable findings; --ci fails on warnings
+inspect        Inventory filesystem-visible OpenCode sources and precedence
+install-agent  Install only the transitional @OpenZeus agent bootstrap
+create         Create an agent, skill, or command template
+validate       Validate OpenZeus/OpenCode asset structure
 ```
 
-### Sync safely
+OpenZeus no longer ships generic project-management/Git slash commands.
+Command authoring remains available through `@OpenZeus` and `openzeus create command`.
 
-```bash
-openzeus sync status
-openzeus sync auto     # safe one-way sync or conflict refusal
-```
-
-## Use OpenZeus in OpenCode
-
-Ask for outcomes, not file names:
-
-```bash
-@OpenZeus audit my OpenCode setup and explain what to fix
-@OpenZeus plan setup for this repo, then apply it after I review
-@OpenZeus turn this release process into a slash command
-@OpenZeus validate this project for CI
-```
-
-### Use commands
-
-```bash
-/zeus-git-commit      # Draft and create a local commit; push only when authorized
-/zeus-kanban          # Manage docs/team/KANBAN.md
-/zeus-roadmap         # Manage docs/team/ROADMAP.md
-/zeus-improve-project # Structured project improvement cycle
-```
-
-## Zeus Skills
-
-OpenZeus currently ships **15** Zeus skills. Install the focused product surface with `openzeus install --core`, or install every skill with `openzeus install --all`.
-
-| Skill | Purpose |
-|---|---|
-| `zeus-core` | OpenCode config, paths, permissions, docs, and troubleshooting reference |
-| `zeus-agents` | Design and create OpenCode agents with current modes and permissions |
-| `zeus-commands` | Create reusable slash commands and prompt templates |
-| `zeus-skills` | Canonical guide for writing OpenCode skills |
-| `zeus-upskill` | Add/register new `zeus-*` capabilities into OpenZeus |
-| `zeus-context` | Context management, session handoff, and repo knowledge workflows |
-| `zeus-self` | Runtime self-diagnostics and OpenZeus operational awareness |
-| `zeus-beads` | Beads issue-tracking workflows and command reference |
-| `zeus-swarm` | opencode-swarm workflows and multi-agent orchestration |
-| `zeus-oac` | OpenAgentsControl reference and plan-first workflows |
-| `zeus-omo` | oh-my-opencode-slim reference and tmux/provider workflows |
-| `zeus-docker` | Docker and containerization reference |
-| `zeus-sql` | SQL/database patterns and query guidance |
-| `zeus-llm` | Local LLM tooling: llama.cpp, llama-swap, Ollama |
-| `zeus-boston-terrier` | Fun/example skill for Boston Terrier knowledge |
-
-Example routing:
-
-```bash
-@OpenZeus create a new agent for SQL reviews
-# loads zeus-agents + zeus-core
-
-@OpenZeus help me containerize this service
-# loads zeus-docker when available
-```
+The old generic `setup`, `init-project`, recipe, context-init and
+prompt-capture helpers have been removed from the refocus branch. OpenCode's
+native `/init` owns project initialization; OpenZeus stays focused on
+inspection, diagnosis, migration and OpenCode-specific authoring.
 
 ## Development
-
-### Test local package install
-
-```bash
-npm pack
-npm install -g ./openzeus-1.2.0.tgz
-openzeus help
-```
-
-### Validate changes
 
 ```bash
 npm test
 openzeus validate --ci
-openzeus doctor --ci
-openzeus diff --summary --ci
-./scripts/sync-utils.sh status
+npm pack --dry-run
 ```
 
-### Project folders
+Architecture and campaign state:
 
-| Folder | Purpose |
-|---|---|
-| `agents/` | OpenCode agent definitions |
-| `commands/` | Slash command templates |
-| `skills/` | Zeus skill bundles |
-| `scripts/` | Install, sync, creation, and hook utilities |
-| `docs/` | Contributor, release, and package docs |
-
-## Troubleshooting
-
-| Issue | Try |
-|---|---|
-| `OpenZeus` not available | Run `npm install -g openzeus && openzeus install --core`, then restart OpenCode. |
-| Skills not found | Check `${OPENCODE_CONFIG_DIR:-~/.config/opencode}/skills/`. |
-| Commands not found | Check `${OPENCODE_CONFIG_DIR:-~/.config/opencode}/commands/`. |
-| Config path differs | Set `OPENCODE_CONFIG_DIR` before installing/syncing. |
-| CI fails on drift | Run `openzeus diff --summary` and `openzeus doctor --fix-plan`. |
+- [OpenZeus 2 refocus plan](docs/plans/openzeus-2-refocus.md)
+- [OpenZeus 2 continuity](docs/continuity/openzeus-2.md)
 
 ## Version
 
-Current package version: **1.2.0**.
+Current stable npm release: **1.2.0**. This branch prepares **2.0.0**.
+
+OpenZeus 2.0.0 is the breaking refocus release: native V2 plugin delivery, five focused skills, runtime inspection/audit, plan-only migration, and a minimal agent bootstrap.
 
 ## Links
 
@@ -261,6 +177,67 @@ Current package version: **1.2.0**.
 - OpenCode Docs: https://opencode.ai/docs/
 - NPM Package: https://npmjs.com/package/openzeus
 
----
 
-**🏛️ Welcome to the realm of OpenZeus!**
+## OpenCode V2 plugin prototype
+
+The refocus branch exposes the package itself as a V2 plugin:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["openzeus"]
+}
+```
+
+The plugin registers the packaged `skills/` directory as a native OpenCode
+skill source. OpenCode then owns normal skill discovery/loading.
+
+Runtime diagnostics remain explicit CLI evidence through `openzeus inspect`
+and `openzeus audit`; the current V2 Promise plugin context does not expose a
+custom-tool registration surface, so OpenZeus does not claim one.
+
+The plugin does **not** yet register the `@OpenZeus` agent itself. Current
+OpenCode V2 can inspect/update/remove agents from a plugin but cannot add one,
+so the agent-file bootstrap remains until that upstream limitation changes.
+
+
+### Transitional agent bootstrap
+
+Once the OpenZeus 2 package is published, installation is intended to be:
+
+```bash
+opencode plugin add openzeus
+npx openzeus install-agent
+```
+
+If you already keep the CLI globally:
+
+```bash
+openzeus install-agent
+```
+
+`install-agent` never copies skills, commands, plugin code, or private
+machine state. It copies only `agents/OpenZeus.md`, refuses to overwrite a
+different file unless `--force` is explicit, and supports `--backup`.
+
+The older `openzeus install` spelling remains only as a temporary alias to
+`install-agent`.
+
+
+### Migration planning
+
+OpenZeus can now turn compatibility findings into an explicit, non-mutating
+migration plan:
+
+```bash
+openzeus migrate --plan
+openzeus migrate --plan --json
+```
+
+Current plans cover legacy agent permissions/tools/request fields, legacy
+command `subtask`, and legacy `tui.json(c)`. Every action is marked
+`automatic: false`.
+
+`openzeus migrate --apply` intentionally refuses to run. Automatic migration
+will only be added when edits are parser-backed and each supported migration
+has backup, validation and rollback guarantees.

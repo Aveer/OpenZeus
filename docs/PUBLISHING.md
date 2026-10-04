@@ -1,57 +1,103 @@
 # Publishing OpenZeus
 
-OpenZeus publishes the `openzeus` npm package. Current package version: **1.2.0**.
+OpenZeus publishes the `openzeus` npm package.
+
+Stable public baseline: **1.2.0**. Target release: **2.0.0**.
+
+2.0.0 is intentionally breaking: it removes the 1.x generic/config-manager surface and moves skills/runtime integration to the native OpenCode V2 plugin.
+
+## Preconditions
+
+Do not publish from a refocus branch until the release/version decision is
+explicitly approved.
+
+The release commit must have green CI for the exact SHA.
 
 ## Preflight
 
+Use Node **22.19+** for the package toolchain.
+
 ```bash
+npm install --ignore-scripts --no-audit --no-fund
 npm test
-openzeus validate --ci
-openzeus doctor --ci
-openzeus diff --summary --ci
+node tests/plugin.mjs
+./bin/openzeus validate --ci
 npm pack --dry-run
+npm publish --dry-run
 ```
 
-Confirm the package includes the expected assets:
+Expected package contents include:
 
-- `bin/openzeus`
-- `agents/`
-- `commands/`
-- `docs/`
-- `skills/`
-- `scripts/`
-- `tests/`
+- `src/plugin.js` — native OpenCode V2 plugin entrypoint;
+- `agents/OpenZeus.md` — transitional agent bootstrap;
+- `skills/` — five focused skills loaded by the plugin;
+- `bin/openzeus` — extensionless npm CLI executable;
+- `scripts/audit.mjs`;
+- `scripts/inspect.mjs`;
+- `scripts/migrate.mjs`;
+- `scripts/create-utils.sh`;
+- `scripts/install-agent.sh`;
+- `scripts/validate.sh`;
+- `README.md`;
+- `LICENSE`;
+- `package.json`.
 
-## Local Package Test
+Do not ship `.beads/`, local config, credentials, tests, or contributor-only
+state.
+
+## Local package smoke test
+
+After `npm pack`, install the generated `openzeus-2.0.0.tgz` tarball into an isolated prefix or test environment.
+
+At minimum verify:
 
 ```bash
-npm pack
-npm install -g ./openzeus-1.2.0.tgz
 openzeus help
-openzeus install --core --dry-run
-openzeus install --all --dry-run
-openzeus setup --plan --recipe node --target /tmp/openzeus-publish-smoke
+openzeus audit --help
+openzeus inspect --help
+openzeus migrate --help
 openzeus validate --ci
-openzeus doctor --fix-plan
-openzeus diff --summary
+
+export OPENCODE_CONFIG_DIR="$(mktemp -d)"
+openzeus install-agent
+cmp agents/OpenZeus.md "$OPENCODE_CONFIG_DIR/agents/OpenZeus.md"
 ```
+
+The native plugin entrypoint is covered independently by
+`node tests/plugin.mjs` against the real `@opencode/plugin` dependency.
 
 ## Publish
 
-Publishing mutates the npm registry. Do it only from a clean worktree and with explicit maintainer approval.
+Publishing mutates the npm registry. Require explicit maintainer authorization.
 
 ```bash
-npm login
+npm whoami
 npm publish
+npm view openzeus version
 ```
 
-## After Publish
+## OpenCode runtime verification
+
+Only after the new npm version is confirmed live:
 
 ```bash
-npm view openzeus version
-npm install -g openzeus
-openzeus help
-openzeus validate --ci
+opencode plugin add openzeus
+opencode plugin list
+openzeus install-agent
 ```
 
-Update release notes in `docs/CHANGELOG.md` when cutting a release.
+Start OpenCode and verify that:
+
+- the five `zeus-*` skills are present through the plugin's directory source;
+- `@OpenZeus` loads from the bootstrapped agent file;
+- `openzeus inspect --json` and `openzeus audit --json` return deterministic
+  filesystem diagnostics without printing credential values.
+
+## Release metadata
+
+After registry verification:
+
+1. create a tag pointing exactly at the green release commit;
+2. create the matching GitHub Release;
+3. verify npm latest, tag, release and CI all point to the intended version;
+4. update `docs/CHANGELOG.md`.

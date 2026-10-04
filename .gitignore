@@ -123,7 +123,8 @@ tui.json
 *.bak
 *.old
 
-# Beads / Dolt files (added by bd init)
+# Local Beads / Dolt state
+.beads/
 .dolt/
 *.db
 .beads-credential-key

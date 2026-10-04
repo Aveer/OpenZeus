@@ -132,9 +132,13 @@ case "$type" in
         write_file "$(target_root)/agents/$name.md" "---
 description: $(yaml_quote "$description")
 mode: subagent
-permission:
-  edit: ask
-  bash: ask
+permissions:
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "*"
+    effect: ask
 ---
 
 You are $name, a focused OpenCode subagent.
