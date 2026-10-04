@@ -282,6 +282,7 @@ assert_file_contains "$upgrade_config/agents/OpenZeus.md" 'changed'
 
 status_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" status)"
 [[ "$status_out" == *"Package root:"* && "$status_out" == *"OpenZeus agent:"* ]]
+[[ "$status_out" == *"Zeus commands: 0/0 installed"* ]]
 
 clean_config="$tmp/clean-config"
 OPENCODE_CONFIG_DIR="$clean_config" "$root/scripts/install.sh" >/dev/null
