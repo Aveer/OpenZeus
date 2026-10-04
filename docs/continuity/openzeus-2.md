@@ -96,3 +96,7 @@ rules and no longer pins a model, temperature or step budget.
   (`setup`, `init-project`, recipes, context-init, capture-command) after
   confirming OpenCode's native `/init` owns project analysis and AGENTS.md
   initialization.
+
+- 2026-10-04 — added `openzeus audit` as the first user-facing diagnostic
+  workflow on top of inspector evidence; `--ci` fails only on warning/error
+  findings while shadowing/info remains informational.

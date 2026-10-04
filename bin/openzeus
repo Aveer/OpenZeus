@@ -21,7 +21,7 @@ usage() {
   cat <<EOF
 OpenZeus CLI
 
-Usage: openzeus <inspect|install|sync|create|hooks|doctor|status|list|examples|validate|diff|upgrade|rollback|help> [args...]
+Usage: openzeus <audit|inspect|install|sync|create|hooks|doctor|status|list|examples|validate|diff|upgrade|rollback|help> [args...]
 
 Commands:
   install   Install OpenZeus assets into an OpenCode config directory

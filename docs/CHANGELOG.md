@@ -7,6 +7,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 ## [Unreleased]
 
 ### Added
+- Add `openzeus audit [--json] [--ci]` as the user-facing diagnostic summary built on inspector evidence.
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 
 ### Changed

@@ -133,6 +133,7 @@ OpenZeus 1.x still exposes helper commands while the plugin/runtime
 architecture is being built:
 
 ```text
+audit         Summarize actionable findings; --ci fails on warnings
 inspect       Inventory filesystem-visible OpenCode sources, precedence and compatibility warnings\ninstall       Install the current agent/skill bundle
 doctor        Check the installed OpenZeus bundle and propose fixes
 validate      Validate OpenZeus/OpenCode asset structure

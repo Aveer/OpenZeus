@@ -256,4 +256,23 @@ if (!d.inventory.skills.some(x => x.id === "shared" && x.winner === true)) proce
 inspect_human="$(OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
 [[ "$inspect_human" == *"OpenZeus inspect (filesystem view)"* ]]
 [[ "$inspect_human" == *"Collisions: 1"* ]]
+
+audit_json="$tmp/audit.json"
+OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" audit --target "$inspect_project" --json > "$audit_json"
+"$test_node" -e '
+const fs = require("fs");
+const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+if (d.status !== "warning") process.exit(1);
+if (d.summary.warnings < 2) process.exit(2);
+if (!d.findings.some(x => x.code === "legacy_agent_permission")) process.exit(3);
+if (!d.findings.some(x => x.code === "legacy_command_subtask")) process.exit(4);
+' "$audit_json"
+
+audit_ci=0
+OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" audit --target "$inspect_project" --ci >/dev/null || audit_ci=$?
+[[ "$audit_ci" -eq 1 ]]
+
+audit_clean="$tmp/audit-clean"
+mkdir -p "$audit_clean"
+OPENCODE_CONFIG_DIR="$audit_clean" "$root/bin/openzeus" audit --target "$audit_clean" --ci >/dev/null
 echo ok

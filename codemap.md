@@ -19,7 +19,7 @@ features without a concrete reason. It ships no generic slash-command pack.
 | File | Purpose |
 |---|---|
 | `agents/OpenZeus.md` | Primary product interface and routing policy |
-| `bin/openzeus` | Transitional CLI/support entrypoint |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |
+| `bin/openzeus` | Transitional CLI/support entrypoint |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |
 | `skills/` | Focused OpenCode authoring/diagnostic guidance |
 | `scripts/install.sh` | Transitional copy-based installer |
 | `scripts/doctor.sh` | Installed-bundle health checks |
