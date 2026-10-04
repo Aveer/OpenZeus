@@ -148,6 +148,7 @@ EOF
 }
 
 case "${1:-help}" in
+  inspect) exec node "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}" ;;
   install) exec "$SCRIPT_DIR/scripts/install.sh" "${@:2}" ;;
   sync) exec "$SCRIPT_DIR/scripts/sync-utils.sh" "${@:2}" ;;
   create) exec "$SCRIPT_DIR/scripts/create-utils.sh" "${@:2}" ;;

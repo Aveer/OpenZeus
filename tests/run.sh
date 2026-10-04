@@ -23,6 +23,8 @@ assert_no_non_zeus_entries() {
   done
 }
 
+grep -q '^  inspect)' "$root/bin/openzeus"
+
 for script in "$root/scripts/install.sh" "$root/scripts/sync-utils.sh" "$root/scripts/create-utils.sh" "$root/scripts/setup-hooks.sh" "$root/scripts/doctor.sh" "$root/scripts/init-project.sh" "$root/scripts/setup.sh" "$root/scripts/validate.sh" "$root/scripts/capture-command.sh" "$root/scripts/diff.sh" "$root/scripts/upgrade.sh" "$root/bin/openzeus"; do
   [[ -x "$script" ]] || { echo "not executable: $script" >&2; exit 1; }
   bash -n "$script"
