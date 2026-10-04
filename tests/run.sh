@@ -447,7 +447,9 @@ EOF
 
 inspect_json="$tmp/inspect.json"
 OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project" --json > "$inspect_json"
-node -e '
+test_node="${npm_node_execpath:-}"
+[[ -n "$test_node" ]] || test_node="$(command -v node)"
+"$test_node" -e '
 const fs = require("fs");
 const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
 if (d.mode !== "filesystem") process.exit(1);

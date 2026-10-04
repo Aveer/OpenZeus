@@ -148,7 +148,14 @@ EOF
 }
 
 case "${1:-help}" in
-  inspect) exec node "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}" ;;
+  inspect)
+    node_bin="${OPENZEUS_NODE:-${npm_node_execpath:-}}"
+    if [[ -z "$node_bin" ]]; then
+      node_bin="$(command -v node 2>/dev/null || true)"
+    fi
+    [[ -n "$node_bin" ]] || { echo "OpenZeus inspect requires Node.js" >&2; exit 1; }
+    exec "$node_bin" "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}"
+    ;;
   install) exec "$SCRIPT_DIR/scripts/install.sh" "${@:2}" ;;
   sync) exec "$SCRIPT_DIR/scripts/sync-utils.sh" "${@:2}" ;;
   create) exec "$SCRIPT_DIR/scripts/create-utils.sh" "${@:2}" ;;
