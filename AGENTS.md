@@ -6,13 +6,22 @@ This file provides guidelines for AI agents operating in the OpenZeus repository
 
 ## Project Overview
 
-OpenZeus is an AI agent for OpenCode - a sophisticated configuration and automation system. The project consists of:
+OpenZeus is an OpenCode companion agent. Its long-term job is to understand the
+user's effective OpenCode environment, diagnose configuration/discovery
+problems, guide safe migrations, and help design OpenCode agents, skills and
+commands.
 
-- **Bash scripts**: Installation, sync utilities, context-aware creator, git hooks
-- **Markdown skills**: Domain expertise guides for OpenCode operations
-- **Markdown commands**: Custom slash command templates
-- **Markdown agents**: Agent definitions for OpenCode
-- **NPM package**: Published distribution with install.sh
+The current Bash installer/sync/setup surface is transitional 1.x
+infrastructure, not the target product identity.
+
+For refocus work, read these first:
+
+- `plans/openzeus-2-refocus.md`
+- `docs/continuity/openzeus-2.md`
+
+New work must stay OpenCode-specific, prefer native OpenCode capabilities, and
+must not add user-specific absolute paths or copied knowledge for unrelated
+tools.
 
 ---
 

@@ -1,18 +1,16 @@
 {
   "name": "openzeus",
   "version": "1.2.0",
-  "description": "OpenCode operator kit with agents, skills, commands, and safe sync utilities",
+  "description": "OpenCode companion agent for workspace diagnostics, migration, and asset design",
   "main": "bin/openzeus",
   "keywords": [
     "opencode",
-    "ai-agent", 
+    "ai-agent",
     "configuration",
-    "automation",
+    "diagnostics",
     "skills",
-    "commands",
-    "zeus",
-    "ai-assistant",
-    "code-generation"
+    "agents",
+    "developer-tools"
   ],
   "author": "OpenZeus Project <https://github.com/Aveer/OpenZeus>",
   "license": "MIT",

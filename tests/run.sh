@@ -95,7 +95,7 @@ OPENCODE_CONFIG_DIR="$env_install" "$root/scripts/install.sh" >/dev/null
 
 core_install="$tmp/core-install"
 OPENCODE_CONFIG_DIR="$core_install" "$root/scripts/install.sh" --core >/dev/null
-[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-core" && ! -d "$core_install/skills/zeus-swarm" ]]
+[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-core" && ! -d "$core_install/skills/zeus-self" ]]
 [[ -f "$core_install/commands/zeus-git-commit.md" && ! -f "$core_install/commands/zeus-kanban.md" ]]
 core_doctor_out="$(OPENCODE_CONFIG_DIR="$core_install" "$root/bin/openzeus" doctor)"
 [[ "$core_doctor_out" == *"OpenZeus doctor: ok"* ]]
@@ -114,7 +114,7 @@ OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" doctor >/dev/nul
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" diff --ci >/dev/null
 extras_install="$tmp/extras-install"
 OPENCODE_CONFIG_DIR="$extras_install" "$root/scripts/install.sh" --extras >/dev/null
-[[ ! -d "$extras_install/skills/zeus-core" && -d "$extras_install/skills/zeus-swarm" ]]
+[[ ! -d "$extras_install/skills/zeus-core" && -d "$extras_install/skills/zeus-self" ]]
 [[ ! -f "$extras_install/commands/zeus-git-commit.md" && -f "$extras_install/commands/zeus-kanban.md" ]]
 
 type_mismatch_config="$tmp/type-mismatch-config"
