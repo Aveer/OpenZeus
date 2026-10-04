@@ -7,9 +7,10 @@ This document is the canonical handoff for the OpenZeus refocus campaign.
 - Repository: `Aveer/OpenZeus`
 - Default branch: `main`
 - Stable baseline: `v1.2.0`
+- Target refocus release: `2.0.0`
 - Baseline commit: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
 - Active branch: `refactor/openzeus-2-agent-first`
-- Active phase: Phase 4 — migration apply safety; plan-only migration is implemented
+- Active phase: release review — 2.0.0 prepared; merge/publish not performed
 - Detailed plan: [docs/plans/openzeus-2-refocus.md](../plans/openzeus-2-refocus.md)
 
 ## Canonical product decision
@@ -122,3 +123,7 @@ rules and no longer pins a model, temperature or step budget.
 - 2026-10-04 — final branch-text audit removed stale 1.x helper references
   from the agent and replaced legacy agent/repository atlases with the current
   V2 plugin/audit/migration architecture.
+
+- 2026-10-04 — breaking-release decision made: refocus branch prepared as
+  OpenZeus 2.0.0. No merge, npm publish, tag, or GitHub Release has been
+  performed.

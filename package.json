@@ -1,6 +1,6 @@
 {
   "name": "openzeus",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "OpenCode companion agent for workspace diagnostics, migration, and asset design",
   "main": "./src/plugin.js",
   "keywords": [

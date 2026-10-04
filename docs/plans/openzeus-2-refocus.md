@@ -1,6 +1,6 @@
 # OpenZeus 2 Refocus Plan
 
-Status: active — Phases 1–3 complete; Phase 4 in progress; Phase 5 prototype CI-green
+Status: implementation complete for review — target release 2.0.0
 Branch: `refactor/openzeus-2-agent-first`
 Baseline release: `v1.2.0`
 Baseline main: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
@@ -185,9 +185,7 @@ Deliverables:
 ## Release strategy
 
 Do not publish a refocus release until at least Phase 1 and the current-format
-compatibility work in Phase 2 are coherent. Breaking surface removal should be
-documented explicitly; versioning decision is made after the actual diff is
-known.
+compatibility work in Phase 2 are coherent. Breaking surface removal is documented explicitly. The actual diff warrants a major release; target version is `2.0.0`.
 
 
 ## Progress update — 2026-10-04
@@ -261,3 +259,18 @@ not be implemented as text substitution; each supported migration needs:
 3. backup;
 4. post-change validation;
 5. rollback on validation failure.
+
+
+## Release decision — 2026-10-04
+
+The refocus is a breaking release and is prepared as **OpenZeus 2.0.0**.
+
+Reasons for the major version:
+- most 1.x generic/config-manager CLI commands were removed;
+- the shipped skill set was reduced from broad/general integrations to five
+  focused OpenCode skills;
+- native OpenCode V2 plugin delivery is now the primary architecture;
+- the old copy-installed skill/config lifecycle was retired;
+- migration apply remains intentionally unavailable until it is safe.
+
+Merge and publication are separate, explicit steps after review.

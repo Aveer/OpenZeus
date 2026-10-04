@@ -6,6 +6,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [2.0.0] - 2026-10-04
+
 ### Added
 - Add a native OpenCode V2 plugin entrypoint using `@opencode/plugin`, registering the five focused skills and a safe `openzeus_runtime` live-runtime tool.
 - Add `openzeus audit [--json] [--ci]` as the user-facing diagnostic summary built on inspector evidence.
@@ -32,7 +36,6 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Remove unrelated/general-purpose skills: `zeus-boston-terrier`, `zeus-docker`, `zeus-sql`, and `zeus-llm`.
 - Remove copied external-integration skills from core: `zeus-beads`, `zeus-swarm`, `zeus-oac`, and `zeus-omo`.
 - Remove legacy broad/meta skills `zeus-core`, `zeus-upskill`, `zeus-context`, and `zeus-self`; their useful responsibilities are folded into focused diagnostics/migration/authoring skills.
-
 
 ## [1.2.0] - 2026-10-04
 

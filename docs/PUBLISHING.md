@@ -2,8 +2,9 @@
 
 OpenZeus publishes the `openzeus` npm package.
 
-Stable public baseline: **1.2.0**. The OpenZeus 2 refocus is currently
-unreleased and contains breaking surface changes.
+Stable public baseline: **1.2.0**. Target release: **2.0.0**.
+
+2.0.0 is intentionally breaking: it removes the 1.x generic/config-manager surface and moves skills/runtime integration to the native OpenCode V2 plugin.
 
 ## Preconditions
 
@@ -46,8 +47,7 @@ state.
 
 ## Local package smoke test
 
-After `npm pack`, install the generated tarball into an isolated prefix or
-test environment.
+After `npm pack`, install the generated `openzeus-2.0.0.tgz` tarball into an isolated prefix or test environment.
 
 At minimum verify:
 

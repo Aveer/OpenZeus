@@ -166,9 +166,9 @@ Architecture and campaign state:
 
 ## Version
 
-Current stable package: **1.2.0**.
+Current stable npm release: **1.2.0**. This branch prepares **2.0.0**.
 
-The OpenZeus 2 refocus is being developed separately from the stable release.
+OpenZeus 2.0.0 is the breaking refocus release: native V2 plugin delivery, five focused skills, runtime inspection/audit, plan-only migration, and a minimal agent bootstrap.
 
 ## Links
 
