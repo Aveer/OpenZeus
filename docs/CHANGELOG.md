@@ -7,6 +7,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 ## [Unreleased]
 
 ### Added
+- GitHub Actions CI for package tests, package/config validation, clean-install doctor/diff checks, and npm pack verification.
 - `openzeus setup --plan|--apply` with recipes: `node`, `python`, `docs`, `beads`, and `solo-dev`.
 - `openzeus validate [--ci] [--project DIR]` for package/config and project asset checks.
 - `openzeus capture-command --name NAME --prompt TEXT` for prompt-to-command generation.
@@ -19,6 +20,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - `openzeus doctor --fix-plan` detects missing or differing installed OpenZeus assets and suggests concrete safe repair commands.
 
 ### Changed
+- Public repository hygiene: ignore local `.slim/` state and remove machine-specific repository paths from contributor guidance.
 - `openzeus install` now documents `--core`, `--extras`, and `--all` profiles; the OpenZeus agent and helper scripts are always installed, while skills/commands are profile-filtered.
 - `doctor`, `diff`, and `upgrade` now use the saved install profile so filtered assets are not treated as missing.
 - CI-oriented docs now prefer `openzeus validate --ci`, `openzeus doctor --ci`, and `openzeus diff --summary --ci`.

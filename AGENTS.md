@@ -276,7 +276,7 @@ Scripts in the `scripts/` folder are included in the npm package and installed t
 1. Create `commands/zeus-command.md`
 2. Follow command template format
 3. Update README.md commands table
-4. Sync: `./sync-utils.sh push`
+4. Sync: `./scripts/sync-utils.sh push`
 
 ### Publishing a Release
 

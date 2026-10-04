@@ -1,5 +1,9 @@
 # OpenZeus
 
+[![CI](https://github.com/Aveer/OpenZeus/actions/workflows/ci.yml/badge.svg)](https://github.com/Aveer/OpenZeus/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/openzeus)](https://www.npmjs.com/package/openzeus)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **Guided OpenCode setup, validation, and asset generation.**
 
 OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, install profile-aware assets, validate config, capture commands from prompts, and upgrade safely with local backups.
@@ -16,6 +20,9 @@ OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, inst
 - **Upgrade safely**: back up local config and preserve the active install profile.
 
 ## Installation
+
+OpenZeus supports **Linux and macOS** directly. On Windows, use **WSL**; native
+Windows is intentionally not listed in the npm package's supported OS targets.
 
 ### NPM
 
@@ -243,7 +250,11 @@ openzeus diff --summary --ci
 
 ## Version
 
-Current package version: **1.1.0**.
+Published npm package: **1.1.0**.
+
+The repository currently contains unreleased changes planned for the next
+minor release. Until that release is published to npm, clone the repository
+if you want to test the latest `master` functionality.
 
 ## Links
 

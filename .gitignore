@@ -127,3 +127,6 @@ tui.json
 .dolt/
 *.db
 .beads-credential-key
+
+# Local agent/tool-generated state
+.slim/

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Validate package assets
+        run: ./bin/openzeus validate --ci
+
+      - name: Validate clean install
+        shell: bash
+        run: |
+          set -euo pipefail
+          export OPENCODE_CONFIG_DIR="$RUNNER_TEMP/openzeus-config"
+          ./bin/openzeus install --all
+          ./bin/openzeus doctor --ci
+          ./bin/openzeus diff --summary --ci
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run
