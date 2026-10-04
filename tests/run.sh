@@ -408,6 +408,7 @@ ln -s "$root/bin/openzeus" "$tmp/bin/openzeus"
 "$tmp/bin/openzeus" help >/dev/null
 "$tmp/bin/openzeus" doctor >/dev/null
 \n
+set -x
 inspect_home="$tmp/inspect-home"
 inspect_config="$tmp/inspect-config"
 inspect_project="$tmp/inspect-project"
@@ -463,4 +464,5 @@ if (!d.inventory.skills.some(x => x.id === "shared" && x.winner === true)) proce
 inspect_human="$(OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
 [[ "$inspect_human" == *"OpenZeus inspect (filesystem view)"* ]]
 [[ "$inspect_human" == *"Collisions: 1"* ]]
+set +x
 \necho ok\n
