@@ -144,6 +144,14 @@ EOF
 }
 
 case "${1:-help}" in
+  audit)
+    node_bin="${OPENZEUS_NODE:-${npm_node_execpath:-}}"
+    if [[ -z "$node_bin" ]]; then
+      node_bin="$(command -v node 2>/dev/null || true)"
+    fi
+    [[ -n "$node_bin" ]] || { echo "OpenZeus audit requires Node.js" >&2; exit 1; }
+    exec "$node_bin" "$SCRIPT_DIR/scripts/audit.mjs" "${@:2}"
+    ;;
   inspect)
     node_bin="${OPENZEUS_NODE:-${npm_node_execpath:-}}"
     if [[ -z "$node_bin" ]]; then
