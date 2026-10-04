@@ -9,7 +9,7 @@ This document is the canonical handoff for the OpenZeus refocus campaign.
 - Stable baseline: `v1.2.0`
 - Baseline commit: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
 - Active branch: `refactor/openzeus-2-agent-first`
-- Active phase: Phase 4 — migration planning; V2 plugin prototype is CI-green
+- Active phase: Phase 4 — migration apply safety; plan-only migration is implemented
 - Detailed plan: [docs/plans/openzeus-2-refocus.md](../plans/openzeus-2-refocus.md)
 
 ## Canonical product decision
@@ -69,9 +69,9 @@ rules and no longer pins a model, temperature or step budget.
 
 ## Next actions
 
-1. Add deterministic `openzeus migrate --plan` from inspector findings.
-2. Keep migration apply disabled until there is a parser-backed, backup/rollback-safe implementation.
-3. Tighten live-runtime + filesystem evidence reconciliation.
+1. Keep migration apply disabled until there is a parser-backed, backup/rollback-safe implementation.
+2. Tighten live-runtime + filesystem evidence reconciliation.
+3. Do a final repository/product audit after the refocus.
 4. Finalize OpenZeus 2 packaging/docs and decide the breaking-release version.
 
 ## Last updated
@@ -111,3 +111,7 @@ rules and no longer pins a model, temperature or step budget.
 
 - 2026-10-04 — repository hygiene follow-up: canonical plans moved under
   `docs/plans/`; tracked `.beads/` state removed and ignored.
+
+- 2026-10-04 — implemented CI-covered `openzeus migrate --plan`; it maps
+  inspector legacy findings to explicit V2 migration actions and refuses
+  `--apply`. No migration action is currently automatic.

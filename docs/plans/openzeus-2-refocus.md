@@ -137,14 +137,14 @@ Deliverables:
 Exit criteria: `@OpenZeus` can answer “where did this come from?” from
 runtime evidence.
 
-### Phase 4 — Audit and migration UX
+### Phase 4 — Audit and migration UX — PLAN-ONLY IMPLEMENTED
 
 Goal: turn inspection into useful maintenance.
 
 Deliverables:
 - introduce `openzeus audit` as the human-facing diagnostic command;
 - detect legacy/deprecated forms;
-- add `openzeus migrate --plan`;
+- add `openzeus migrate --plan`; **implemented**
 - add guarded apply + backup + validation + rollback.
 
 Exit criteria: OpenZeus can detect and safely plan at least one real OpenCode
@@ -247,3 +247,17 @@ untracked.
 `bin/openzeus` remains extensionless intentionally: it is the Unix/npm
 executable entrypoint installed as the `openzeus` command. Implementation
 modules use normal extensions (`.js`, `.mjs`, `.sh`).
+
+
+## Migration safety decision — 2026-10-04
+
+`openzeus migrate --plan` is implemented and CI-covered.
+
+`--apply` deliberately returns an error and performs no mutations. Apply will
+not be implemented as text substitution; each supported migration needs:
+
+1. parser-backed source understanding;
+2. an exact change plan;
+3. backup;
+4. post-change validation;
+5. rollback on validation failure.

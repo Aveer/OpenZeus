@@ -16,12 +16,12 @@ for script in "$root/bin/openzeus" "$root/scripts/create-utils.sh" "$root/script
   bash -n "$script"
 done
 [[ -x "$root/scripts/inspect.mjs" ]]
-[[ -x "$root/scripts/audit.mjs" ]]
+[[ -x "$root/scripts/audit.mjs" ]]\n[[ -x "$root/scripts/migrate.mjs" ]]
 [[ -f "$root/src/plugin.js" ]]
 
 "$root/bin/openzeus" help | grep -q 'install-agent'
 "$root/bin/openzeus" help | grep -q 'audit'
-"$root/bin/openzeus" help | grep -q 'inspect'
+"$root/bin/openzeus" help | grep -q 'inspect'\n"$root/bin/openzeus" help | grep -q 'migrate'
 
 config="$tmp/config"
 
@@ -151,6 +151,21 @@ if (d.summary.warnings < 2) process.exit(2);
 audit_ci=0
 OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" audit --target "$inspect_project" --ci >/dev/null || audit_ci=$?
 [[ "$audit_ci" -eq 1 ]]
+
+migrate_json="$tmp/migrate.json"
+OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" migrate --plan --target "$inspect_project" --json > "$migrate_json"
+"$test_node" -e '
+const fs = require("fs");
+const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+if (d.mode !== "plan" || d.mutatesFiles !== false) process.exit(1);
+if (!d.actions.some(x => x.id === "agent-permissions-v2")) process.exit(2);
+if (!d.actions.some(x => x.id === "command-subagent-v2")) process.exit(3);
+if (!d.actions.every(x => x.automatic === false)) process.exit(4);
+' "$migrate_json"
+
+migrate_apply=0
+OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" migrate --apply --target "$inspect_project" >/dev/null 2>&1 || migrate_apply=$?
+[[ "$migrate_apply" -eq 2 ]]
 
 clean_project="$tmp/clean-project"
 mkdir -p "$clean_project"

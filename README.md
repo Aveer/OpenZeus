@@ -225,3 +225,22 @@ different file unless `--force` is explicit, and supports `--backup`.
 
 The older `openzeus install` spelling remains only as a temporary alias to
 `install-agent`.
+
+
+### Migration planning
+
+OpenZeus can now turn compatibility findings into an explicit, non-mutating
+migration plan:
+
+```bash
+openzeus migrate --plan
+openzeus migrate --plan --json
+```
+
+Current plans cover legacy agent permissions/tools/request fields, legacy
+command `subtask`, and legacy `tui.json(c)`. Every action is marked
+`automatic: false`.
+
+`openzeus migrate --apply` intentionally refuses to run. Automatic migration
+will only be added when edits are parser-backed and each supported migration
+has backup, validation and rollback guarantees.

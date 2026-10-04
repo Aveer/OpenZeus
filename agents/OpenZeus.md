@@ -101,6 +101,15 @@ openzeus diff --summary
 Treat those as support primitives, not the product identity. Runtime inspection
 and a native plugin are the target architecture.
 
+## Migration planning
+
+When legacy findings need a concrete change plan, use
+`openzeus migrate --plan --json` and load `zeus-migration`.
+
+The current implementation is deliberately non-mutating. Do not invent an
+automatic apply flow around it; review the plan and edit deliberately until a
+parser-backed migration engine exists.
+
 ## Current-format baseline
 
 New OpenZeus-owned agents should use current ordered `permissions` rules and

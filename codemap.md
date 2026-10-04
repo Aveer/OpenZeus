@@ -18,7 +18,7 @@ OpenZeus should not duplicate OpenCode-native features without a concrete reason
 | File | Purpose |
 |---|---|
 | `agents/OpenZeus.md` | Primary product interface and routing policy |
-| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Extensionless executable shell entrypoint exposed by npm as the `openzeus` command |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |
+| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Extensionless executable shell entrypoint exposed by npm as the `openzeus` command |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |\n| `scripts/migrate.mjs` | Non-mutating V1-to-V2 migration planning from inspector findings |
 | `skills/` | Focused OpenCode authoring/diagnostic guidance |
 | `scripts/install-agent.sh` | Transitional one-file @OpenZeus agent bootstrap |
 | `scripts/validate.sh` | Structural validation |
