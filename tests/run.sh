@@ -95,7 +95,7 @@ OPENCODE_CONFIG_DIR="$env_install" "$root/scripts/install.sh" >/dev/null
 
 core_install="$tmp/core-install"
 OPENCODE_CONFIG_DIR="$core_install" "$root/scripts/install.sh" --core >/dev/null
-[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-core" && ! -d "$core_install/skills/zeus-self" ]]
+[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-diagnostics" && ! -d "$core_install/skills/zeus-migration" ]]
 [[ -f "$core_install/commands/zeus-git-commit.md" && ! -f "$core_install/commands/zeus-kanban.md" ]]
 core_doctor_out="$(OPENCODE_CONFIG_DIR="$core_install" "$root/bin/openzeus" doctor)"
 [[ "$core_doctor_out" == *"OpenZeus doctor: ok"* ]]
@@ -114,7 +114,7 @@ OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" doctor >/dev/nul
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" diff --ci >/dev/null
 extras_install="$tmp/extras-install"
 OPENCODE_CONFIG_DIR="$extras_install" "$root/scripts/install.sh" --extras >/dev/null
-[[ ! -d "$extras_install/skills/zeus-core" && -d "$extras_install/skills/zeus-self" ]]
+[[ ! -d "$extras_install/skills/zeus-diagnostics" && ! -d "$extras_install/skills/zeus-migration" ]]
 [[ ! -f "$extras_install/commands/zeus-git-commit.md" && -f "$extras_install/commands/zeus-kanban.md" ]]
 
 type_mismatch_config="$tmp/type-mismatch-config"
@@ -173,13 +173,13 @@ doctor_out="$(OPENCODE_CONFIG_DIR="$install_dir" "$root/bin/openzeus" doctor)"
 drift_config="$tmp/drift-config"
 cp -R "$install_dir" "$drift_config"
 rm -f "$drift_config/agents/OpenZeus.md"
-printf '%s\n' 'different skill' > "$drift_config/skills/zeus-core/SKILL.md"
+printf '%s\n' 'different skill' > "$drift_config/skills/zeus-diagnostics/SKILL.md"
 printf '%s\n' 'different command' > "$drift_config/commands/zeus-git-commit.md"
 printf '%s\n' 'different helper' > "$drift_config/doctor.sh"
 chmod -x "$drift_config/init-project.sh"
 drift_fix_plan_out="$(OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" doctor --fix-plan)"
 [[ "$drift_fix_plan_out" == *"WARN OpenZeus agent missing from config"* ]]
-[[ "$drift_fix_plan_out" == *"WARN skill zeus-core differs in config"* ]]
+[[ "$drift_fix_plan_out" == *"WARN skill zeus-diagnostics differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN command zeus-git-commit.md differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN helper doctor.sh differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN helper init-project.sh is not executable in config"* ]]
@@ -304,7 +304,7 @@ list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list all)"
 [[ "$list_out" == *"agents/OpenZeus.md"* && "$list_out" == *"zeus-git-commit.md"* ]]
 
 skills_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list skills)"
-[[ "$skills_list_out" == *"skill: zeus-core"* && "$skills_list_out" != *"command:"* && "$skills_list_out" != *"agent:"* ]]
+[[ "$skills_list_out" == *"skill: zeus-diagnostics"* && "$skills_list_out" != *"command:"* && "$skills_list_out" != *"agent:"* ]]
 commands_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list commands)"
 [[ "$commands_list_out" == *"command: zeus-git-commit.md"* && "$commands_list_out" != *"skill:"* && "$commands_list_out" != *"agent:"* ]]
 agents_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list agents)"
@@ -312,12 +312,12 @@ agents_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list agent
 
 different_skill_dir="$tmp/diff-skill"
 mkdir -p "$different_skill_dir"
-cp -R "$root/skills/zeus-core" "$different_skill_dir/zeus-core"
-printf '%s\n' 'extra' > "$different_skill_dir/zeus-core/extra.md"
+cp -R "$root/skills/zeus-diagnostics" "$different_skill_dir/zeus-diagnostics"
+printf '%s\n' 'extra' > "$different_skill_dir/zeus-diagnostics/extra.md"
 mkdir -p "$config/skills"
-cp -R "$different_skill_dir/zeus-core" "$config/skills/"
+cp -R "$different_skill_dir/zeus-diagnostics" "$config/skills/"
 skill_diff_list="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list skills)"
-[[ "$skill_diff_list" == *"skill: zeus-core [different]"* ]]
+[[ "$skill_diff_list" == *"skill: zeus-diagnostics [different]"* ]]
 
 examples_out="$("$root/bin/openzeus" examples)"
 [[ "$examples_out" == *"openzeus init-project"* && "$examples_out" == *"openzeus doctor --fix-plan"* && "$examples_out" == *"@OpenZeus audit"* ]]

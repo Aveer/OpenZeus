@@ -20,8 +20,8 @@ install_profile="all"
 should_include_skill() {
   local name="$1"
   case "$install_profile" in
-    core) [[ "$name" == zeus-core || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills || "$name" == zeus-upskill || "$name" == zeus-context ]] ;;
-    extras) [[ "$name" != zeus-core && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills && "$name" != zeus-upskill && "$name" != zeus-context ]] ;;
+    core) [[ "$name" == zeus-diagnostics || "$name" == zeus-migration || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills ]] ;;
+    extras) [[ "$name" != zeus-diagnostics && "$name" != zeus-migration && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills ]] ;;
     *) return 0 ;;
   esac
 }

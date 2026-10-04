@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 
 ## [Unreleased]
 
+### Added
+- Add focused `zeus-diagnostics` and `zeus-migration` skills.
+
 ### Changed
 - Refocus OpenZeus around the `@OpenZeus` companion-agent experience: OpenCode environment understanding, diagnostics, migration and asset design.
 - Update the shipped OpenZeus agent to native V2-style `permissions`, remove the hard-coded model/request tuning, and prefer OpenCode-native features and schema.
@@ -14,6 +17,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 ### Removed
 - Remove unrelated/general-purpose skills: `zeus-boston-terrier`, `zeus-docker`, `zeus-sql`, and `zeus-llm`.
 - Remove copied external-integration skills from core: `zeus-beads`, `zeus-swarm`, `zeus-oac`, and `zeus-omo`.
+- Remove legacy broad/meta skills `zeus-core`, `zeus-upskill`, `zeus-context`, and `zeus-self`; their useful responsibilities are folded into focused diagnostics/migration/authoring skills.
 
 
 ## [1.2.0] - 2026-10-04

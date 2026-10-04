@@ -114,24 +114,22 @@ Use OpenZeus when the problem is architectural rather than mechanical:
 
 ## Focused skills
 
-The refocused core intentionally stays small.
+OpenZeus now ships only skills that directly help operate or author OpenCode.
 
 | Skill | Role |
 |---|---|
-| `zeus-core` | Transitional OpenCode operational guidance; being reduced in favor of native/schema knowledge |
+| `zeus-diagnostics` | Runtime/config discovery, precedence and troubleshooting |
+| `zeus-migration` | Safe OpenCode migration planning |
 | `zeus-agents` | Advanced agent design and maintenance |
 | `zeus-commands` | Command design and maintenance |
 | `zeus-skills` | Skill authoring, discovery and portability |
-| `zeus-upskill` | Extending OpenZeus itself |
-| `zeus-context` | Project/session context workflows; consolidation candidate |
-| `zeus-self` | OpenZeus self-diagnostics; consolidation candidate |
 
-Generic Docker, SQL, local-LLM, Boston Terrier and copied documentation skills
-for external plugins are intentionally outside the OpenZeus core.
+Generic domain packs, pseudo-introspection skills and copied documentation for
+external plugins are intentionally outside the OpenZeus core.
 
 ## Current CLI
 
-OpenZeus 1.x still exposes several helper commands while the plugin/runtime
+OpenZeus 1.x still exposes helper commands while the plugin/runtime
 architecture is being built:
 
 ```text

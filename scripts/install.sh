@@ -128,8 +128,8 @@ should_install_skill() {
     local name="$1"
     case "$install_mode" in
         all) return 0 ;;
-        core) [[ "$name" == zeus-core || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills || "$name" == zeus-upskill || "$name" == zeus-context ]] ;;
-        extras) [[ "$name" != zeus-core && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills && "$name" != zeus-upskill && "$name" != zeus-context ]] ;;
+        core) [[ "$name" == zeus-diagnostics || "$name" == zeus-migration || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills ]] ;;
+        extras) [[ "$name" != zeus-diagnostics && "$name" != zeus-migration && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills ]] ;;
     esac
 }
 
