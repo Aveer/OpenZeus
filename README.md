@@ -25,10 +25,9 @@ design a new OpenCode skill or agent.
   <img src="./media/OpenZeus.png" alt="OpenZeus" width="360">
 </p>
 
-OpenZeus is **not** an alternative to OpenCode. It uses OpenCode's native
-configuration, agents, skills, commands and plugins wherever possible. Its
-value is the layer on top: inspection, diagnosis, migration guidance and
-higher-level asset design.
+OpenZeus uses OpenCode's native configuration, agents, skills, commands and
+plugins wherever possible. Its value is the layer on top: inspection,
+diagnosis, migration guidance and higher-level asset design.
 
 ## What it is for
 
@@ -82,13 +81,14 @@ The agent is the primary interface. The CLI is support machinery.
 Current deterministic helpers:
 
 ```bash
-openzeus doctor --fix-plan
+openzeus audit
+openzeus audit --json
+openzeus inspect --json
 openzeus validate --ci
-openzeus diff --summary
 ```
 
-These commands are being consolidated behind a simpler inspection/audit
-surface as the refocus progresses.
+`audit` is the user-facing diagnostic summary. `inspect` exposes the raw
+filesystem evidence used for provenance, precedence and compatibility checks.
 
 ### Create or improve a skill
 
@@ -133,14 +133,14 @@ external plugins are intentionally outside the OpenZeus core.
 
 ## Current CLI
 
-OpenZeus 1.x still exposes helper commands while the plugin/runtime
-architecture is being built:
+The CLI is intentionally small:
 
 ```text
-audit         Summarize actionable findings; --ci fails on warnings
-inspect       Inventory filesystem-visible OpenCode sources, precedence and compatibility warnings\ninstall-agent Install only the @OpenZeus agent bootstrap
-validate      Validate OpenZeus/OpenCode asset structure
-create        Create an agent, skill or command template
+audit          Summarize actionable findings; --ci fails on warnings
+inspect        Inventory filesystem-visible OpenCode sources and precedence
+install-agent  Install only the transitional @OpenZeus agent bootstrap
+create         Create an agent, skill, or command template
+validate       Validate OpenZeus/OpenCode asset structure
 ```
 
 OpenZeus no longer ships generic project-management/Git slash commands.
@@ -161,7 +161,7 @@ npm pack --dry-run
 
 Architecture and campaign state:
 
-- [OpenZeus 2 refocus plan](plans/openzeus-2-refocus.md)
+- [OpenZeus 2 refocus plan](docs/plans/openzeus-2-refocus.md)
 - [OpenZeus 2 continuity](docs/continuity/openzeus-2.md)
 
 ## Version

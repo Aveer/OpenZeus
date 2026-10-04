@@ -9,8 +9,8 @@ This document is the canonical handoff for the OpenZeus refocus campaign.
 - Stable baseline: `v1.2.0`
 - Baseline commit: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
 - Active branch: `refactor/openzeus-2-agent-first`
-- Active phase: Phase 3/5 crossover — inspector/audit + native V2 plugin prototype
-- Detailed plan: [plans/openzeus-2-refocus.md](../../plans/openzeus-2-refocus.md)
+- Active phase: Phase 4 — migration planning; V2 plugin prototype is CI-green
+- Detailed plan: [docs/plans/openzeus-2-refocus.md](../plans/openzeus-2-refocus.md)
 
 ## Canonical product decision
 
@@ -69,16 +69,14 @@ rules and no longer pins a model, temperature or step budget.
 
 ## Next actions
 
-1. Harden the new `openzeus inspect` contract against real-world source combinations.
-2. Add richer current-format compatibility rules on top of inspector evidence.
-3. Build a simpler `openzeus audit` UX on top of inspector output.
-4. Add guarded migration planning that consumes inspector findings.
-5. Prototype native OpenCode plugin packaging only after the inspector contract
-   is stable.
+1. Add deterministic `openzeus migrate --plan` from inspector findings.
+2. Keep migration apply disabled until there is a parser-backed, backup/rollback-safe implementation.
+3. Tighten live-runtime + filesystem evidence reconciliation.
+4. Finalize OpenZeus 2 packaging/docs and decide the breaking-release version.
 
 ## Last updated
 
-2026-10-04 — Phase 1 completed; focused five-skill architecture is CI-green; inspector work starts next.
+2026-10-04 — Phases 1–3 are effectively complete; audit and native V2 plugin prototype are CI-green; migration planning is next.
 
 - 2026-10-04 — first deterministic filesystem inspector implemented with JSON
   output, precedence/collision reporting and legacy warnings; live-runtime gaps
@@ -110,3 +108,6 @@ rules and no longer pins a model, temperature or step budget.
   `@opencode/plugin@2.0.4`; retired old sync/hooks/doctor/diff/upgrade/rollback
   and skill-copy installation. Only the @OpenZeus agent bootstrap remains due
   to the upstream AgentEditor.add limitation.
+
+- 2026-10-04 — repository hygiene follow-up: canonical plans moved under
+  `docs/plans/`; tracked `.beads/` state removed and ignored.

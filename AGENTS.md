@@ -16,7 +16,7 @@ OpenZeus is not a replacement for OpenCode and not a generic knowledge pack.
 
 Before architecture work, read:
 
-1. `plans/openzeus-2-refocus.md`
+1. `docs/plans/openzeus-2-refocus.md`
 2. `docs/continuity/openzeus-2.md`
 3. `codemap.md`
 
@@ -25,7 +25,7 @@ Before architecture work, read:
 The OpenZeus 2 campaign is developed on a work branch until a coherent
 checkpoint is ready. Do not publish npm releases or tags from refocus branches.
 
-Keep plans in `/plans` and campaign continuity in `docs/continuity/`.
+Keep plans in `docs/plans/` and campaign continuity in `docs/continuity/`.
 Do not create evidence branches, report branches, or parallel tracking layers.
 
 ## Native-first rule

@@ -6,12 +6,11 @@ OpenZeus is an OpenCode companion agent. The long-term product is the
 conversation-first `@OpenZeus` experience backed by deterministic runtime
 inspection, diagnostics, migration and focused asset-authoring capabilities.
 
-OpenZeus does not replace OpenCode and should not duplicate OpenCode-native
-features without a concrete reason. It ships no generic slash-command pack.
+OpenZeus should not duplicate OpenCode-native features without a concrete reason. It ships no generic slash-command pack.
 
 ## Active architecture campaign
 
-- Plan: [plans/openzeus-2-refocus.md](plans/openzeus-2-refocus.md)
+- Plan: [docs/plans/openzeus-2-refocus.md](docs/plans/openzeus-2-refocus.md)
 - Continuity: [docs/continuity/openzeus-2.md](docs/continuity/openzeus-2.md)
 
 ## Entry points
@@ -19,12 +18,12 @@ features without a concrete reason. It ships no generic slash-command pack.
 | File | Purpose |
 |---|---|
 | `agents/OpenZeus.md` | Primary product interface and routing policy |
-| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Transitional CLI/support entrypoint |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |
+| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Extensionless executable shell entrypoint exposed by npm as the `openzeus` command |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |
 | `skills/` | Focused OpenCode authoring/diagnostic guidance |
 | `scripts/install-agent.sh` | Transitional one-file @OpenZeus agent bootstrap |
 | `scripts/validate.sh` | Structural validation |
 | `README.md` | User-facing product explanation |
-| `plans/` | Canonical architectural plans |
+| `docs/plans/` | Canonical architectural plans |
 
 ## Target data flow
 

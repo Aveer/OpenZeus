@@ -12,6 +12,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 
 ### Changed
+- Move canonical refocus planning under `docs/plans/` and keep local Beads state out of the repository.
+- Clean README/atlas wording after the CLI simplification; document the extensionless `bin/openzeus` npm executable explicitly.
 - Reduce installation to a guarded `install-agent` bootstrap for `agents/OpenZeus.md`; the V2 plugin owns skills and runtime tooling.
 - Collapse the old core/extras split around the focused five-skill core; legacy `--extras` now installs the focused core with a deprecation warning.
 - Make OpenZeus generators emit native V2 agent permissions (`permissions` + `shell`) and make validation reject legacy fields in newly managed assets.

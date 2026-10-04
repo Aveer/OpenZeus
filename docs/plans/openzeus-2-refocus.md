@@ -1,6 +1,6 @@
 # OpenZeus 2 Refocus Plan
 
-Status: active — Phase 1 complete; Phase 2/3 foundation in progress
+Status: active — Phases 1–3 complete; Phase 4 in progress; Phase 5 prototype CI-green
 Branch: `refactor/openzeus-2-agent-first`
 Baseline release: `v1.2.0`
 Baseline main: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
@@ -109,7 +109,7 @@ Exit criteria: a new user can explain OpenZeus in one sentence after reading
 the first README screen, and the installed core contains only OpenCode-related
 capabilities.
 
-### Phase 2 — Current OpenCode compatibility
+### Phase 2 — Current OpenCode compatibility — COMPLETE
 
 Goal: stop maintaining stale OpenCode conventions.
 
@@ -123,7 +123,7 @@ Deliverables:
 Exit criteria: OpenZeus-generated assets are native-current rather than
 legacy-compatible by translation.
 
-### Phase 3 — Inspector / provenance foundation
+### Phase 3 — Inspector / provenance foundation — COMPLETE
 
 Goal: understand the user's effective OpenCode environment.
 
@@ -150,7 +150,7 @@ Deliverables:
 Exit criteria: OpenZeus can detect and safely plan at least one real OpenCode
 migration end-to-end.
 
-### Phase 5 — Native plugin packaging — PROTOTYPE IN PROGRESS
+### Phase 5 — Native plugin packaging — PROTOTYPE CI-GREEN
 
 Goal: make installation and runtime integration OpenCode-native.
 
@@ -205,9 +205,9 @@ Completed:
 - enabled branch CI and restored a fully green validation pipeline.
 
 Next implementation slice:
-- Phase 2/3 crossover: deterministic `openzeus inspect` inventory/provenance
-  foundation with JSON output and no secret-value exposure;
-- then build `audit` and migration planning on top of that evidence.
+- finish Phase 4 with deterministic `openzeus migrate --plan`;
+- keep apply disabled until migrations are parser-backed and rollback-safe;
+- then finalize package/docs for the OpenZeus 2 breaking release.
 
 
 ## Plugin constraint discovered — 2026-10-04
@@ -236,3 +236,14 @@ Removed:
 
 The only transitional copy operation is `install-agent`, required solely
 because current OpenCode V2 plugins cannot add agents.
+
+
+## Repository layout decision — 2026-10-04
+
+Canonical architecture plans live under `docs/plans/`; continuity lives under
+`docs/continuity/`. Local tracker state such as `.beads/` is intentionally
+untracked.
+
+`bin/openzeus` remains extensionless intentionally: it is the Unix/npm
+executable entrypoint installed as the `openzeus` command. Implementation
+modules use normal extensions (`.js`, `.mjs`, `.sh`).
