@@ -12,6 +12,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 
 ### Changed
+- Align the package toolchain and CI with the OpenCode V2 plugin dependency requirement of Node 22.19+.
+- Rewrite publishing and contributing docs for the native-plugin/agent-bootstrap architecture.
 - Move canonical refocus planning under `docs/plans/` and keep local Beads state out of the repository.
 - Clean README/atlas wording after the CLI simplification; document the extensionless `bin/openzeus` npm executable explicitly.
 - Reduce installation to a guarded `install-agent` bootstrap for `agents/OpenZeus.md`; the V2 plugin owns skills and runtime tooling.

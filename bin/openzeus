@@ -71,7 +71,8 @@ EOF
 
 case "${1:-help}" in
   audit) exec "$(node_bin)" "$SCRIPT_DIR/scripts/audit.mjs" "${@:2}" ;;
-  inspect) exec "$(node_bin)" "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}" ;;\n  migrate) exec "$(node_bin)" "$SCRIPT_DIR/scripts/migrate.mjs" "${@:2}" ;;
+  inspect) exec "$(node_bin)" "$SCRIPT_DIR/scripts/inspect.mjs" "${@:2}" ;;
+  migrate) exec "$(node_bin)" "$SCRIPT_DIR/scripts/migrate.mjs" "${@:2}" ;;
   install-agent) exec "$SCRIPT_DIR/scripts/install-agent.sh" "${@:2}" ;;
   install)
     echo "WARN: 'openzeus install' is deprecated; installing only the agent bootstrap." >&2
