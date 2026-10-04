@@ -139,18 +139,9 @@ write_file() {
   printf '%s' "$content" > "$path"
 }
 
-write_file "$opencode_dir/agents/project-guide.md" 
-write_file "$opencode_dir/commands/test.md" "$test_md"
-write_file "$opencode_dir/commands/build.md" "$build_md"
-write_file "$opencode_dir/skills/project-context/SKILL.md" "$context_md"
-write_file "$opencode_dir/README.md" $'# .opencode Starter\n\nThis project-local OpenCode directory contains starter assets for safe local workflows.\n'
+agent_md=$'---\ndescription: Project guidance and safety rules\nmode: subagent\npermissions:\n  - action: edit\n    resource: "*"\n    effect: ask\n  - action: shell\n    resource: "*"\n    effect: ask\n---\n\n# Project Guide\n\nUse this agent to understand the project before making changes.\n'
 
-if [[ "$dry_run" == true ]]; then
-  echo "dry-run complete for $opencode_dir (no files written)"
-else
-  echo "initialized $opencode_dir"
-fi
----\ndescription: Project guidance and safety rules\nmode: subagent\npermissions:\n  - action: edit\n    resource: "*"\n    effect: ask\n  - action: shell\n    resource: "*"\n    effect: ask\n---\n\n# Project Guide\n\nUse this agent to understand the project before making changes.\n'
+write_file "$opencode_dir/agents/project-guide.md" "$agent_md"
 write_file "$opencode_dir/commands/test.md" "$test_md"
 write_file "$opencode_dir/commands/build.md" "$build_md"
 write_file "$opencode_dir/skills/project-context/SKILL.md" "$context_md"
