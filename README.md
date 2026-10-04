@@ -1,5 +1,9 @@
 # OpenZeus
 
+<p align="center">
+  <img src="./media/openzeus-banner.png" alt="OpenZeus — Your OpenCode setup, explained." width="100%">
+</p>
+
 [![CI](https://github.com/Aveer/OpenZeus/actions/workflows/ci.yml/badge.svg)](https://github.com/Aveer/OpenZeus/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/openzeus)](https://www.npmjs.com/package/openzeus)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -20,10 +24,6 @@ design a new OpenCode skill or agent.
 @OpenZeus migrate this old agent to the current OpenCode format.
 @OpenZeus design a portable skill for this workflow.
 ```
-
-<p align="center">
-  <img src="./media/OpenZeus.png" alt="OpenZeus" width="360">
-</p>
 
 OpenZeus uses OpenCode's native configuration, agents, skills, commands and
 plugins wherever possible. Its value is the layer on top: inspection,

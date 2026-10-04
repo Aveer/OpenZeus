@@ -6,7 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 
 ## [Unreleased]
 
-_No changes yet._
+### Changed
+- Replace the legacy README artwork with the final OpenZeus banner and remove the old `media/OpenZeus.png` asset.
 
 ## [2.0.0] - 2026-10-04
 
