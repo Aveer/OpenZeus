@@ -193,14 +193,10 @@ function markWinners(inventory) {
 }
 
 function detectOpenCodeVersion() {
-  try {
-    return execFileSync("opencode", ["--version"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim() || null;
-  } catch {
-    return null;
-  }
+  // Filesystem mode intentionally does not execute OpenCode. A shim, version
+  // manager, or interactive launcher can have side effects or block CI.
+  // A future live-runtime adapter/plugin can provide the authoritative version.
+  return null;
 }
 
 function printHuman(result) {
@@ -208,7 +204,7 @@ function printHuman(result) {
   console.log("Target: " + result.target);
   console.log("Workspace root: " + result.workspaceRoot);
   console.log("Config root: " + result.configRoot);
-  console.log("OpenCode: " + (result.openCodeVersion || "not detected on PATH"));
+  console.log("OpenCode version: " + (result.openCodeVersion || "not queried in filesystem mode"));
   console.log("");
   console.log(
     "Inventory: " +
@@ -374,7 +370,7 @@ const result = {
   collisions,
   warnings,
   limitations: [
-    "Filesystem mode cannot fully resolve remote/managed configuration, config-declared assets, npm plugins, built-in skills, or explicit skill catalogs without querying a live OpenCode runtime. It reports that boundary instead of guessing."
+    "Filesystem mode does not execute OpenCode and cannot fully resolve remote/managed configuration, config-declared assets, npm plugins, built-in skills, explicit skill catalogs, or the authoritative OpenCode version. It reports that boundary instead of guessing."
   ]
 };
 
