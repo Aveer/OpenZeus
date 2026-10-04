@@ -69,14 +69,17 @@ rules and no longer pins a model, temperature or step budget.
 
 ## Next actions
 
-1. Implement deterministic `openzeus inspect` with human and JSON output.
-2. Inventory runtime-resolvable config sources plus agents/skills/commands/plugins.
-3. Report provenance/precedence and collisions without exposing secret values.
-4. Add current-format compatibility warnings that can feed `zeus-migration`.
-5. Build a simpler `openzeus audit` UX on top of inspector evidence.
-6. Prototype native OpenCode plugin packaging only after the inspector contract
+1. Harden the new `openzeus inspect` contract against real-world source combinations.
+2. Add richer current-format compatibility rules on top of inspector evidence.
+3. Build a simpler `openzeus audit` UX on top of inspector output.
+4. Add guarded migration planning that consumes inspector findings.
+5. Prototype native OpenCode plugin packaging only after the inspector contract
    is stable.
 
 ## Last updated
 
 2026-10-04 — Phase 1 completed; focused five-skill architecture is CI-green; inspector work starts next.
+
+- 2026-10-04 — first deterministic filesystem inspector implemented with JSON
+  output, precedence/collision reporting and legacy warnings; live-runtime gaps
+  are explicit limitations.

@@ -405,5 +405,58 @@ mkdir -p "$tmp/bin"
 ln -s "$root/bin/openzeus" "$tmp/bin/openzeus"
 "$tmp/bin/openzeus" help >/dev/null
 "$tmp/bin/openzeus" doctor >/dev/null
+\n
+inspect_home="$tmp/inspect-home"
+inspect_config="$tmp/inspect-config"
+inspect_project="$tmp/inspect-project"
+mkdir -p "$inspect_home" "$inspect_config/agents" "$inspect_config/skills/shared" "$inspect_project/.opencode/skills/shared" "$inspect_project/.opencode/commands"
+git init -q "$inspect_project"
 
-echo ok
+cat > "$inspect_config/agents/legacy.md" <<'EOF'
+---
+description: legacy
+mode: subagent
+permission:
+  bash: ask
+---
+EOF
+
+cat > "$inspect_config/skills/shared/SKILL.md" <<'EOF'
+---
+name: Shared
+description: Global shared skill.
+---
+EOF
+
+cat > "$inspect_project/.opencode/skills/shared/SKILL.md" <<'EOF'
+---
+name: Shared
+description: Project shared skill.
+---
+EOF
+
+cat > "$inspect_project/.opencode/commands/legacy-command.md" <<'EOF'
+---
+description: legacy command
+subtask: true
+---
+Run something.
+EOF
+
+inspect_json="$tmp/inspect.json"
+HOME="$inspect_home" OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project" --json > "$inspect_json"
+node -e '
+const fs = require("fs");
+const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+if (d.mode !== "filesystem") process.exit(1);
+const collision = d.collisions.find(x => x.type === "skill" && x.id === "shared");
+if (!collision || !collision.winner.source.startsWith("project-opencode:")) process.exit(2);
+if (!d.warnings.some(x => x.code === "legacy_agent_permission")) process.exit(3);
+if (!d.warnings.some(x => x.code === "legacy_command_subtask")) process.exit(4);
+if (d.inventory.skills.length !== 2) process.exit(5);
+' "$inspect_json"
+
+inspect_human="$(HOME="$inspect_home" OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
+[[ "$inspect_human" == *"OpenZeus inspect (filesystem view)"* ]]
+[[ "$inspect_human" == *"Collisions: 1"* ]]
+\necho ok\n

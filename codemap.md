@@ -19,7 +19,7 @@ features without a concrete reason.
 | File | Purpose |
 |---|---|
 | `agents/OpenZeus.md` | Primary product interface and routing policy |
-| `bin/openzeus` | Transitional CLI/support entrypoint |
+| `bin/openzeus` | Transitional CLI/support entrypoint |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |
 | `skills/` | Focused OpenCode authoring/diagnostic guidance |
 | `scripts/install.sh` | Transitional copy-based installer |
 | `scripts/doctor.sh` | Installed-bundle health checks |
