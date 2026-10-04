@@ -9,7 +9,7 @@ This document is the canonical handoff for the OpenZeus refocus campaign.
 - Stable baseline: `v1.2.0`
 - Baseline commit: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
 - Active branch: `refactor/openzeus-2-agent-first`
-- Active phase: Phase 1 — identity and scope reduction
+- Active phase: Phase 2/3 foundation — current-format compatibility + runtime inspector
 - Detailed plan: [plans/openzeus-2-refocus.md](../../plans/openzeus-2-refocus.md)
 
 ## Canonical product decision
@@ -36,29 +36,26 @@ tools to the agent.
 7. **Do not delete transitional infrastructure prematurely.** Remove it only
    when replacement behavior has tests and an explicit migration path.
 
-## Immediate Phase 1 decisions
+## Phase 1 result
 
-Remove from the shipped skill set:
-- `zeus-boston-terrier`
-- `zeus-docker`
-- `zeus-sql`
-- `zeus-llm`
-- `zeus-beads`
-- `zeus-swarm`
-- `zeus-oac`
-- `zeus-omo`
+The shipped skill set is now intentionally limited to:
 
-Keep for now:
-- `zeus-core`
+- `zeus-diagnostics`
+- `zeus-migration`
 - `zeus-agents`
 - `zeus-commands`
 - `zeus-skills`
-- `zeus-upskill`
-- `zeus-context`
-- `zeus-self`
 
-The kept set is not final. `zeus-core`, `zeus-context` and `zeus-self`
-are consolidation candidates after current OpenCode capabilities are mapped.
+Removed from core:
+- generic Docker / SQL / local-LLM / Boston Terrier knowledge;
+- copied Beads / swarm / OAC / OMO integration documentation;
+- broad `zeus-core` documentation mirror;
+- `zeus-upskill` meta-skill;
+- generic conversation-context `zeus-context`;
+- pseudo-runtime-introspection `zeus-self`.
+
+OpenZeus-owned agent frontmatter now uses current ordered `permissions`
+rules and no longer pins a model, temperature or step budget.
 
 ## Invariants
 
@@ -72,13 +69,14 @@ are consolidation candidates after current OpenCode capabilities are mapped.
 
 ## Next actions
 
-1. Execute Phase 1 scope reduction.
-2. Rewrite README and agent identity around the companion-agent model.
-3. Update installation/profile/test logic to reflect the reduced skill set.
-4. Run CI and fix regressions.
-5. Start Phase 2 with a fresh audit of current OpenCode native capabilities,
-   schema and plugin API.
+1. Implement deterministic `openzeus inspect` with human and JSON output.
+2. Inventory runtime-resolvable config sources plus agents/skills/commands/plugins.
+3. Report provenance/precedence and collisions without exposing secret values.
+4. Add current-format compatibility warnings that can feed `zeus-migration`.
+5. Build a simpler `openzeus audit` UX on top of inspector evidence.
+6. Prototype native OpenCode plugin packaging only after the inspector contract
+   is stable.
 
 ## Last updated
 
-2026-10-04 — branch and refocus campaign initialized.
+2026-10-04 — Phase 1 completed; focused five-skill architecture is CI-green; inspector work starts next.

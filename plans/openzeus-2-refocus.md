@@ -1,6 +1,6 @@
 # OpenZeus 2 Refocus Plan
 
-Status: active
+Status: active — Phase 1 complete; Phase 2/3 foundation in progress
 Branch: `refactor/openzeus-2-agent-first`
 Baseline release: `v1.2.0`
 Baseline main: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
@@ -69,13 +69,15 @@ diagnostics, migrations and higher-level asset design.
 | Current component | Target |
 |---|---|
 | `agents/OpenZeus.md` | KEEP; make it a thin agent-first interface |
-| `zeus-core` | MERGE/REDUCE; stop copying broad OpenCode docs |
-| `zeus-agents` | REDUCE; advanced design only, use native creation for basic scaffolding |
-| `zeus-skills` | KEEP/FOCUS; skill authoring remains a real differentiator |
-| `zeus-commands` | REDUCE; authoring guidance only |
-| `zeus-upskill` | KEEP temporarily; reassess after plugin architecture |
-| `zeus-context` | MERGE candidate into diagnostics/project awareness |
-| `zeus-self` | MERGE candidate into diagnostics |
+| `zeus-diagnostics` | KEEP; focused runtime/config diagnosis |
+| `zeus-migration` | KEEP; focused compatibility/migration workflow |
+| `zeus-agents` | KEEP; advanced design only, native creator for basic scaffolding |
+| `zeus-skills` | KEEP; skill authoring remains a differentiator |
+| `zeus-commands` | KEEP; focused command design/review |
+| `zeus-core` | DELETE; broad OpenCode doc mirror replaced by schema/native knowledge |
+| `zeus-upskill` | DELETE; meta-skill proliferation removed |
+| `zeus-context` | DELETE; generic conversation-context management is not OpenCode core |
+| `zeus-self` | DELETE; pseudo-introspection replaced by deterministic diagnostics |
 | `zeus-boston-terrier` | DELETE |
 | `zeus-docker` | DELETE |
 | `zeus-sql` | DELETE |
@@ -91,7 +93,7 @@ diagnostics, migrations and higher-level asset design.
 
 ## Phases
 
-### Phase 1 — Identity and scope reduction
+### Phase 1 — Identity and scope reduction — COMPLETE
 
 Goal: make the repository describe and ship one coherent product.
 
@@ -186,3 +188,23 @@ Do not publish a refocus release until at least Phase 1 and the current-format
 compatibility work in Phase 2 are coherent. Breaking surface removal should be
 documented explicitly; versioning decision is made after the actual diff is
 known.
+
+
+## Progress update — 2026-10-04
+
+Phase 1 is complete on the refocus branch.
+
+Completed:
+- rewritten README around the companion-agent value proposition;
+- moved the OpenZeus agent to current ordered `permissions` syntax;
+- removed hard-coded model/request tuning from the OpenZeus agent;
+- removed 12 unrelated, integration-copy, broad/meta or pseudo-introspection skills;
+- consolidated the shipped skill set to five focused capabilities:
+  `zeus-diagnostics`, `zeus-migration`, `zeus-agents`,
+  `zeus-commands`, `zeus-skills`;
+- enabled branch CI and restored a fully green validation pipeline.
+
+Next implementation slice:
+- Phase 2/3 crossover: deterministic `openzeus inspect` inventory/provenance
+  foundation with JSON output and no secret-value exposure;
+- then build `audit` and migration planning on top of that evidence.
