@@ -8,7 +8,9 @@
 
 OpenZeus helps you make an OpenCode workspace useful fast: plan repo setup, install profile-aware assets, validate config, capture commands from prompts, and upgrade safely with local backups.
 
-![OpenZeus](./media/OpenZeus.png)
+<p align="center">
+  <img src="./media/OpenZeus.png" alt="OpenZeus" width="420">
+</p>
 
 ## What OpenZeus is useful for
 
