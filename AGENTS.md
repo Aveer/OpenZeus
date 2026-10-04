@@ -1,355 +1,137 @@
 # OpenZeus Developer Guide
 
-This file provides guidelines for AI agents operating in the OpenZeus repository.
+This file defines repository-level rules for agents and contributors working on OpenZeus.
 
----
+## Product
 
-## Project Overview
+OpenZeus is an OpenCode companion agent. Its target responsibilities are:
 
-OpenZeus is an OpenCode companion agent. Its long-term job is to understand the
-user's effective OpenCode environment, diagnose configuration/discovery
-problems, guide safe migrations, and help design OpenCode agents, skills and
-commands.
+- inspect the user's effective OpenCode environment;
+- explain source/provenance, precedence and shadowing;
+- diagnose configuration and discovery problems;
+- plan safe migrations to current OpenCode formats;
+- help design high-quality OpenCode agents, skills and commands.
 
-The current Bash installer/sync/setup surface is transitional 1.x
-infrastructure, not the target product identity.
+OpenZeus is not a replacement for OpenCode and not a generic knowledge pack.
 
-For refocus work, read these first:
+Before architecture work, read:
 
-- `plans/openzeus-2-refocus.md`
-- `docs/continuity/openzeus-2.md`
+1. `plans/openzeus-2-refocus.md`
+2. `docs/continuity/openzeus-2.md`
+3. `codemap.md`
 
-New work must stay OpenCode-specific, prefer native OpenCode capabilities, and
-must not add user-specific absolute paths or copied knowledge for unrelated
-tools.
+## Active branch policy
 
----
+The OpenZeus 2 campaign is developed on a work branch until a coherent
+checkpoint is ready. Do not publish npm releases or tags from refocus branches.
 
-## Build & Test Commands
+Keep plans in `/plans` and campaign continuity in `docs/continuity/`.
+Do not create evidence branches, report branches, or parallel tracking layers.
 
-### Running Tests
+## Native-first rule
+
+Prefer current OpenCode-native behavior over OpenZeus wrappers.
+
+For exact OpenCode configuration shapes, use the current OpenCode schema and
+official V2 docs. New OpenZeus-owned assets must use native-current syntax.
+
+In particular:
+
+- use ordered `permissions` rules, not legacy `permission`;
+- use permission action `shell`, not `bash`;
+- use `subagent`, not legacy `subtask`/`task`;
+- do not generate legacy top-level agent request fields such as
+  `temperature`, `top_p`, `prompt`, `tools`, `disable`, or
+  `maxSteps`;
+- do not hard-code a model unless the feature specifically requires one.
+
+## Privacy and portability
+
+Never commit:
+
+- contributor-specific absolute paths;
+- credentials, tokens, private keys, or copied local secrets;
+- transient local tool state.
+
+Resolve user/config paths at runtime. Examples should use portable placeholders
+or environment variables.
+
+## Scope boundary
+
+A shipped skill or command must directly serve OpenCode operation, diagnosis,
+migration, or authoring.
+
+Do not add generic domain packs or copied documentation for unrelated tools.
+If an external integration becomes valuable, implement a real optional adapter
+rather than mirroring its documentation in a skill.
+
+## Build and validation
+
+Run:
 
 ```bash
-# Validate bash syntax (single file)
-bash -n scripts/install.sh
-
-# Validate all bash scripts
-bash -n scripts/install.sh && bash -n scripts/sync-utils.sh && bash -n scripts/create-utils.sh && bash -n scripts/setup-hooks.sh
-
-# Run package tests
 npm test
-
-# Full validation - syntax + npm test
-bash -n scripts/install.sh && npm test
-```
-
-### Publishing to npm
-
-```bash
-# Bump version in package.json, then:
-npm publish
-
-# Check package contents before publishing
+./bin/openzeus validate --ci
 npm pack --dry-run
 ```
 
-### Git Workflow
+For an isolated install check:
 
 ```bash
-# Check sync status (repo vs config)
-./scripts/sync-utils.sh status
-
-# Push changes from repo to config
-./scripts/sync-utils.sh push
-
-# Pull changes from config to repo
-./scripts/sync-utils.sh pull
-
-# Auto-detect sync direction
-./scripts/sync-utils.sh auto
+export OPENCODE_CONFIG_DIR="$(mktemp -d)"
+./bin/openzeus install --all
+./bin/openzeus doctor --ci
+./bin/openzeus diff --summary --ci
 ```
 
----
+CI runs on branch pushes. A feature checkpoint is not complete while CI is
+red.
 
-## Code Style Guidelines
+## Code conventions
 
-### Bash Scripts
+### Bash
 
-**Shebang & Error Handling**
-```bash
-#!/bin/bash
-set -e  # Exit on error (always use this)
-set -u  # Exit on undefined variable
-set -o pipefail  # Catch errors in pipelines
-```
+- `#!/bin/bash`
+- `set -euo pipefail`
+- quote path/user variables;
+- default to non-mutating behavior;
+- use `--dry-run`/plan flows for consequential changes where practical;
+- do not silently overwrite user-owned files.
 
-**Variables**
-```bash
-# Use UPPER_CASE for constants
-CONSTANT_VALUE="fixed"
+### Node
 
-# Use lower_case for local variables
-local user_input=""
+Runtime-inspection code should:
 
-# Always quote variables to handle spaces
-cp -f "$source_file" "$target_dir/"
-```
+- avoid network access unless explicitly part of the contract;
+- never print secret values;
+- expose machine-readable JSON when the agent needs deterministic evidence;
+- report unresolved runtime-only information as a limitation instead of
+  guessing.
 
-**Functions**
-```bash
-# Declare with local variables
-function my_function() {
-    local arg1="$1"
-    local arg2="$2"
-    
-    # Use return for exit codes, not values
-    return 0  # success
-    return 1  # failure
-}
-```
+### Markdown assets
 
-**Conditionals**
-```bash
-# Use [[ ]] for tests (not [ ])
-if [[ -f "$file" ]]; then
-    echo "exists"
-fi
+Skills require `name` and trigger-oriented `description` frontmatter.
 
-# String comparison
-if [[ "$var" == "expected" ]]; then
-    echo "match"
-fi
-```
+Agents require a useful `description`; use current OpenCode modes and
+permissions.
 
-**Loops**
-```bash
-# Always use proper quoting in loops
-for file in "$directory"/*; do
-    if [[ -f "$file" ]]; then
-        process "$file"
-    fi
-done
-```
+Commands should represent genuinely reusable workflows rather than trivial
+prompt aliases.
 
-### Markdown Files
+## Git and remote mutations
 
-**Skill Files** (`skills/*/SKILL.md`)
-```markdown
----
-name: skill-name
-description: Brief description of what the skill covers
----
+Normal commits/pushes on the authorized campaign branch are allowed for this
+work. Destructive history rewrites, force-pushes, releases, registry
+publication, credential changes, or deletion of canonical branches require
+explicit authorization.
 
-# Skill Name
+## Current focused skills
 
-## Section 1
+- `zeus-diagnostics`
+- `zeus-migration`
+- `zeus-agents`
+- `zeus-commands`
+- `zeus-skills`
 
-Content...
-
----
-
-## Section 2
-
-More content...
-
----
-
-End of skill.
-```
-
-**Agent Files** (`agents/*.md`)
-```markdown
-# Agent Name
-
-Description of the agent's role and capabilities.
-
----
-
-## Instructions
-
-Detailed agent instructions...
-
----
-
-## Tools
-
-- tool-name: what it does
-- Another tool usage
-
----
-
-## Examples
-
-Example usage patterns...
-
----
-
-End of agent.
-```
-
-**Command Files** (`commands/*.md`)
-```markdown
-# Command: /command-name
-
-**Description**: What the command does
-
----
-
-## Template
-
-{{template content with placeholders}}
-
----
-
-## Usage
-
-`/command-name [arguments]`
-
----
-
-## Examples
-
-`/command-name example` — Description
-```
-
-### File Naming
-
-| Type | Pattern | Example |
-|------|---------|---------|
-| Agents | `*.md` | `OpenZeus.md` |
-| Skills | `*/SKILL.md` | `zeus-core/SKILL.md` |
-| Commands | `*.md` | `zeus-git-commit.md` |
-| Scripts | `scripts/*.sh` | `scripts/sync-utils.sh` |
-
-### Error Handling
-
-```bash
-# Check for required tools
-if ! command -v git &>/dev/null; then
-    echo "Error: git is required" >&2
-    exit 1
-fi
-
-# Check for required files
-if [[ ! -f "$required_file" ]]; then
-    echo "Error: required file not found: $required_file" >&2
-    exit 1
-fi
-
-# Use subshells for isolated error handling
-if (set -e; dangerous_command); then
-    echo "Success"
-else
-    echo "Failed but continuing..."
-fi
-```
-
-### Naming Conventions
-
-| Item | Convention | Example |
-|------|------------|---------|
-| Bash functions | snake_case | `detect_zeus_repo` |
-| Variables | snake_case | `opencode_dir` |
-| Constants | UPPER_CASE | `DEFAULT_TIMEOUT` |
-| Skills | prefix | `zeus-core`, `zeus-swarm` |
-| Commands | prefix | `zeus-git-commit`, `zeus-kanban` |
-| Agents | PascalCase | `OpenZeus`, `TaskManager` |
-
----
-
-## Sync Strategy
-
-This project uses a bidirectional sync system:
-
-1. **Repo** (`<repository-root>`) - Version controlled, contains all source
-2. **Config** (`~/.config/opencode/`) - Runtime location for OpenCode
-
-**Key principle**: Changes made in the repo must sync to config, and vice versa.
-
-Scripts in the `scripts/` folder are included in the npm package and installed to user config. The scripts folder contains: install.sh, sync-utils.sh, create-utils.sh, setup-hooks.sh
-
----
-
-## Common Tasks
-
-### Adding a New Skill
-
-1. Create `skills/zeus-newskill/SKILL.md`
-2. Add skill metadata header (name, description)
-3. Document the skill's purpose and usage
-4. Update README.md skills table
-5. Sync: `./scripts/sync-utils.sh push`
-
-### Adding a New Command
-
-1. Create `commands/zeus-command.md`
-2. Follow command template format
-3. Update README.md commands table
-4. Sync: `./scripts/sync-utils.sh push`
-
-### Publishing a Release
-
-1. Update `package.json` version
-2. Update `CHANGELOG.md`
-3. Commit with message: `Release v1.0.x: description`
-4. Push to GitHub
-5. Publish to npm: `npm publish`
-
----
-
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
-## Beads Issue Tracker
-
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
-
-### Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work
-bd close <id>         # Complete work
-```
-
-### Rules
-
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
-
-## Session Completion
-
-**When ending a work session**, complete the applicable steps below. Remote pushes require explicit user authorization or an active project policy that clearly authorizes autonomous push for the current task.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **Sync/push when authorized** - Only when authorized by the user or active project policy:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All authorized local/remote state changes succeeded
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Do not push without user/project authorization
-- If an authorized push fails, resolve and retry or report the blocker with exact evidence
-- Do not claim remote work is complete unless the authorized push/sync succeeded
-<!-- END BEADS INTEGRATION -->
-
-## Repository Map
-
-A full codemap is available at `codemap.md` in the project root.
-
-Before working on any task, read `codemap.md` to understand:
-- Project architecture and entry points
-- Directory responsibilities and design patterns
-- Data flow and integration points between modules
-
-For deep work on a specific folder, also read that folder's `codemap.md`.
+Keep this set small unless a new skill has a clear OpenCode-specific reason to
+exist.

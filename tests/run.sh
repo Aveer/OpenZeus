@@ -54,7 +54,8 @@ printf '%s\n' 'skip command' > "$repo/commands/not-zeus.md"
 [[ ! -e "$config/agents/demo-agent.md" ]]
 "$root/scripts/create-utils.sh" --config "$config" agent demo-agent 'desc'
 assert_file_contains "$config/agents/demo-agent.md" 'mode: subagent'
-assert_file_contains "$config/agents/demo-agent.md" 'permission:'
+assert_file_contains "$config/agents/demo-agent.md" 'permissions:'
+assert_file_contains "$config/agents/demo-agent.md" 'action: shell'
 "$root/scripts/create-utils.sh" --config "$config" skill demo-skill 'desc'
 assert_file_contains "$config/skills/demo-skill/SKILL.md" 'name: demo-skill'
 "$root/scripts/create-utils.sh" --config "$config" command demo-command 'desc'
@@ -333,6 +334,8 @@ mkdir -p "$project_dir"
 [[ -f "$project_dir/.opencode/skills/project-context/SKILL.md" ]]
 [[ -f "$project_dir/.opencode/README.md" ]]
 assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'mode: subagent'
+assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'permissions:'
+assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'action: shell'
 assert_file_contains "$project_dir/.opencode/commands/test.md" '$ARGUMENTS'
 assert_file_contains "$project_dir/.opencode/commands/test.md" 'No obvious test command'
 assert_file_contains "$project_dir/.opencode/commands/build.md" 'No obvious build command'

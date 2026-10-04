@@ -37,8 +37,14 @@ validate_asset(){
       grep -Eq '^description:[[:space:]]*' "$file" || fail "missing description: $file"
       ;;
   esac
-  grep -Eq '^tools:[[:space:]]*' "$file" && fail "deprecated tools: $file" || true
-  grep -Eq '^permission:[[:space:]]*allow$' "$file" && fail "unsafe permission allow: $file" || true
+  if [[ "$kind" == agent ]]; then
+    for legacy in permission tools temperature top_p prompt disable maxSteps; do
+      grep -Eq "^$legacy:[[:space:]]*" "$file" && fail "legacy agent field $legacy: $file" || true
+    done
+  fi
+  if [[ "$kind" == command ]]; then
+    grep -Eq '^subtask:[[:space:]]*' "$file" && fail "legacy command field subtask: $file" || true
+  fi
 }
 
 if [[ -z "$project_dir" ]]; then
@@ -47,6 +53,7 @@ if [[ -z "$project_dir" ]]; then
     [[ -x "$s" ]] || fail "not executable: $s"
     bash -n "$s" || fail "shell syntax: $s"
   done
+  [[ -x "$root/scripts/inspect.mjs" ]] || fail "not executable: $root/scripts/inspect.mjs"
   for f in "$root/agents/OpenZeus.md"; do validate_asset "$f" agent; done
   for f in "$root"/skills/zeus-*/SKILL.md; do [[ -e "$f" ]] || continue; validate_asset "$f" skill; done
   for f in "$root"/commands/zeus-*.md; do [[ -e "$f" ]] || continue; validate_asset "$f" command; done
