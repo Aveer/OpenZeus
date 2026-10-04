@@ -9,7 +9,7 @@ This document is the canonical handoff for the OpenZeus refocus campaign.
 - Stable baseline: `v1.2.0`
 - Baseline commit: `aebb1a323bb02a1f7c5e0d4fc81c856f05a8400f`
 - Active branch: `refactor/openzeus-2-agent-first`
-- Active phase: Phase 2/3 foundation — current-format compatibility + runtime inspector
+- Active phase: Phase 3/5 crossover — inspector/audit + native V2 plugin prototype
 - Detailed plan: [plans/openzeus-2-refocus.md](../../plans/openzeus-2-refocus.md)
 
 ## Canonical product decision
@@ -100,3 +100,8 @@ rules and no longer pins a model, temperature or step budget.
 - 2026-10-04 — added `openzeus audit` as the first user-facing diagnostic
   workflow on top of inspector evidence; `--ci` fails only on warning/error
   findings while shadowing/info remains informational.
+
+- 2026-10-04 — started native V2 plugin packaging using `@opencode/plugin`.
+  Plugin registers the five focused skills plus a safe live-runtime inventory
+  tool. Upstream `AgentEditor` currently has no `add()`, so the @OpenZeus
+  agent remains the only transitional copy-installed asset.

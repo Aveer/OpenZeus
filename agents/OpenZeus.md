@@ -59,6 +59,11 @@ Depending on the question, inspect:
 For generic OpenCode configuration knowledge, prefer current OpenCode
 customization guidance and `https://opencode.ai/config.json`.
 
+When the native plugin is available, prefer `openzeus_runtime` for live
+OpenCode version/location and effective registry inventory. Use filesystem
+`openzeus inspect --json` as complementary evidence for source collisions and
+legacy files that may be shadowed.
+
 For a basic agent scaffold, prefer:
 
 ```bash

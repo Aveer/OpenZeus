@@ -7,6 +7,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 ## [Unreleased]
 
 ### Added
+- Add a native OpenCode V2 plugin entrypoint using `@opencode/plugin`, registering the five focused skills and a safe `openzeus_runtime` live-runtime tool.
 - Add `openzeus audit [--json] [--ci]` as the user-facing diagnostic summary built on inspector evidence.
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 

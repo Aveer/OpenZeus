@@ -150,7 +150,7 @@ Deliverables:
 Exit criteria: OpenZeus can detect and safely plan at least one real OpenCode
 migration end-to-end.
 
-### Phase 5 — Native plugin packaging
+### Phase 5 — Native plugin packaging — PROTOTYPE IN PROGRESS
 
 Goal: make installation and runtime integration OpenCode-native.
 
@@ -208,3 +208,15 @@ Next implementation slice:
 - Phase 2/3 crossover: deterministic `openzeus inspect` inventory/provenance
   foundation with JSON output and no secret-value exposure;
 - then build `audit` and migration planning on top of that evidence.
+
+
+## Plugin constraint discovered — 2026-10-04
+
+Current OpenCode V2 plugins can add skills, commands and tools, but
+`AgentEditor` exposes no `add()`. Therefore OpenZeus cannot yet ship the
+`@OpenZeus` agent purely through the plugin API.
+
+Interim target:
+- plugin owns focused skills and live-runtime tools;
+- agent file remains the only required copy/bootstrap artifact;
+- remove that bootstrap once upstream supports plugin agent registration.

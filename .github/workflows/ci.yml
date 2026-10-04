@@ -25,8 +25,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install package dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
       - name: Run test suite
         run: OPENZEUS_NODE="$(command -v node)" npm test
+
+      - name: Test V2 plugin entrypoint
+        run: node tests/plugin.mjs
 
       - name: Validate package assets
         run: ./bin/openzeus validate --ci

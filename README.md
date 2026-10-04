@@ -59,9 +59,11 @@ The current installer resolves the target at runtime. You can override it with
 `OPENCODE_CONFIG_DIR`; repository files do not contain user-specific absolute
 paths.
 
-> The copy-based installer is transitional. The OpenZeus 2 architecture is
-> moving toward an OpenCode-native plugin so OpenCode itself owns plugin
-> installation and runtime integration.
+> OpenZeus 2 now includes an unreleased native OpenCode V2 plugin prototype.
+> It registers the five focused skills and a live `openzeus_runtime` tool.
+> OpenCode V2 currently cannot add a new agent from a plugin because
+> `AgentEditor` has no `add()`; the small agent-file bootstrap therefore
+> remains transitional until upstream exposes that API.
 
 ## Use OpenZeus
 
@@ -176,3 +178,29 @@ The OpenZeus 2 refocus is being developed separately from the stable release.
 - Issues: https://github.com/Aveer/OpenZeus/issues
 - OpenCode Docs: https://opencode.ai/docs/
 - NPM Package: https://npmjs.com/package/openzeus
+
+
+## OpenCode V2 plugin prototype
+
+The refocus branch exposes the package itself as a V2 plugin:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["openzeus"]
+}
+```
+
+The plugin currently provides:
+
+- the five focused `zeus-*` skills directly through the OpenCode skill registry;
+- `openzeus_runtime`, a live-runtime tool that reports the current OpenCode
+  version, location and safe summaries of active agents, skills, commands and
+  plugins.
+
+It deliberately omits raw agent prompts, skill contents, command templates and
+plugin options from runtime output.
+
+The plugin does **not** yet register the `@OpenZeus` agent itself. Current
+OpenCode V2 can inspect/update/remove agents from a plugin but cannot add one,
+so the agent-file bootstrap remains until that upstream limitation changes.
