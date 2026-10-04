@@ -216,7 +216,7 @@ Example routing:
 
 ```bash
 npm pack
-npm install -g ./openzeus-1.1.0.tgz
+npm install -g ./openzeus-1.2.0.tgz
 openzeus help
 ```
 
@@ -252,11 +252,7 @@ openzeus diff --summary --ci
 
 ## Version
 
-Published npm package: **1.1.0**.
-
-The repository currently contains unreleased changes planned for the next
-minor release. Until that release is published to npm, clone the repository
-if you want to test the latest repository functionality.
+Current package version: **1.2.0**.
 
 ## Links
 

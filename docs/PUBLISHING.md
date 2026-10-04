@@ -1,6 +1,6 @@
 # Publishing OpenZeus
 
-OpenZeus publishes the `openzeus` npm package. Current package version: **1.1.0**.
+OpenZeus publishes the `openzeus` npm package. Current package version: **1.2.0**.
 
 ## Preflight
 
@@ -26,7 +26,7 @@ Confirm the package includes the expected assets:
 
 ```bash
 npm pack
-npm install -g ./openzeus-1.1.0.tgz
+npm install -g ./openzeus-1.2.0.tgz
 openzeus help
 openzeus install --core --dry-run
 openzeus install --all --dry-run
