@@ -99,14 +99,12 @@ OPENCODE_CONFIG_DIR="$env_install" "$root/scripts/install.sh" >/dev/null
 core_install="$tmp/core-install"
 OPENCODE_CONFIG_DIR="$core_install" "$root/scripts/install.sh" --core >/dev/null
 [[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-diagnostics" && -d "$core_install/skills/zeus-migration" ]]
-[[ -f "$core_install/commands/zeus-git-commit.md" && ! -f "$core_install/commands/zeus-kanban.md" ]]
 core_doctor_out="$(OPENCODE_CONFIG_DIR="$core_install" "$root/bin/openzeus" doctor)"
 [[ "$core_doctor_out" == *"OpenZeus doctor: ok"* ]]
 OPENCODE_CONFIG_DIR="$core_install" "$root/bin/openzeus" diff --ci >/dev/null
 core_upgrade_config="$tmp/core-upgrade-config"
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/scripts/install.sh" --core >/dev/null
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" upgrade --apply >/dev/null
-[[ -f "$core_upgrade_config/commands/zeus-git-commit.md" && ! -f "$core_upgrade_config/commands/zeus-kanban.md" ]]
 [[ "$(<"$core_upgrade_config/.openzeus-install-profile")" == core ]]
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" doctor >/dev/null
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" diff --ci >/dev/null
@@ -115,21 +113,19 @@ OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" rollback --apply
 [[ "$(<"$core_upgrade_config/.openzeus-install-profile")" == core ]]
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" doctor >/dev/null
 OPENCODE_CONFIG_DIR="$core_upgrade_config" "$root/bin/openzeus" diff --ci >/dev/null
-extras_install="$tmp/extras-install"
-OPENCODE_CONFIG_DIR="$extras_install" "$root/scripts/install.sh" --extras >/dev/null
-[[ ! -d "$extras_install/skills/zeus-diagnostics" && ! -d "$extras_install/skills/zeus-migration" ]]
-[[ ! -f "$extras_install/commands/zeus-git-commit.md" && -f "$extras_install/commands/zeus-kanban.md" ]]
+legacy_extras_install="$tmp/legacy-extras-install"
+OPENCODE_CONFIG_DIR="$legacy_extras_install" "$root/scripts/install.sh" --extras >/dev/null 2>&1
+[[ -d "$legacy_extras_install/skills/zeus-diagnostics" && -d "$legacy_extras_install/skills/zeus-migration" ]]
 
 type_mismatch_config="$tmp/type-mismatch-config"
 "$root/scripts/install.sh" --target "$type_mismatch_config" >/dev/null
-rm -f "$type_mismatch_config/commands/zeus-git-commit.md"
-mkdir -p "$type_mismatch_config/commands/zeus-git-commit.md"
-printf '%s\n' 'nested stale file' > "$type_mismatch_config/commands/zeus-git-commit.md/stale.txt"
+rm -rf "$type_mismatch_config/skills/zeus-diagnostics"
+printf '%s\n' 'stale file' > "$type_mismatch_config/skills/zeus-diagnostics"
 "$root/scripts/install.sh" --force --backup --target "$type_mismatch_config" >/dev/null
-[[ -f "$type_mismatch_config/commands/zeus-git-commit.md" ]]
-assert_file_contains "$type_mismatch_config/commands/zeus-git-commit.md" 'description:'
+[[ -d "$type_mismatch_config/skills/zeus-diagnostics" ]]
+[[ -f "$type_mismatch_config/skills/zeus-diagnostics/SKILL.md" ]]
 type_backup_found=false
-for backup in "$type_mismatch_config"/commands/zeus-git-commit.md.bak.*; do
+for backup in "$type_mismatch_config"/skills/zeus-diagnostics.bak.*; do
   [[ -e "$backup" ]] || continue
   type_backup_found=true
 done
@@ -177,13 +173,11 @@ drift_config="$tmp/drift-config"
 cp -R "$install_dir" "$drift_config"
 rm -f "$drift_config/agents/OpenZeus.md"
 printf '%s\n' 'different skill' > "$drift_config/skills/zeus-diagnostics/SKILL.md"
-printf '%s\n' 'different command' > "$drift_config/commands/zeus-git-commit.md"
 printf '%s\n' 'different helper' > "$drift_config/doctor.sh"
 chmod -x "$drift_config/init-project.sh"
 drift_fix_plan_out="$(OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" doctor --fix-plan)"
 [[ "$drift_fix_plan_out" == *"WARN OpenZeus agent missing from config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN skill zeus-diagnostics differs in config"* ]]
-[[ "$drift_fix_plan_out" == *"WARN command zeus-git-commit.md differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN helper doctor.sh differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN helper init-project.sh is not executable in config"* ]]
 [[ "$drift_fix_plan_out" == *"openzeus install"* ]]
@@ -304,12 +298,10 @@ sync_drift_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" status)"
 [[ "$sync_drift_out" == *"Sync drift:"* && "$sync_drift_out" != *"clean"* && "$sync_drift_out" == *"Next:"* ]]
 
 list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list all)"
-[[ "$list_out" == *"agents/OpenZeus.md"* && "$list_out" == *"zeus-git-commit.md"* ]]
+[[ "$list_out" == *"agents/OpenZeus.md"* && "$list_out" == *"zeus-diagnostics"* ]]
 
 skills_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list skills)"
 [[ "$skills_list_out" == *"skill: zeus-diagnostics"* && "$skills_list_out" != *"command:"* && "$skills_list_out" != *"agent:"* ]]
-commands_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list commands)"
-[[ "$commands_list_out" == *"command: zeus-git-commit.md"* && "$commands_list_out" != *"skill:"* && "$commands_list_out" != *"agent:"* ]]
 agents_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list agents)"
 [[ "$agents_list_out" == *"agent: agents/OpenZeus.md"* && "$agents_list_out" != *"skill:"* && "$agents_list_out" != *"command:"* ]]
 

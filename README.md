@@ -45,14 +45,14 @@ higher-level asset design.
 
 ## Installation
 
-OpenZeus 1.x currently ships as an npm package that installs the OpenZeus agent
-and its focused skills into an OpenCode config directory.
+OpenZeus currently ships as an npm package that installs the OpenZeus agent
+and its focused five-skill core into an OpenCode config directory.
 
 Linux and macOS are supported directly. On Windows, use WSL.
 
 ```bash
 npm install -g openzeus
-openzeus install --core
+openzeus install
 ```
 
 The current installer resolves the target at runtime. You can override it with
@@ -142,8 +142,11 @@ upgrade       Backup and refresh the installed OpenZeus bundle
 rollback      Restore the latest OpenZeus backup
 ```
 
-Other 1.x setup/sync helpers remain for compatibility during the refocus. They
-are not the intended long-term product surface.
+OpenZeus no longer ships generic project-management/Git slash commands.
+Command authoring remains available through `@OpenZeus` and `openzeus create command`.
+
+Other 1.x setup/sync helpers remain temporarily for compatibility during the
+refocus. They are not the intended long-term product surface.
 
 ## Development
 

@@ -87,3 +87,7 @@ rules and no longer pins a model, temperature or step budget.
 - 2026-10-04 — generator/validator compatibility pass moved OpenZeus-owned
   agent templates to native V2 ordered permissions and made package/project
   validation reject legacy agent/command fields.
+
+- 2026-10-04 — removed bundled generic slash commands and collapsed the old
+  core/extras content split. OpenZeus still designs/creates commands, but does
+  not ship unrelated project-management/Git workflows.

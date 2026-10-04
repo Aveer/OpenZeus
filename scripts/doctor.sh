@@ -78,21 +78,7 @@ if [[ -f "$config_dir/.openzeus-install-profile" ]]; then
 fi
 
 should_check_skill() {
-    local name="$1"
-    case "$install_profile" in
-        core) [[ "$name" == zeus-diagnostics || "$name" == zeus-migration || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills ]] ;;
-        extras) [[ "$name" != zeus-diagnostics && "$name" != zeus-migration && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills ]] ;;
-        *) return 0 ;;
-    esac
-}
-
-should_check_command() {
-    local name="$1"
-    case "$install_profile" in
-        core) [[ "$name" == zeus-git-commit.md || "$name" == zeus-improve-project.md ]] ;;
-        extras) [[ "$name" != zeus-git-commit.md && "$name" != zeus-improve-project.md ]] ;;
-        *) return 0 ;;
-    esac
+    return 0
 }
 
 first_line_is_frontmatter() {
@@ -156,12 +142,6 @@ else
         compare_installed_file "skill $skill_name" "$root_dir/skills/$skill_name" "$config_dir/skills/$skill_name"
     done
 
-    for command in "$root_dir"/commands/zeus-*.md; do
-        [[ -f "$command" ]] || continue
-        command_name="$(basename "$command")"
-        should_check_command "$command_name" || continue
-        compare_installed_file "command $command_name" "$root_dir/commands/$command_name" "$config_dir/commands/$command_name"
-    done
 
     for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
         helper_path="$config_dir/$helper"

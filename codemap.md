@@ -7,7 +7,7 @@ conversation-first `@OpenZeus` experience backed by deterministic runtime
 inspection, diagnostics, migration and focused asset-authoring capabilities.
 
 OpenZeus does not replace OpenCode and should not duplicate OpenCode-native
-features without a concrete reason.
+features without a concrete reason. It ships no generic slash-command pack.
 
 ## Active architecture campaign
 

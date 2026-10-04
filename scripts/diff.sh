@@ -18,21 +18,7 @@ install_profile="all"
 [[ -f "$config/.openzeus-install-profile" ]] && IFS= read -r install_profile < "$config/.openzeus-install-profile"
 
 should_include_skill() {
-  local name="$1"
-  case "$install_profile" in
-    core) [[ "$name" == zeus-diagnostics || "$name" == zeus-migration || "$name" == zeus-agents || "$name" == zeus-commands || "$name" == zeus-skills ]] ;;
-    extras) [[ "$name" != zeus-diagnostics && "$name" != zeus-migration && "$name" != zeus-agents && "$name" != zeus-commands && "$name" != zeus-skills ]] ;;
-    *) return 0 ;;
-  esac
-}
-
-should_include_command() {
-  local name="$1"
-  case "$install_profile" in
-    core) [[ "$name" == zeus-git-commit.md || "$name" == zeus-improve-project.md ]] ;;
-    extras) [[ "$name" != zeus-git-commit.md && "$name" != zeus-improve-project.md ]] ;;
-    *) return 0 ;;
-  esac
+  return 0
 }
 
 out="$($root/scripts/sync-utils.sh --repo "$root" --config "$config" status || true)"
@@ -40,7 +26,6 @@ issues=()
 while IFS= read -r line; do
   case "$line" in
     MISSING\ config:skills/zeus-*) skill_name="${line#MISSING config:skills/}"; should_include_skill "$skill_name" && issues+=("$line") ;;
-    MISSING\ config:commands/zeus-*.md) command_name="${line#MISSING config:commands/}"; should_include_command "$command_name" && issues+=("$line") ;;
     DIFF*|MISSING*) issues+=("$line") ;;
   esac
 done <<< "$out"
@@ -48,9 +33,6 @@ done <<< "$out"
 extra=()
 if [[ -d "$config/skills" ]]; then
   for d in "$config/skills"/zeus-*; do [[ -d "$d" ]] || continue; [[ -d "$root/skills/$(basename "$d")" ]] || extra+=("EXTRA $(basename "$d")") ; done
-fi
-if [[ -d "$config/commands" ]]; then
-  for f in "$config/commands"/zeus-*.md; do [[ -f "$f" ]] || continue; [[ -f "$root/commands/$(basename "$f")" ]] || extra+=("EXTRA $(basename "$f")") ; done
 fi
 
 for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
