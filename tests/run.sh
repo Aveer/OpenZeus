@@ -16,12 +16,14 @@ for script in "$root/bin/openzeus" "$root/scripts/create-utils.sh" "$root/script
   bash -n "$script"
 done
 [[ -x "$root/scripts/inspect.mjs" ]]
-[[ -x "$root/scripts/audit.mjs" ]]\n[[ -x "$root/scripts/migrate.mjs" ]]
+[[ -x "$root/scripts/audit.mjs" ]]
+[[ -x "$root/scripts/migrate.mjs" ]]
 [[ -f "$root/src/plugin.js" ]]
 
 "$root/bin/openzeus" help | grep -q 'install-agent'
 "$root/bin/openzeus" help | grep -q 'audit'
-"$root/bin/openzeus" help | grep -q 'inspect'\n"$root/bin/openzeus" help | grep -q 'migrate'
+"$root/bin/openzeus" help | grep -q 'inspect'
+"$root/bin/openzeus" help | grep -q 'migrate'
 
 config="$tmp/config"
 
