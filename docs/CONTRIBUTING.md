@@ -29,7 +29,7 @@ OpenCode config must remain untracked.
 | Path | Purpose |
 |---|---|
 | `agents/OpenZeus.md` | Primary conversational agent |
-| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |
+| `src/plugin.js` | Native OpenCode V2 Promise plugin entrypoint; registers `skills/` as a directory source |
 | `skills/` | Five focused OpenCode skills |
 | `scripts/inspect.mjs` | Filesystem inventory/provenance |
 | `scripts/audit.mjs` | User-facing diagnostics |

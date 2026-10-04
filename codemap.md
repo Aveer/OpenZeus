@@ -38,8 +38,8 @@ planning.
 ```text
 user question
    -> @OpenZeus
-   -> live runtime (openzeus_runtime) when available
-   +  filesystem evidence (inspect)
+   -> filesystem evidence (inspect)
+   +  current OpenCode schema/runtime context available to the session
    -> focused skill when useful
    -> audit / explanation / migration plan
    -> deliberate mutation only after review
@@ -50,7 +50,7 @@ user question
 The V2 plugin owns:
 
 - five focused `zeus-*` skills;
-- live runtime inventory through `openzeus_runtime`.
+- native registration of the packaged `skills/` directory.
 
 Current OpenCode V2 plugins cannot add agents, so `agents/OpenZeus.md` still
 uses a small guarded `install-agent` bootstrap. That is the only intended

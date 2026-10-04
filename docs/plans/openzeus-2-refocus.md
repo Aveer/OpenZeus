@@ -156,7 +156,7 @@ Goal: make installation and runtime integration OpenCode-native.
 
 Deliverables:
 - implement OpenCode plugin entrypoint;
-- register OpenZeus-owned tools/capabilities through the current plugin API;
+- register the focused skills through the current plugin API;
 - minimize or retire copy-based global installation;
 - replace repo/config sync with an OpenZeus state/manifest model.
 
@@ -210,20 +210,19 @@ Next implementation slice:
 
 ## Plugin constraint discovered — 2026-10-04
 
-Current OpenCode V2 plugins can add skills, commands and tools, but
+Current OpenCode V2 Promise plugins can add skill sources and transform existing domains, but
 `AgentEditor` exposes no `add()`. Therefore OpenZeus cannot yet ship the
 `@OpenZeus` agent purely through the plugin API.
 
 Interim target:
-- plugin owns focused skills and live-runtime tools;
+- plugin owns focused skills;
 - agent file remains the only required copy/bootstrap artifact;
 - remove that bootstrap once upstream supports plugin agent registration.
 
 
 ## Copy-management retirement — 2026-10-04
 
-After the V2 plugin entrypoint passed CI against the real `@opencode/plugin`
-package, OpenZeus retired its old repo/config package-management layer.
+After the corrected V2 plugin entrypoint passed CI against the real `@opencode-ai/plugin/v2/promise` API, OpenZeus retired its old repo/config package-management layer.
 
 Removed:
 - bidirectional sync;
@@ -274,3 +273,22 @@ Reasons for the major version:
 - migration apply remains intentionally unavailable until it is safe.
 
 Merge and publication are separate, explicit steps after review.
+
+
+## Plugin API correction — 2026-10-04
+
+A final source-level audit against `anomalyco/opencode@dev` corrected an
+earlier prototype assumption.
+
+The actual current V2 Promise API is exported from:
+
+```text
+@opencode-ai/plugin/v2/promise
+```
+
+Its skill editor registers `SkillV2Source` entries, so OpenZeus registers the
+packaged `skills/` directory as one directory source.
+
+The current Promise `PluginContext` has no custom `tool`, `app`, or
+`location` domains. Therefore the earlier prototype `openzeus_runtime` idea
+was removed rather than shipping against a mock-only contract.

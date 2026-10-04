@@ -101,12 +101,11 @@ rules and no longer pins a model, temperature or step budget.
   findings while shadowing/info remains informational.
 
 - 2026-10-04 — started native V2 plugin packaging using `@opencode/plugin`.
-  Plugin registers the five focused skills plus a safe live-runtime inventory
-  tool. Upstream `AgentEditor` currently has no `add()`, so the @OpenZeus
+  Plugin registers the packaged `skills/` directory as a native skill source. Upstream `AgentEditor` currently has no `add()`, so the @OpenZeus
   agent remains the only transitional copy-installed asset.
 
 - 2026-10-04 — native plugin prototype passed CI against real
-  `@opencode/plugin@2.0.4`; retired old sync/hooks/doctor/diff/upgrade/rollback
+  `@opencode-ai/plugin/v2/promise`; retired old sync/hooks/doctor/diff/upgrade/rollback
   and skill-copy installation. Only the @OpenZeus agent bootstrap remains due
   to the upstream AgentEditor.add limitation.
 
@@ -127,3 +126,9 @@ rules and no longer pins a model, temperature or step budget.
 - 2026-10-04 — breaking-release decision made: refocus branch prepared as
   OpenZeus 2.0.0. No merge, npm publish, tag, or GitHub Release has been
   performed.
+
+- 2026-10-04 — final source-level check against `anomalyco/opencode@dev`
+  corrected the V2 plugin contract: dependency/import now use
+  `@opencode-ai/plugin/v2/promise`; plugin registers a directory skill source.
+  Removed the mock-only `openzeus_runtime` concept because current Promise
+  PluginContext exposes no custom-tool/app/location domains.

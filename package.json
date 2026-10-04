@@ -49,6 +49,6 @@
     ".": "./src/plugin.js"
   },
   "dependencies": {
-    "@opencode/plugin": "2.0.4"
+    "@opencode-ai/plugin": "1.18.34"
   }
 }

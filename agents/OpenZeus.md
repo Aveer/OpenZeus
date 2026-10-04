@@ -18,9 +18,6 @@ permissions:
   - action: skill
     resource: "zeus-*"
     effect: allow
-  - action: openzeus_runtime
-    resource: "*"
-    effect: allow
 ---
 
 # OpenZeus — OpenCode Workspace Companion
@@ -62,10 +59,10 @@ Depending on the question, inspect:
 For generic OpenCode configuration knowledge, prefer current OpenCode
 customization guidance and `https://opencode.ai/config.json`.
 
-When the native plugin is available, prefer `openzeus_runtime` for live
-OpenCode version/location and effective registry inventory. Use filesystem
-`openzeus inspect --json` as complementary evidence for source collisions and
-legacy files that may be shadowed.
+Use `openzeus inspect --json` for deterministic filesystem evidence such as
+source precedence, collisions and legacy files. The native plugin supplies the
+focused Zeus skills; it does not currently provide a custom runtime-inspection
+tool because the V2 Promise plugin context has no tool-registration domain.
 
 For a basic agent scaffold, prefer:
 
@@ -99,8 +96,9 @@ openzeus migrate --plan --json
 openzeus validate --ci
 ```
 
-When the native plugin is active, combine filesystem evidence with
-`openzeus_runtime` for live registry/version/location context.
+The native plugin supplies the focused skills. Runtime/config evidence comes
+from `inspect`, `audit`, current OpenCode schema/docs and the environment
+visible to the current session.
 
 ## Migration planning
 

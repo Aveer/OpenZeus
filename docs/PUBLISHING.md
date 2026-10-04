@@ -88,11 +88,10 @@ openzeus install-agent
 
 Start OpenCode and verify that:
 
-- the five `zeus-*` skills are present;
-- the `openzeus_runtime` tool is available to the OpenZeus agent;
+- the five `zeus-*` skills are present through the plugin's directory source;
 - `@OpenZeus` loads from the bootstrapped agent file;
-- a simple live-runtime query returns safe inventory without raw prompts,
-  skill bodies, command templates, plugin options, or credentials.
+- `openzeus inspect --json` and `openzeus audit --json` return deterministic
+  filesystem diagnostics without printing credential values.
 
 ## Release metadata
 

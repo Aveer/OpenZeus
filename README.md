@@ -45,7 +45,7 @@ diagnosis, migration guidance and higher-level asset design.
 ## Installation
 
 OpenZeus 2 is moving to native OpenCode plugin delivery. The plugin owns the
-focused five-skill core and live runtime tool. Until OpenCode allows plugins to
+focused five-skill core. Until OpenCode allows plugins to
 add agents, one small bootstrap step installs only `agents/OpenZeus.md`.
 
 Linux and macOS are supported directly. On Windows, use WSL.
@@ -60,11 +60,11 @@ The current installer resolves the target at runtime. You can override it with
 `OPENCODE_CONFIG_DIR`; repository files do not contain user-specific absolute
 paths.
 
-> OpenZeus 2 now includes an unreleased native OpenCode V2 plugin prototype.
-> It registers the five focused skills and a live `openzeus_runtime` tool.
-> OpenCode V2 currently cannot add a new agent from a plugin because
-> `AgentEditor` has no `add()`; the small agent-file bootstrap therefore
-> remains transitional until upstream exposes that API.
+> OpenZeus 2 includes a native OpenCode V2 Promise plugin. It registers the
+> packaged `skills/` directory as a native skill source through
+> `@opencode-ai/plugin/v2/promise`. Current OpenCode V2 cannot add a new agent
+> from a plugin because `AgentDraft` has no `add()`; the small agent-file
+> bootstrap therefore remains transitional until upstream exposes that API.
 
 ## Use OpenZeus
 
@@ -189,15 +189,12 @@ The refocus branch exposes the package itself as a V2 plugin:
 }
 ```
 
-The plugin currently provides:
+The plugin registers the packaged `skills/` directory as a native OpenCode
+skill source. OpenCode then owns normal skill discovery/loading.
 
-- the five focused `zeus-*` skills directly through the OpenCode skill registry;
-- `openzeus_runtime`, a live-runtime tool that reports the current OpenCode
-  version, location and safe summaries of active agents, skills, commands and
-  plugins.
-
-It deliberately omits raw agent prompts, skill contents, command templates and
-plugin options from runtime output.
+Runtime diagnostics remain explicit CLI evidence through `openzeus inspect`
+and `openzeus audit`; the current V2 Promise plugin context does not expose a
+custom-tool registration surface, so OpenZeus does not claim one.
 
 The plugin does **not** yet register the `@OpenZeus` agent itself. Current
 OpenCode V2 can inspect/update/remove agents from a plugin but cannot add one,

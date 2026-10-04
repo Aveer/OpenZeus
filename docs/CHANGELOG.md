@@ -11,13 +11,13 @@ _No changes yet._
 ## [2.0.0] - 2026-10-04
 
 ### Added
-- Add a native OpenCode V2 plugin entrypoint using `@opencode/plugin`, registering the five focused skills and a safe `openzeus_runtime` live-runtime tool.
+- Add a native OpenCode V2 Promise plugin entrypoint using `@opencode-ai/plugin/v2/promise`, registering the packaged `skills/` directory as a native skill source.
 - Add `openzeus audit [--json] [--ci]` as the user-facing diagnostic summary built on inspector evidence.
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 
 ### Changed
 - Remove the last stale 1.x helper references from the OpenZeus agent and refresh the agent/repository atlases for the V2 plugin architecture.
-- Align the package toolchain and CI with the OpenCode V2 plugin dependency requirement of Node 22.19+.
+- Validate the package against the real current OpenCode V2 Promise plugin package/API.
 - Rewrite publishing and contributing docs for the native-plugin/agent-bootstrap architecture.
 - Move canonical refocus planning under `docs/plans/` and keep local Beads state out of the repository.
 - Clean README/atlas wording after the CLI simplification; document the extensionless `bin/openzeus` npm executable explicitly.
