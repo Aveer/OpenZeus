@@ -463,4 +463,4 @@ if (!d.inventory.skills.some(x => x.id === "shared" && x.winner === true)) proce
 inspect_human="$(OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
 [[ "$inspect_human" == *"OpenZeus inspect (filesystem view)"* ]]
 [[ "$inspect_human" == *"Collisions: 1"* ]]
-\necho ok\n
+echo ok
