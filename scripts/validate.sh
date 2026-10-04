@@ -4,25 +4,28 @@ set -euo pipefail
 ci=false
 project_dir=""
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-${HOME}/.config/opencode}}"
 status=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ci) ci=true ;;
-    --project) project_dir="$2"; shift ;;
+    --project)
+      [[ $# -ge 2 && "$2" != --* ]] || { echo "Missing value for --project" >&2; exit 1; }
+      project_dir="$2"
+      shift ;;
     -h|--help) echo "Usage: validate.sh [--ci] [--project DIR]"; exit 0 ;;
+    *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
 fail(){ echo "FAIL $1"; status=1; }
-warn(){ echo "WARN $1"; }
 
 validate_asset(){
   local file="$1" kind="$2"
   [[ -f "$file" ]] || { fail "missing $file"; return; }
   grep -q '^---$' "$file" || fail "frontmatter missing: $file"
+
   case "$kind" in
     skill)
       grep -Eq '^name:[[:space:]]*' "$file" || fail "missing name: $file"
@@ -30,44 +33,49 @@ validate_asset(){
       ;;
     agent)
       grep -Eq '^description:[[:space:]]*' "$file" || fail "missing description: $file"
-      grep -Eq '^mode:[[:space:]]*(primary|subagent|all)$' "$file" || true
-      grep -Eq '^mode:[[:space:]]*' "$file" && ! grep -Eq '^mode:[[:space:]]*(primary|subagent|all)$' "$file" && fail "invalid mode: $file"
+      grep -Eq '^mode:[[:space:]]*' "$file" &&
+        ! grep -Eq '^mode:[[:space:]]*(primary|subagent|all)$' "$file" &&
+        fail "invalid mode: $file"
+      for legacy in permission tools temperature top_p prompt disable maxSteps; do
+        grep -Eq "^$legacy:[[:space:]]*" "$file" &&
+          fail "legacy agent field $legacy: $file" || true
+      done
       ;;
     command)
       grep -Eq '^description:[[:space:]]*' "$file" || fail "missing description: $file"
+      grep -Eq '^subtask:[[:space:]]*' "$file" &&
+        fail "legacy command field subtask: $file" || true
       ;;
   esac
-  if [[ "$kind" == agent ]]; then
-    for legacy in permission tools temperature top_p prompt disable maxSteps; do
-      grep -Eq "^$legacy:[[:space:]]*" "$file" && fail "legacy agent field $legacy: $file" || true
-    done
-  fi
-  if [[ "$kind" == command ]]; then
-    grep -Eq '^subtask:[[:space:]]*' "$file" && fail "legacy command field subtask: $file" || true
-  fi
 }
 
 if [[ -z "$project_dir" ]]; then
-  for s in "$root"/scripts/*.sh "$root/bin/openzeus"; do
-    [[ -f "$s" ]] || continue
-    [[ -x "$s" ]] || fail "not executable: $s"
-    bash -n "$s" || fail "shell syntax: $s"
+  for script in "$root/bin/openzeus" "$root/scripts/create-utils.sh" "$root/scripts/install-agent.sh" "$root/scripts/validate.sh"; do
+    [[ -x "$script" ]] || fail "not executable: $script"
+    bash -n "$script" || fail "shell syntax: $script"
   done
-  [[ -x "$root/scripts/inspect.mjs" ]] || fail "not executable: $root/scripts/inspect.mjs"
-  for f in "$root/agents/OpenZeus.md"; do validate_asset "$f" agent; done
-  for f in "$root"/skills/zeus-*/SKILL.md; do [[ -e "$f" ]] || continue; validate_asset "$f" skill; done
-  for f in "$root"/commands/zeus-*.md; do [[ -e "$f" ]] || continue; validate_asset "$f" command; done
-  if [[ -d "$config_dir" ]]; then
-    drift="$($root/scripts/diff.sh --summary || true)"
-    if [[ "$drift" != "0 issue(s)" ]]; then
-      warn "config drift detected"
-      [[ "$ci" == true ]] && status=1
-    fi
-  fi
+  for script in "$root/scripts/inspect.mjs" "$root/scripts/audit.mjs"; do
+    [[ -x "$script" ]] || fail "not executable: $script"
+  done
+  [[ -f "$root/src/plugin.js" ]] || fail "missing src/plugin.js"
+  validate_asset "$root/agents/OpenZeus.md" agent
+  for file in "$root"/skills/zeus-*/SKILL.md; do
+    [[ -e "$file" ]] || continue
+    validate_asset "$file" skill
+  done
 else
-  for f in "$project_dir/.opencode/agents"/*.md; do [[ -e "$f" ]] || continue; validate_asset "$f" agent; done
-  for f in "$project_dir/.opencode/commands"/*.md; do [[ -e "$f" ]] || continue; validate_asset "$f" command; done
-  for f in "$project_dir/.opencode/skills"/*/SKILL.md; do [[ -e "$f" ]] || continue; validate_asset "$f" skill; done
+  for file in "$project_dir/.opencode/agents"/*.md; do
+    [[ -e "$file" ]] || continue
+    validate_asset "$file" agent
+  done
+  for file in "$project_dir/.opencode/commands"/*.md; do
+    [[ -e "$file" ]] || continue
+    validate_asset "$file" command
+  done
+  for file in "$project_dir/.opencode/skills"/*/SKILL.md; do
+    [[ -e "$file" ]] || continue
+    validate_asset "$file" skill
+  done
 fi
 
 [[ "$ci" == true && "$status" -ne 0 ]] && exit 1

@@ -163,7 +163,7 @@ Deliverables:
 Exit criteria: normal users can install OpenZeus as an OpenCode plugin without
 manually copying agent/skill files into private machine-specific paths.
 
-### Phase 6 — CLI and repository simplification
+### Phase 6 — CLI and repository simplification — SUBSTANTIALLY COMPLETE
 
 Goal: remove transitional machinery after the plugin path is proven.
 
@@ -220,3 +220,19 @@ Interim target:
 - plugin owns focused skills and live-runtime tools;
 - agent file remains the only required copy/bootstrap artifact;
 - remove that bootstrap once upstream supports plugin agent registration.
+
+
+## Copy-management retirement — 2026-10-04
+
+After the V2 plugin entrypoint passed CI against the real `@opencode/plugin`
+package, OpenZeus retired its old repo/config package-management layer.
+
+Removed:
+- bidirectional sync;
+- sync Git hooks;
+- bundle doctor/diff;
+- bundle refresh/upgrade and rollback;
+- copy-install of skills.
+
+The only transitional copy operation is `install-agent`, required solely
+because current OpenCode V2 plugins cannot add agents.

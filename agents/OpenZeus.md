@@ -18,6 +18,9 @@ permissions:
   - action: skill
     resource: "zeus-*"
     effect: allow
+  - action: openzeus_runtime
+    resource: "*"
+    effect: allow
 ---
 
 # OpenZeus — OpenCode Workspace Companion

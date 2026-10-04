@@ -21,10 +21,8 @@ features without a concrete reason. It ships no generic slash-command pack.
 | `agents/OpenZeus.md` | Primary product interface and routing policy |
 | `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Transitional CLI/support entrypoint |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |
 | `skills/` | Focused OpenCode authoring/diagnostic guidance |
-| `scripts/install.sh` | Transitional copy-based installer |
-| `scripts/doctor.sh` | Installed-bundle health checks |
+| `scripts/install-agent.sh` | Transitional one-file @OpenZeus agent bootstrap |
 | `scripts/validate.sh` | Structural validation |
-| `scripts/diff.sh` | Installed-bundle drift checks |
 | `README.md` | User-facing product explanation |
 | `plans/` | Canonical architectural plans |
 
@@ -42,9 +40,9 @@ user question
 
 ## Transitional 1.x surface
 
-Copy-based install/sync/refresh helpers remain temporarily until native plugin
-packaging is proven. Generic project bootstrap, recipes, context generation and
-prompt-capture helpers have been removed in favor of OpenCode-native behavior.
+The V2 plugin owns the focused skills and live runtime tool. The only remaining
+copy bootstrap is the agent Markdown file because OpenCode V2 currently cannot
+add agents from plugins.
 
 ## Durable design rules
 

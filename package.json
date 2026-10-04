@@ -27,10 +27,8 @@
     "bin/",
     "agents/",
     "skills/",
-    "docs/",
     "media/",
-    "scripts/",
-    "tests/"
+    "scripts/"
   ],
   "engines": {
     "node": ">=16.0.0"

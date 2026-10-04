@@ -85,7 +85,15 @@ export default Plugin.define({
 
     await ctx.skill.transform((editor) => {
       for (const skill of skills) {
-        if (editor.get(skill.id)) continue
+        if (editor.get(skill.id)) {
+          editor.update(skill.id, (current) => {
+            current.name = skill.name
+            current.description = skill.description
+            current.location = skill.location
+            current.content = skill.content
+          })
+          continue
+        }
         editor.add(skill)
       }
     })

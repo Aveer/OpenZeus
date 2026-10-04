@@ -45,14 +45,16 @@ higher-level asset design.
 
 ## Installation
 
-OpenZeus currently ships as an npm package that installs the OpenZeus agent
-and its focused five-skill core into an OpenCode config directory.
+OpenZeus 2 is moving to native OpenCode plugin delivery. The plugin owns the
+focused five-skill core and live runtime tool. Until OpenCode allows plugins to
+add agents, one small bootstrap step installs only `agents/OpenZeus.md`.
 
 Linux and macOS are supported directly. On Windows, use WSL.
 
 ```bash
 npm install -g openzeus
-openzeus install
+opencode plugin add openzeus
+openzeus install-agent
 ```
 
 The current installer resolves the target at runtime. You can override it with
@@ -136,13 +138,9 @@ architecture is being built:
 
 ```text
 audit         Summarize actionable findings; --ci fails on warnings
-inspect       Inventory filesystem-visible OpenCode sources, precedence and compatibility warnings\ninstall       Install the current agent/skill bundle
-doctor        Check the installed OpenZeus bundle and propose fixes
+inspect       Inventory filesystem-visible OpenCode sources, precedence and compatibility warnings\ninstall-agent Install only the @OpenZeus agent bootstrap
 validate      Validate OpenZeus/OpenCode asset structure
-diff          Compare the packaged OpenZeus bundle with an installed copy
 create        Create an agent, skill or command template
-upgrade       Backup and refresh the installed OpenZeus bundle
-rollback      Restore the latest OpenZeus backup
 ```
 
 OpenZeus no longer ships generic project-management/Git slash commands.
@@ -204,3 +202,26 @@ plugin options from runtime output.
 The plugin does **not** yet register the `@OpenZeus` agent itself. Current
 OpenCode V2 can inspect/update/remove agents from a plugin but cannot add one,
 so the agent-file bootstrap remains until that upstream limitation changes.
+
+
+### Transitional agent bootstrap
+
+Once the OpenZeus 2 package is published, installation is intended to be:
+
+```bash
+opencode plugin add openzeus
+npx openzeus install-agent
+```
+
+If you already keep the CLI globally:
+
+```bash
+openzeus install-agent
+```
+
+`install-agent` never copies skills, commands, plugin code, or private
+machine state. It copies only `agents/OpenZeus.md`, refuses to overwrite a
+different file unless `--force` is explicit, and supports `--backup`.
+
+The older `openzeus install` spelling remains only as a temporary alias to
+`install-agent`.

@@ -105,3 +105,8 @@ rules and no longer pins a model, temperature or step budget.
   Plugin registers the five focused skills plus a safe live-runtime inventory
   tool. Upstream `AgentEditor` currently has no `add()`, so the @OpenZeus
   agent remains the only transitional copy-installed asset.
+
+- 2026-10-04 — native plugin prototype passed CI against real
+  `@opencode/plugin@2.0.4`; retired old sync/hooks/doctor/diff/upgrade/rollback
+  and skill-copy installation. Only the @OpenZeus agent bootstrap remains due
+  to the upstream AgentEditor.add limitation.

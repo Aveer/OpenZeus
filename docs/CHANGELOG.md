@@ -12,6 +12,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Add focused `zeus-diagnostics` and `zeus-migration` skills.
 
 ### Changed
+- Reduce installation to a guarded `install-agent` bootstrap for `agents/OpenZeus.md`; the V2 plugin owns skills and runtime tooling.
 - Collapse the old core/extras split around the focused five-skill core; legacy `--extras` now installs the focused core with a deprecation warning.
 - Make OpenZeus generators emit native V2 agent permissions (`permissions` + `shell`) and make validation reject legacy fields in newly managed assets.
 - Replace the stale contributor guide with the OpenZeus 2 native-first/privacy/CI contract.
@@ -20,6 +21,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Rewrite README and repository architecture docs around the agent-first product direction.
 
 ### Removed
+- Retire 1.x copy-management helpers: repo/config sync, sync hooks, bundle doctor/diff, refresh/upgrade and rollback. Native OpenCode plugin lifecycle now owns the focused skills.
 - Remove generic project bootstrap helpers: `setup`, `init-project`, recipes, `context init`, and `capture-command`; OpenCode's native `/init` owns project initialization.
 - Remove bundled generic slash commands (`zeus-git-commit`, `zeus-kanban`, `zeus-roadmap`, `zeus-improve-project`); command authoring remains part of OpenZeus.
 - Remove unrelated/general-purpose skills: `zeus-boston-terrier`, `zeus-docker`, `zeus-sql`, and `zeus-llm`.

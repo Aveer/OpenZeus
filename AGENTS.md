@@ -75,13 +75,12 @@ npm test
 npm pack --dry-run
 ```
 
-For an isolated install check:
+For an isolated bootstrap check:
 
 ```bash
 export OPENCODE_CONFIG_DIR="$(mktemp -d)"
-./bin/openzeus install --all
-./bin/openzeus doctor --ci
-./bin/openzeus diff --summary --ci
+./bin/openzeus install-agent
+cmp agents/OpenZeus.md "$OPENCODE_CONFIG_DIR/agents/OpenZeus.md"
 ```
 
 CI runs on branch pushes. A feature checkpoint is not complete while CI is
