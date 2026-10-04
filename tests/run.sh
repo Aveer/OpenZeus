@@ -447,7 +447,7 @@ EOF
 
 inspect_json="$tmp/inspect.json"
 OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project" --json > "$inspect_json"
-test_node="${npm_node_execpath:-}"
+test_node="${OPENZEUS_NODE:-${npm_node_execpath:-}}"
 [[ -n "$test_node" ]] || test_node="$(command -v node)"
 "$test_node" -e '
 const fs = require("fs");

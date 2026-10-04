@@ -26,7 +26,7 @@ jobs:
           node-version: "20"
 
       - name: Run test suite
-        run: npm test
+        run: OPENZEUS_NODE="$(command -v node)" npm test
 
       - name: Validate package assets
         run: ./bin/openzeus validate --ci
