@@ -57,7 +57,10 @@ status() {
   local config_dir="${OPENCODE_CONFIG_DIR:-${OPENZEUS_CONFIG_DIR:-$HOME/.config/opencode}}"
   local skill_pkg_count command_pkg_count skill_inst_count command_inst_count drift_lines
   skill_pkg_count=$(find "$SCRIPT_DIR/skills" -maxdepth 1 -mindepth 1 -type d -name 'zeus-*' | wc -l | tr -d ' ')
-  command_pkg_count=$(find "$SCRIPT_DIR/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
+  command_pkg_count=0
+  if [[ -d "$SCRIPT_DIR/commands" ]]; then
+    command_pkg_count=$(find "$SCRIPT_DIR/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
+  fi
   skill_inst_count=0; command_inst_count=0
   [[ -d "$config_dir/skills" ]] && skill_inst_count=$(find "$config_dir/skills" -maxdepth 1 -mindepth 1 -type d -name 'zeus-*' | wc -l | tr -d ' ')
   [[ -d "$config_dir/commands" ]] && command_inst_count=$(find "$config_dir/commands" -maxdepth 1 -type f -name 'zeus-*.md' | wc -l | tr -d ' ')
