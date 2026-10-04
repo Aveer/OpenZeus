@@ -42,9 +42,9 @@ user question
 
 ## Transitional 1.x surface
 
-The repository still contains setup, sync, capture, context and upgrade helpers
-from the 1.x product direction. They remain until replacement behavior is
-designed and tested; they should not drive new architecture.
+Copy-based install/sync/refresh helpers remain temporarily until native plugin
+packaging is proven. Generic project bootstrap, recipes, context generation and
+prompt-capture helpers have been removed in favor of OpenCode-native behavior.
 
 ## Durable design rules
 

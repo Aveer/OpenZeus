@@ -91,3 +91,8 @@ rules and no longer pins a model, temperature or step budget.
 - 2026-10-04 — removed bundled generic slash commands and collapsed the old
   core/extras content split. OpenZeus still designs/creates commands, but does
   not ship unrelated project-management/Git workflows.
+
+- 2026-10-04 — removed generic project-bootstrap/capture surface
+  (`setup`, `init-project`, recipes, context-init, capture-command) after
+  confirming OpenCode's native `/init` owns project analysis and AGENTS.md
+  initialization.

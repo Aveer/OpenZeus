@@ -14,7 +14,7 @@ Usage: install.sh [--dry-run] [--force] [--backup] [--core|--all] [--target DIR]
 Installs only OpenZeus-owned assets:
   agents/OpenZeus.md
   skills/zeus-*/
-  sync/create/hooks/doctor/init-project/setup/validate/capture-command/diff/upgrade helper scripts
+  sync/create/hooks/doctor/validate/diff/upgrade helper scripts
 
 By default, existing differing files are skipped. Use --force to overwrite;
 pair --force with --backup to preserve existing destinations first.
@@ -144,7 +144,7 @@ for skill_dir in "$script_dir"/skills/zeus-*; do
 done
 
 
-for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
+for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh validate.sh diff.sh upgrade.sh; do
     [[ -f "$script_dir/scripts/$helper" ]] || continue
     copy_file_safe "$script_dir/scripts/$helper" "$target_dir/$helper" executable
 done

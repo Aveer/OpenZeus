@@ -48,7 +48,7 @@ managed_paths() {
   local item
   for item in "$root"/skills/zeus-*; do [[ -d "$item" ]] && printf '%s\n' "skills/$(basename "$item")"; done
   for item in "$root"/commands/zeus-*.md; do [[ -f "$item" ]] && printf '%s\n' "commands/$(basename "$item")"; done
-  printf '%s\n' sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh
+  printf '%s\n' sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh validate.sh diff.sh upgrade.sh
 }
 
 restore_backup() {

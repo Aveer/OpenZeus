@@ -25,7 +25,7 @@ assert_no_non_zeus_entries() {
 
 grep -q '^  inspect)' "$root/bin/openzeus"
 
-for script in "$root/scripts/install.sh" "$root/scripts/sync-utils.sh" "$root/scripts/create-utils.sh" "$root/scripts/setup-hooks.sh" "$root/scripts/doctor.sh" "$root/scripts/init-project.sh" "$root/scripts/setup.sh" "$root/scripts/validate.sh" "$root/scripts/capture-command.sh" "$root/scripts/diff.sh" "$root/scripts/upgrade.sh" "$root/bin/openzeus"; do
+for script in "$root/scripts/install.sh" "$root/scripts/sync-utils.sh" "$root/scripts/create-utils.sh" "$root/scripts/setup-hooks.sh" "$root/scripts/doctor.sh" "$root/scripts/validate.sh" "$root/scripts/diff.sh" "$root/scripts/upgrade.sh" "$root/bin/openzeus"; do
   [[ -x "$script" ]] || { echo "not executable: $script" >&2; exit 1; }
   bash -n "$script"
 done
@@ -79,7 +79,7 @@ OPENCODE_CONFIG_DIR="$config" "$root/scripts/install.sh" --target "$install_dir"
 [[ -f "$install_dir/agents/OpenZeus.md" ]]
 assert_no_non_zeus_entries "$install_dir/skills" skill
 assert_no_non_zeus_entries "$install_dir/commands" command
-[[ -x "$install_dir/sync-utils.sh" && -x "$install_dir/create-utils.sh" && -x "$install_dir/setup-hooks.sh" && -x "$install_dir/doctor.sh" && -x "$install_dir/init-project.sh" ]]
+[[ -x "$install_dir/sync-utils.sh" && -x "$install_dir/create-utils.sh" && -x "$install_dir/setup-hooks.sh" && -x "$install_dir/doctor.sh" ]]
 
 printf '%s\n' 'local change' > "$install_dir/agents/OpenZeus.md"
 OPENCODE_CONFIG_DIR="$config" "$root/scripts/install.sh" --target "$install_dir" >/dev/null
@@ -174,225 +174,22 @@ cp -R "$install_dir" "$drift_config"
 rm -f "$drift_config/agents/OpenZeus.md"
 printf '%s\n' 'different skill' > "$drift_config/skills/zeus-diagnostics/SKILL.md"
 printf '%s\n' 'different helper' > "$drift_config/doctor.sh"
-chmod -x "$drift_config/init-project.sh"
 drift_fix_plan_out="$(OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" doctor --fix-plan)"
 [[ "$drift_fix_plan_out" == *"WARN OpenZeus agent missing from config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN skill zeus-diagnostics differs in config"* ]]
 [[ "$drift_fix_plan_out" == *"WARN helper doctor.sh differs in config"* ]]
-[[ "$drift_fix_plan_out" == *"WARN helper init-project.sh is not executable in config"* ]]
 [[ "$drift_fix_plan_out" == *"openzeus install"* ]]
 [[ "$drift_fix_plan_out" == *"openzeus install --force --backup"* ]]
 [[ "$drift_fix_plan_out" == *"openzeus sync status"* ]]
-[[ "$drift_fix_plan_out" == *"chmod +x $drift_config/init-project.sh"* ]]
 [[ "$drift_fix_plan_out" != *"(none; no fixes required)" ]]
 
 ci_doctor_fail=0
 OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" doctor --ci >/dev/null || ci_doctor_fail=$?
 [[ "$ci_doctor_fail" -ne 0 ]]
 
-setup_project="$tmp/setup-project"
-mkdir -p "$setup_project"
-setup_plan_out="$($root/bin/openzeus setup --plan --target "$setup_project")"
-[[ "$setup_plan_out" == *"Detected stack:"* && "$setup_plan_out" == *"Proposed files:"* && "$setup_plan_out" == *"Apply: openzeus setup --apply"* ]]
-recipe_plan_out="$($root/bin/openzeus setup --plan --target "$setup_project" --recipe python)"
-[[ "$recipe_plan_out" == *"recipe python"* ]]
-(cd "$setup_project" && "$root/bin/openzeus" setup --apply --target "$setup_project" >/dev/null)
-[[ -f "$setup_project/.opencode/agents/project-guide.md" && -f "$setup_project/.opencode/context/architecture.md" && -f "$setup_project/.opencode/context/commands.md" && -f "$setup_project/.opencode/context/testing.md" ]]
-recipe_project="$tmp/recipe-project"
-mkdir -p "$recipe_project"
-"$root/bin/openzeus" setup --apply --target "$recipe_project" --recipe python >/dev/null
-assert_file_contains "$recipe_project/.opencode/commands/test.md" 'pytest'
-assert_file_contains "$recipe_project/.opencode/context/architecture.md" 'Recipe: python'
-assert_file_contains "$recipe_project/.opencode/context/commands.md" 'Test: pytest'
-context_dry_run="$($root/bin/openzeus context init --target "$setup_project" --dry-run)"
-[[ "$context_dry_run" == *"DRY-RUN:"* ]]
-
-recipes_out="$($root/bin/openzeus recipes)"
-[[ "$recipes_out" == *"node:"* && "$recipes_out" == *"solo-dev:"* ]]
-
-validate_fail=0
-OPENCODE_CONFIG_DIR="$drift_config" "$root/bin/openzeus" validate --ci >/dev/null || validate_fail=$?
-[[ "$validate_fail" -ne 0 ]]
-
-bad_project="$tmp/bad-project"
-mkdir -p "$bad_project/.opencode/agents" "$bad_project/.opencode/skills/badskill" "$bad_project/.opencode/commands"
-cat > "$bad_project/.opencode/agents/bad.md" <<'EOF'
----
-description: bad
-mode: allow
-tools: yes
-permission: allow
----
-EOF
-cat > "$bad_project/.opencode/skills/badskill/SKILL.md" <<'EOF'
----
-name: badskill
----
-EOF
-cat > "$bad_project/.opencode/commands/bad.md" <<'EOF'
----
----
-EOF
-validate_project_fail=0
-$root/bin/openzeus validate --project "$bad_project" --ci >/dev/null || validate_project_fail=$?
-[[ "$validate_project_fail" -ne 0 ]]
-
-capture_dir="$tmp/capture"
-mkdir -p "$capture_dir"
-capture_out="$($root/bin/openzeus capture-command --name release-note --prompt 'write release notes' --target "$capture_dir")"
-[[ "$capture_out" == *"Created"* && -f "$capture_dir/commands/release-note.md" ]]
-[[ "$(<"$capture_dir/commands/release-note.md")" == *"write release notes"* && "$(<"$capture_dir/commands/release-note.md")" == *'$ARGUMENTS'* ]]
-capture_dry_out="$($root/bin/openzeus capture-command --name release-note --prompt 'dry' --target "$capture_dir" --dry-run)"
-[[ "$capture_dry_out" == *"DRY-RUN: no files written"* ]]
-capture_empty_dir="$tmp/capture-dry-empty"
-capture_empty_out="$($root/bin/openzeus capture-command --name dry-only --prompt 'dry only' --target "$capture_empty_dir" --dry-run)"
-[[ "$capture_empty_out" == *"DRY-RUN"* && ! -e "$capture_empty_dir" ]]
-
-diff_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" diff --summary || true)"
-[[ "$diff_out" == *"issue(s)"* ]]
-extra_diff_config="$tmp/extra-diff-config"
-OPENCODE_CONFIG_DIR="$extra_diff_config" "$root/scripts/install.sh" >/dev/null
-mkdir -p "$extra_diff_config/skills/zeus-local-extra"
-printf '%s\n' 'local' > "$extra_diff_config/skills/zeus-local-extra/SKILL.md"
-extra_diff_out="$(OPENCODE_CONFIG_DIR="$extra_diff_config" "$root/bin/openzeus" diff)"
-[[ "$extra_diff_out" == *"EXTRA zeus-local-extra"* ]]
-rm -f "$extra_diff_config/upgrade.sh"
-helper_diff_fail=0
-OPENCODE_CONFIG_DIR="$extra_diff_config" "$root/bin/openzeus" diff --ci >/dev/null || helper_diff_fail=$?
-[[ "$helper_diff_fail" -ne 0 ]]
-
-upgrade_config="$tmp/upgrade-config"
-OPENCODE_CONFIG_DIR="$upgrade_config" "$root/scripts/install.sh" >/dev/null
-printf '%s\n' 'changed' > "$upgrade_config/agents/OpenZeus.md"
-mkdir -p "$upgrade_config/.openzeus-backups"
-before_backup_count=$(find "$upgrade_config/.openzeus-backups" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
-upgrade_out="$(OPENCODE_CONFIG_DIR="$upgrade_config" "$root/bin/openzeus" upgrade --dry-run)"
-after_backup_count=$(find "$upgrade_config/.openzeus-backups" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
-[[ "$upgrade_out" == *"Would backup"* && "$before_backup_count" == "$after_backup_count" ]]
-upgrade_apply_out="$(OPENCODE_CONFIG_DIR="$upgrade_config" "$root/bin/openzeus" upgrade --apply)"
-[[ "$upgrade_apply_out" == *"OpenZeus assets installed"* ]]
-after_apply_backup_count=$(find "$upgrade_config/.openzeus-backups" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')
-[[ "$after_apply_backup_count" -gt "$after_backup_count" ]]
-rollback_dry_out="$(OPENCODE_CONFIG_DIR="$upgrade_config" "$root/bin/openzeus" rollback --dry-run)"
-[[ "$rollback_dry_out" == *"Would restore"* ]]
-printf '%s\n' 'mutated after backup' > "$upgrade_config/agents/OpenZeus.md"
-rollback_apply_out="$(OPENCODE_CONFIG_DIR="$upgrade_config" "$root/bin/openzeus" rollback --apply)"
-[[ "$rollback_apply_out" == *"restored"* ]]
-assert_file_contains "$upgrade_config/agents/OpenZeus.md" 'changed'
-
-status_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" status)"
-[[ "$status_out" == *"Package root:"* && "$status_out" == *"OpenZeus agent:"* ]]
-[[ "$status_out" == *"Zeus commands: 0/0 installed"* ]]
-
-clean_config="$tmp/clean-config"
-OPENCODE_CONFIG_DIR="$clean_config" "$root/scripts/install.sh" >/dev/null
-sync_clean_out="$(OPENCODE_CONFIG_DIR="$clean_config" "$root/bin/openzeus" status)"
-[[ "$sync_clean_out" == *"Sync drift: clean"* ]]
-
-empty_config="$tmp/empty-config"
-mkdir -p "$empty_config"
-sync_missing_out="$(OPENCODE_CONFIG_DIR="$empty_config" "$root/bin/openzeus" status)"
-[[ "$sync_missing_out" == *"Sync drift:"* && "$sync_missing_out" != *"clean"* ]]
-
-printf '%s\n' 'drift' >> "$config/agents/OpenZeus.md"
-sync_drift_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" status)"
-[[ "$sync_drift_out" == *"Sync drift:"* && "$sync_drift_out" != *"clean"* && "$sync_drift_out" == *"Next:"* ]]
-
-list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list all)"
-[[ "$list_out" == *"agents/OpenZeus.md"* && "$list_out" == *"zeus-diagnostics"* ]]
-
-skills_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list skills)"
-[[ "$skills_list_out" == *"skill: zeus-diagnostics"* && "$skills_list_out" != *"command:"* && "$skills_list_out" != *"agent:"* ]]
-agents_list_out="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list agents)"
-[[ "$agents_list_out" == *"agent: agents/OpenZeus.md"* && "$agents_list_out" != *"skill:"* && "$agents_list_out" != *"command:"* ]]
-
-different_skill_dir="$tmp/diff-skill"
-mkdir -p "$different_skill_dir"
-cp -R "$root/skills/zeus-diagnostics" "$different_skill_dir/zeus-diagnostics"
-printf '%s\n' 'extra' > "$different_skill_dir/zeus-diagnostics/extra.md"
-mkdir -p "$config/skills"
-cp -R "$different_skill_dir/zeus-diagnostics" "$config/skills/"
-skill_diff_list="$(OPENCODE_CONFIG_DIR="$config" "$root/bin/openzeus" list skills)"
-[[ "$skill_diff_list" == *"skill: zeus-diagnostics [different]"* ]]
-
-examples_out="$("$root/bin/openzeus" examples)"
-[[ "$examples_out" == *"openzeus init-project"* && "$examples_out" == *"openzeus doctor --fix-plan"* && "$examples_out" == *"@OpenZeus audit"* ]]
-
-project_dir="$tmp/project"
-mkdir -p "$project_dir"
-"$root/bin/openzeus" init-project --target "$project_dir" >/dev/null
-[[ -f "$project_dir/.opencode/agents/project-guide.md" ]]
-[[ -f "$project_dir/.opencode/commands/test.md" ]]
-[[ -f "$project_dir/.opencode/commands/build.md" ]]
-[[ -f "$project_dir/.opencode/skills/project-context/SKILL.md" ]]
-[[ -f "$project_dir/.opencode/README.md" ]]
-assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'mode: subagent'
-assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'permissions:'
-assert_file_contains "$project_dir/.opencode/agents/project-guide.md" 'action: shell'
-assert_file_contains "$project_dir/.opencode/commands/test.md" '$ARGUMENTS'
-assert_file_contains "$project_dir/.opencode/commands/test.md" 'No obvious test command'
-assert_file_contains "$project_dir/.opencode/commands/build.md" 'No obvious build command'
-assert_file_contains "$project_dir/.opencode/skills/project-context/SKILL.md" 'Type: generic'
-
-printf '%s\n' 'keep' > "$project_dir/.opencode/README.md"
-"$root/bin/openzeus" init-project --target "$project_dir" >/dev/null
-assert_file_contains "$project_dir/.opencode/README.md" 'keep'
-"$root/bin/openzeus" init-project --force --target "$project_dir" >/dev/null
-assert_file_contains "$project_dir/.opencode/README.md" 'Starter'
-
-npm_project="$tmp/npm-project"
-mkdir -p "$npm_project"
-cat > "$npm_project/package.json" <<'EOF'
-{
-  "name": "npm-project",
-  "scripts": {
-    "test": "echo npm test",
-    "build": "echo npm build"
-  }
-}
-EOF
-(cd "$npm_project" && "$root/bin/openzeus" init-project >/dev/null)
-assert_file_contains "$npm_project/.opencode/commands/test.md" 'npm test'
-assert_file_contains "$npm_project/.opencode/commands/build.md" 'npm run build'
-assert_file_contains "$npm_project/.opencode/skills/project-context/SKILL.md" 'Type: npm'
-
-make_project="$tmp/make-project"
-mkdir -p "$make_project"
-cat > "$make_project/Makefile" <<'EOF'
-test: deps
-	@echo make test
-
-build: assets
-	@echo make build
-EOF
-(cd "$make_project" && "$root/bin/openzeus" init-project >/dev/null)
-assert_file_contains "$make_project/.opencode/commands/test.md" 'make test'
-assert_file_contains "$make_project/.opencode/commands/build.md" 'make build'
-assert_file_contains "$make_project/.opencode/skills/project-context/SKILL.md" 'Type: make'
-
-python_project="$tmp/python-project"
-mkdir -p "$python_project"
-touch "$python_project/pyproject.toml"
-(cd "$python_project" && "$root/bin/openzeus" init-project >/dev/null)
-assert_file_contains "$python_project/.opencode/commands/test.md" 'pytest'
-assert_file_contains "$python_project/.opencode/commands/build.md" 'No obvious build command'
-assert_file_contains "$python_project/.opencode/skills/project-context/SKILL.md" 'Type: python'
-
-printf '%s\n' 'keep command' > "$python_project/.opencode/commands/test.md"
-(cd "$python_project" && "$root/bin/openzeus" init-project >/dev/null)
-assert_file_contains "$python_project/.opencode/commands/test.md" 'keep command'
-(cd "$python_project" && "$root/bin/openzeus" init-project --force >/dev/null)
-assert_file_contains "$python_project/.opencode/commands/test.md" 'pytest'
-
-dry_run_project="$tmp/dry-run-project"
-mkdir -p "$dry_run_project"
-(cd "$dry_run_project" && "$root/bin/openzeus" init-project --dry-run >/dev/null)
-[[ ! -e "$dry_run_project/.opencode" ]]
-
 missing_config="$tmp/missing-config"
 fix_plan_out="$(OPENCODE_CONFIG_DIR="$missing_config" "$root/bin/openzeus" doctor --fix-plan)"
 [[ "$fix_plan_out" == *"Suggested commands:"* && "$fix_plan_out" == *"openzeus install"* ]]
-[[ "$fix_plan_out" != *"chmod +x scripts/init-project.sh"* ]]
 
 empty_existing_config="$tmp/existing-empty-config"
 mkdir -p "$empty_existing_config"

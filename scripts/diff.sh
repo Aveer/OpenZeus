@@ -35,7 +35,7 @@ if [[ -d "$config/skills" ]]; then
   for d in "$config/skills"/zeus-*; do [[ -d "$d" ]] || continue; [[ -d "$root/skills/$(basename "$d")" ]] || extra+=("EXTRA $(basename "$d")") ; done
 fi
 
-for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
+for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh validate.sh diff.sh upgrade.sh; do
   pkg="$root/scripts/$helper"
   cfg="$config/$helper"
   if [[ ! -e "$cfg" ]]; then

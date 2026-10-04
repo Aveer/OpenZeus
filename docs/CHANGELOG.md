@@ -18,6 +18,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) with [Semantic 
 - Rewrite README and repository architecture docs around the agent-first product direction.
 
 ### Removed
+- Remove generic project bootstrap helpers: `setup`, `init-project`, recipes, `context init`, and `capture-command`; OpenCode's native `/init` owns project initialization.
 - Remove bundled generic slash commands (`zeus-git-commit`, `zeus-kanban`, `zeus-roadmap`, `zeus-improve-project`); command authoring remains part of OpenZeus.
 - Remove unrelated/general-purpose skills: `zeus-boston-terrier`, `zeus-docker`, `zeus-sql`, and `zeus-llm`.
 - Remove copied external-integration skills from core: `zeus-beads`, `zeus-swarm`, `zeus-oac`, and `zeus-omo`.

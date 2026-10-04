@@ -145,8 +145,10 @@ rollback      Restore the latest OpenZeus backup
 OpenZeus no longer ships generic project-management/Git slash commands.
 Command authoring remains available through `@OpenZeus` and `openzeus create command`.
 
-Other 1.x setup/sync helpers remain temporarily for compatibility during the
-refocus. They are not the intended long-term product surface.
+The old generic `setup`, `init-project`, recipe, context-init and
+prompt-capture helpers have been removed from the refocus branch. OpenCode's
+native `/init` owns project initialization; OpenZeus stays focused on
+inspection, diagnosis, migration and OpenCode-specific authoring.
 
 ## Development
 

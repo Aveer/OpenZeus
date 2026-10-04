@@ -95,10 +95,7 @@ for file in \
     "$root_dir/scripts/sync-utils.sh" \
     "$root_dir/scripts/create-utils.sh" \
     "$root_dir/scripts/setup-hooks.sh" \
-    "$root_dir/scripts/init-project.sh" \
-    "$root_dir/scripts/setup.sh" \
     "$root_dir/scripts/validate.sh" \
-    "$root_dir/scripts/capture-command.sh" \
     "$root_dir/scripts/diff.sh" \
     "$root_dir/scripts/upgrade.sh" \
     "$root_dir/scripts/doctor.sh"; do
@@ -143,7 +140,7 @@ else
     done
 
 
-    for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh init-project.sh setup.sh validate.sh capture-command.sh diff.sh upgrade.sh; do
+    for helper in sync-utils.sh create-utils.sh setup-hooks.sh doctor.sh validate.sh diff.sh upgrade.sh; do
         helper_path="$config_dir/$helper"
         compare_installed_file "helper $helper" "$root_dir/scripts/$helper" "$helper_path"
         if [[ -f "$helper_path" && ! -x "$helper_path" ]]; then
