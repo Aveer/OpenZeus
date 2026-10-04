@@ -88,18 +88,19 @@ multi-asset design is the actual problem.
 
 Load a skill only when it materially improves the task.
 
-## Existing deterministic helpers
+## Deterministic helpers
 
-The current 1.x CLI may supply evidence:
+Use the smallest helper that answers the question:
 
 ```bash
-openzeus doctor --fix-plan
+openzeus audit --json
+openzeus inspect --json
+openzeus migrate --plan --json
 openzeus validate --ci
-openzeus diff --summary
 ```
 
-Treat those as support primitives, not the product identity. Runtime inspection
-and a native plugin are the target architecture.
+When the native plugin is active, combine filesystem evidence with
+`openzeus_runtime` for live registry/version/location context.
 
 ## Migration planning
 

@@ -1,84 +1,68 @@
-# agents/ — Agent Definitions
+# agents/ — OpenZeus agent
 
 ## Responsibility
 
-`agents/` contains OpenCode agent Markdown files. Agents define persona, mode, model preferences, permissions, and behavioral rules.
+`agents/OpenZeus.md` defines the conversational OpenZeus companion.
 
-## Current Agent Pattern
+It is intentionally the only shipped agent. Current OpenCode V2 plugin APIs can
+register skills/tools/commands but cannot add a new agent, so this file remains
+a transitional bootstrap asset.
 
-```markdown
+## Current format
+
+OpenZeus uses native-current agent conventions:
+
+```yaml
 ---
-description: Human-readable summary
-mode: all              # primary | subagent | all
-model: opencode/model
-color: "#FFD700"
-temperature: 0.1
-steps: 100
-permission:
-  edit: allow
-  webfetch: allow
-  bash: ask
+description: ...
+mode: all
+permissions:
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: skill
+    resource: "zeus-*"
+    effect: allow
+  - action: openzeus_runtime
+    resource: "*"
+    effect: allow
 ---
-
-# Agent Name
-
-System prompt...
 ```
 
-## Mode Terms
+Do not reintroduce legacy `permission`, `bash`, `tools`, `temperature`,
+`top_p`, `prompt`, `disable`, or `maxSteps` fields.
 
-| Mode | Meaning |
+## Model behavior
+
+No model is pinned. OpenZeus should inherit the user's configured/session model
+unless the user explicitly chooses otherwise.
+
+## Skill routing
+
+| Need | Skill |
 |---|---|
-| `primary` | Main interactive agent |
-| `subagent` | Delegated agent called by another agent/tool |
-| `all` | Available in both primary and subagent contexts |
+| Diagnostics / precedence / provenance | `zeus-diagnostics` |
+| Migration planning | `zeus-migration` |
+| Advanced agent design | `zeus-agents` |
+| Command design | `zeus-commands` |
+| Skill authoring | `zeus-skills` |
 
-## Discovery Paths
+## Evidence sources
 
-| Scope | Agents path |
-|---|---|
-| Global | `${OPENCODE_CONFIG_DIR:-~/.config/opencode}/agents/` |
-| Project | `<repo>/.opencode/agents/` |
-| Source package | `<OpenZeus-repo>/agents/` |
+Prefer:
 
-Related config files:
+1. `openzeus_runtime` for live OpenCode version/location/registry inventory;
+2. `openzeus inspect --json` for filesystem provenance/collisions;
+3. current OpenCode schema/docs for exact syntax;
+4. `openzeus migrate --plan --json` when compatibility findings need a
+   concrete non-mutating migration plan.
 
-- `opencode.json`: runtime config such as agents, providers, and permissions.
-- `tui.json`: TUI state/preferences; do not document it as the main runtime config.
+## Safety
 
-## Permission Pattern
-
-- Grant the minimum needed permissions.
-- Prefer `ask` for shell and risky operations.
-- Do not document unrestricted bash as the default.
-- Remote or destructive mutations require explicit user confirmation unless repo policy clearly authorizes them.
-
-## OpenZeus Agent
-
-`OpenZeus.md` is the main operator agent.
-
-| Concern | Implementation |
-|---|---|
-| Mode | `all` |
-| Steps | `100` |
-| Routing | Loads Zeus skills for deeper domain guidance |
-| Safety | Commit/push/publish/destructive actions gated by confirmation |
-
-## Skill Integration
-
-OpenZeus routes common intents to skills:
-
-```text
-config/permissions → zeus-core
-create agent      → zeus-agents + zeus-core
-create command    → zeus-commands + zeus-core
-create skill      → zeus-skills + zeus-core
-docker/sql/llm    → matching Zeus skill
-```
-
-## File Manifest
-
-| File | Purpose |
-|---|---|
-| `OpenZeus.md` | Main OpenCode operator agent |
-| `codemap.md` | This map |
+- Never hard-code user-specific absolute paths in reusable assets.
+- Never print secret values for diagnostic proof.
+- Ask before destructive, publishing, credential, or remote mutations.
+- Preserve behavior when proposing migrations.

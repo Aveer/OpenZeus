@@ -1,53 +1,67 @@
 # Repository Atlas: OpenZeus
 
-## Project responsibility
+## Product responsibility
 
-OpenZeus is an OpenCode companion agent. The long-term product is the
-conversation-first `@OpenZeus` experience backed by deterministic runtime
-inspection, diagnostics, migration and focused asset-authoring capabilities.
+OpenZeus is an OpenCode companion agent for understanding and maintaining the
+user's effective OpenCode environment.
 
-OpenZeus should not duplicate OpenCode-native features without a concrete reason. It ships no generic slash-command pack.
+The primary interface is `@OpenZeus`. Deterministic CLI/plugin primitives
+supply evidence for diagnostics, provenance, compatibility and migration
+planning.
 
-## Active architecture campaign
+## Canonical docs
 
 - Plan: [docs/plans/openzeus-2-refocus.md](docs/plans/openzeus-2-refocus.md)
 - Continuity: [docs/continuity/openzeus-2.md](docs/continuity/openzeus-2.md)
+- Contributing: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+- Publishing: [docs/PUBLISHING.md](docs/PUBLISHING.md)
 
 ## Entry points
 
 | File | Purpose |
 |---|---|
-| `agents/OpenZeus.md` | Primary product interface and routing policy |
-| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |\n| `bin/openzeus` | Extensionless executable shell entrypoint exposed by npm as the `openzeus` command |\n| `scripts/inspect.mjs` | Deterministic filesystem inventory/provenance foundation |\n| `scripts/audit.mjs` | Actionable audit summary built on inspector evidence |\n| `scripts/migrate.mjs` | Non-mutating V1-to-V2 migration planning from inspector findings |
-| `skills/` | Focused OpenCode authoring/diagnostic guidance |
+| `agents/OpenZeus.md` | Primary conversational agent and routing policy |
+| `src/plugin.js` | Native OpenCode V2 plugin entrypoint |
+| `bin/openzeus` | Extensionless executable shell entrypoint exposed by npm as `openzeus` |
+| `scripts/inspect.mjs` | Filesystem inventory, source precedence and compatibility evidence |
+| `scripts/audit.mjs` | Actionable diagnostic summary |
+| `scripts/migrate.mjs` | Non-mutating migration planning |
+| `scripts/create-utils.sh` | Agent/skill/command authoring primitive |
 | `scripts/install-agent.sh` | Transitional one-file @OpenZeus agent bootstrap |
 | `scripts/validate.sh` | Structural validation |
-| `README.md` | User-facing product explanation |
-| `docs/plans/` | Canonical architectural plans |
+| `skills/` | Five focused OpenCode-specific skills |
+| `docs/plans/` | Architecture plans |
+| `docs/continuity/` | Campaign/session continuity |
 
-## Target data flow
+## Data flow
 
 ```text
 user question
    -> @OpenZeus
-   -> inspect effective OpenCode runtime/config state
-   -> load focused skill only when useful
-   -> explain evidence / precedence / compatibility
-   -> plan before mutation
-   -> validate after mutation
+   -> live runtime (openzeus_runtime) when available
+   +  filesystem evidence (inspect)
+   -> focused skill when useful
+   -> audit / explanation / migration plan
+   -> deliberate mutation only after review
 ```
 
-## Transitional 1.x surface
+## Distribution
 
-The V2 plugin owns the focused skills and live runtime tool. The only remaining
-copy bootstrap is the agent Markdown file because OpenCode V2 currently cannot
-add agents from plugins.
+The V2 plugin owns:
 
-## Durable design rules
+- five focused `zeus-*` skills;
+- live runtime inventory through `openzeus_runtime`.
 
-- OpenCode-native behavior first.
-- Runtime discovery, never private hard-coded paths.
-- Small OpenCode-specific skill set.
-- Inspection before mutation.
-- Current schema/docs over copied reference tables.
-- Plugin/runtime integration is the target distribution architecture.
+Current OpenCode V2 plugins cannot add agents, so `agents/OpenZeus.md` still
+uses a small guarded `install-agent` bootstrap. That is the only intended
+copy-installed OpenZeus asset.
+
+## Durable rules
+
+- Prefer OpenCode-native functionality.
+- Resolve user paths at runtime; never commit contributor-specific paths.
+- Keep the shipped skill set small and OpenCode-specific.
+- Inspect before mutation.
+- Use current OpenCode schema/docs instead of copied reference tables.
+- Keep migration apply disabled until parser-backed edits, backup, validation
+  and rollback are implemented.

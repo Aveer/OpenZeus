@@ -118,3 +118,7 @@ rules and no longer pins a model, temperature or step budget.
 
 - 2026-10-04 — package/CI baseline raised to Node 22.19+ to match the V2
   plugin dependency chain; stale 1.x publishing/contributing docs replaced.
+
+- 2026-10-04 — final branch-text audit removed stale 1.x helper references
+  from the agent and replaced legacy agent/repository atlases with the current
+  V2 plugin/audit/migration architecture.
