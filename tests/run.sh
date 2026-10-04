@@ -95,7 +95,7 @@ OPENCODE_CONFIG_DIR="$env_install" "$root/scripts/install.sh" >/dev/null
 
 core_install="$tmp/core-install"
 OPENCODE_CONFIG_DIR="$core_install" "$root/scripts/install.sh" --core >/dev/null
-[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-diagnostics" && ! -d "$core_install/skills/zeus-migration" ]]
+[[ -f "$core_install/agents/OpenZeus.md" && -d "$core_install/skills/zeus-diagnostics" && -d "$core_install/skills/zeus-migration" ]]
 [[ -f "$core_install/commands/zeus-git-commit.md" && ! -f "$core_install/commands/zeus-kanban.md" ]]
 core_doctor_out="$(OPENCODE_CONFIG_DIR="$core_install" "$root/bin/openzeus" doctor)"
 [[ "$core_doctor_out" == *"OpenZeus doctor: ok"* ]]
