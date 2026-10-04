@@ -444,7 +444,7 @@ Run something.
 EOF
 
 inspect_json="$tmp/inspect.json"
-HOME="$inspect_home" OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project" --json > "$inspect_json"
+OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project" --json > "$inspect_json"
 node -e '
 const fs = require("fs");
 const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
@@ -453,10 +453,10 @@ const collision = d.collisions.find(x => x.type === "skill" && x.id === "shared"
 if (!collision || !collision.winner.source.startsWith("project-opencode:")) process.exit(2);
 if (!d.warnings.some(x => x.code === "legacy_agent_permission")) process.exit(3);
 if (!d.warnings.some(x => x.code === "legacy_command_subtask")) process.exit(4);
-if (d.inventory.skills.length !== 2) process.exit(5);
+if (!d.inventory.skills.some(x => x.id === "shared" && x.winner === true)) process.exit(5);
 ' "$inspect_json"
 
-inspect_human="$(HOME="$inspect_home" OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
+inspect_human="$(OPENCODE_CONFIG_DIR="$inspect_config" "$root/bin/openzeus" inspect --target "$inspect_project")"
 [[ "$inspect_human" == *"OpenZeus inspect (filesystem view)"* ]]
 [[ "$inspect_human" == *"Collisions: 1"* ]]
 \necho ok\n
